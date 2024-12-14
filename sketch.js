@@ -515,11 +515,17 @@ function keyPressed() {
         recordStartTime = millis();
         console.log("Overdubbing started");
         loopIndicator.textContent = 'Loop: OVERDUBBING';
-    } else if (key === 'Z') { // Check if the 'Z' key is pressed
+    } else if (key === 'Z' || key === 'z') { // Check if the 'Z' key is pressed
         halveLoop(selectedSound);
-    } else if (key === 'X') { // Check if the 'X' key is pressed
+    } else if (key === 'X' || key === 'x') { // Check if the 'X' key is pressed
         doubleLoop(selectedSound);
+    } else if (key === 'A' || key === 'a') { // Check if the 'A' key is pressed
+        toggleSelectedSound();
     }
+}
+
+function toggleSelectedSound() {
+    selectedSound = (selectedSound % 4) + 1; // Cycle through sounds 1 to 4
 }
 
 function keyReleased() {
