@@ -64,6 +64,10 @@ function setup() {
     // Set initial parameters
     reverb.set(reverbTime, reverbDecay);
     
+    // Initialize reverb dry/wet to match the slider value
+    let reverbSlider = document.getElementById('reverbSlider');
+    reverb.drywet(reverbSlider.value / 100);
+
     // Disconnect oscillators from master output
     osc1.disconnect();
     osc2.disconnect();
