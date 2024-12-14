@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>p5.js Project</title>
+    <style>
+        body {
+            background-color: black;
+            color: green;
+            font-family: 'Press Start 2P', cursive; /* Retro font */
+            font-size: 20px;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        canvas {
+            image-rendering: pixelated;
+        }
+        .pause-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: green;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 12px;
+        }
+        .info {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            color: green;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 12px;
+        }
+        .start-message {
+            position: absolute;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            color: green;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 24px;
+            text-align: center;
+        }
+        .sound-selector {
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+        }
+        .sound-option {
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+        }
+        .sound-option.green {
+            background-color: green;
+            border-radius: 50%;
+        }
+        .sound-option.red {
+            background-color: red;
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+        }
+        .sound-option.blue {
+            background-color: blue;
+        }
+        .sound-option.yellow {
+            background-color: yellow;
+            border-radius: 50%;
+        }
+        @keyframes flash {
+            0% { background-color: white; }
+            100% { background-color: inherit; }
+        }
+        .flash {
+            animation: flash 1s;
+        }
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 20px;
+        }
+        .soundboard {
+            flex: 1;
+        }
+        .effects-box {
+            display: none; /* Hide the effects box */
+            width: 200px;
+            height: 200px;
+            border: 2px solid green;
+            box-sizing: border-box;
+        }
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+        .controls {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            color: green;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 12px;
+        }
+        .slider-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .slider-label {
+            margin-bottom: 5px;
+        }
+        .slider {
+            width: 150px;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 20px;
+            background: black;
+            border: 2px solid green;
+            outline: none;
+            cursor: pointer;
+        }
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: green;
+            border: 2px solid black;
+        }
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: green;
+            border: 2px solid black;
+        }
+        .loop-indicator {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: green;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 12px;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <script src="node_modules/p5/lib/p5.js"></script>
+    <script src="node_modules/p5/lib/addons/p5.sound.min.js"></script>
+    <script src="sketch.js"></script>
+</head>
+<body>
+    <div class="start-message" id="startMessage">Put/drag a sound on a board to hear it or change it</div>
+    <!-- <div class="pause-button">Pause</div> -->
+    <div class="info">Press Spacebar to <span id="playPauseStatus">Pause</span></div>
+    <div class="controls">
+        <div class="slider-container">
+            <div class="slider-label">Reverb</div>
+            <input type="range" id="reverbSlider" class="slider" min="0" max="1" step="0.001" value="0.5" oninput="updateReverb(this.value)">
+        </div>
+        <div class="slider-container">
+            <div class="slider-label">Reverb Time</div>
+            <input type="range" id="reverbTimeSlider" class="slider" min="0" max="10" step="0.1" value="3" oninput="updateReverbTime(this.value)">
+        </div>
+        <div class="slider-container">
+            <div class="slider-label">Reverb Decay</div>
+            <input type="range" id="reverbDecaySlider" class="slider" min="0" max="10" step="0.1" value="2" oninput="updateReverbDecay(this.value)">
+        </div>
+    </div>
+    <div class="container">
+        <div class="effects-box"></div>
+        <div class="soundboard">
+            <div class="sound-selector">
+                <div class="sound-option green" onclick="selectSound(1)"></div>
+                <div class="sound-option red" onclick="selectSound(2)"></div>
+                <div class="sound-option blue" onclick="selectSound(3)"></div>
+                <div class="sound-option yellow" onclick="selectSound(4)"></div>
+            </div>
+        </div>
+    </div>
+    <div class="loop-indicator" id="loopIndicator">Loop: OFF</div>
+</body>
+</html>
