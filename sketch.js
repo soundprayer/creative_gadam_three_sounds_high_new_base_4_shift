@@ -89,6 +89,22 @@ function setup() {
     // Show start message
     let startMessage = document.getElementById('startMessage');
     startMessage.style.display = 'block';
+
+    // Add event listener for visibility change
+    document.addEventListener('visibilitychange', function() {
+        if (document.visibilityState === 'visible') {
+            // Resume audio context
+            if (getAudioContext().state !== 'running') {
+                getAudioContext().resume();
+                console.log('Audio context resumed');
+            }
+            // Restart the draw loop
+            loop();
+        } else {
+            // Optionally pause the draw loop to save resources
+            noLoop();
+        }
+    });
 }
 
 function windowResized() {
