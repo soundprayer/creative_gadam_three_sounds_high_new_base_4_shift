@@ -49,6 +49,10 @@ let loop4StartTime = 0;
 let loop4Duration = 0;
 let loop4CurrentIndex = 0;
 
+let overdubStartTime = 0;
+let overdubEndTime = 0;
+let overdubMovements = [];
+
 function setup() {
     createCanvas(windowWidth, 400);
     noSmooth(); // Disable anti-aliasing for a pixelated look
@@ -486,6 +490,17 @@ function mouseDragged() {
             }
         }
     }
+    if (recording && overdubbing) {
+        let currentTime = millis();
+        let movement = {
+            time: currentTime,
+            x: mouseX,
+            y: mouseY,
+            sound: selectedSound
+        };
+        overdubMovements.push(movement);
+        updateSound(selectedSound, mouseX, mouseY);
+    }
 }
 
 function mouseReleased() {
@@ -532,8 +547,8 @@ function keyPressed() {
         // Start overdubbing
         recording = true;
         overdubbing = true;
-        recordStartTime = millis();
-        console.log("Overdubbing started");
+        overdubStartTime = millis();
+        overdubMovements = []; // Initialize the overdub movements array
         loopIndicator.textContent = 'Loop: OVERDUBBING';
     } else if (key === 'Z' || key === 'z') { // Check if the 'Z' key is pressed
         halveLoop(selectedSound);
@@ -577,8 +592,61 @@ function keyReleased() {
         // Stop overdubbing
         recording = false;
         overdubbing = false;
+        overdubEndTime = millis();
         loopIndicator.textContent = 'Loop: ON';
-        console.log("Overdubbing stopped");
+
+        // Calculate overdub time range relative to the loop
+        let loopStartTime = getLoopStartTime(selectedSound);
+        let loopDuration = getLoopDuration(selectedSound);
+
+        let overdubStart = (overdubStartTime - loopStartTime) % loopDuration;
+        let overdubEnd = (overdubEndTime - loopStartTime) % loopDuration;
+
+        let movements = getMovementsArray(selectedSound);
+
+        // Remove old movements within the overdubbed time range
+        movements = movements.filter(movement => {
+            let timeInLoop = movement.time % loopDuration;
+            if (overdubEnd >= overdubStart) {
+                // Overdub within single loop cycle
+                return timeInLoop < overdubStart || timeInLoop > overdubEnd;
+            } else {
+                // Overdub wraps around loop end
+                return timeInLoop < overdubStart && timeInLoop > overdubEnd;
+            }
+        });
+
+        // Adjust new movements' times relative to loop
+        overdubMovements = overdubMovements.map(movement => {
+            return {
+                ...movement,
+                time: ((movement.time - loopStartTime) % loopDuration + loopDuration) % loopDuration
+            };
+        });
+
+        // Add new movements to the movements array
+        movements = movements.concat(overdubMovements);
+
+        // Sort movements by time
+        movements.sort((a, b) => a.time - b.time);
+
+        // Update the movements array for the selected sound
+        setMovementsArray(selectedSound, movements);
+
+        // Clear overdubMovements
+        overdubMovements = [];
+    }
+}
+
+function setMovementsArray(sound, movements) {
+    if (sound === 1) {
+        movements1 = movements;
+    } else if (sound === 2) {
+        movements2 = movements;
+    } else if (sound === 3) {
+        movements3 = movements;
+    } else if (sound === 4) {
+        movements4 = movements;
     }
 }
 
@@ -720,9 +788,9 @@ function updateLoop4() {
 
 function getMovementsArray(sound) {
     if (sound === 1) return movements1;
-    if (sound === 2) return movements2;
-    if (sound === 3) return movements3;
-    if (sound === 4) return movements4;
+    else if (sound === 2) return movements2;
+    else if (sound === 3) return movements3;
+    else if (sound === 4) return movements4;
 }
 
 function findInsertIndex(movements, time) {
@@ -736,16 +804,16 @@ function findInsertIndex(movements, time) {
 
 function getLoopStartTime(sound) {
     if (sound === 1) return loop1StartTime;
-    if (sound === 2) return loop2StartTime;
-    if (sound === 3) return loop3StartTime;
-    if (sound === 4) return loop4StartTime;
+    else if (sound === 2) return loop2StartTime;
+    else if (sound === 3) return loop3StartTime;
+    else if (sound === 4) return loop4StartTime;
 }
 
 function getLoopDuration(sound) {
     if (sound === 1) return loop1Duration;
-    if (sound === 2) return loop2Duration;
-    if (sound === 3) return loop3Duration;
-    if (sound === 4) return loop4Duration;
+    else if (sound === 2) return loop2Duration;
+    else if (sound === 3) return loop3Duration;
+    else if (sound === 4) return loop4Duration;
 }
 
 function halveLoop(sound) {
