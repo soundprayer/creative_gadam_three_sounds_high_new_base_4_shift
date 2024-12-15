@@ -817,41 +817,15 @@ function getLoopDuration(sound) {
 }
 
 function halveLoop(sound) {
-    let movements = getMovementsArray(sound);
-    if (movements.length > 1) {
-        let halfLength = Math.floor(movements.length / 2);
-        let originalDuration = getLoopDuration(sound);
-        let newDuration = originalDuration / 2;
-        console.log(`Halving loop for sound ${sound}. Original length: ${movements.length}, Original duration: ${originalDuration}`);
-        movements.length = halfLength; // Halve the array
-        for (let i = 0; i < halfLength; i++) {
-            movements[i].time = (movements[i].time / originalDuration) * newDuration;
-        }
-        console.log(`Loop for sound ${sound} halved to ${halfLength} movements with new duration ${newDuration}`);
-        setLoopDuration(sound, newDuration);
-        startLoop(movements, sound); // Restart the loop with the new length
-    } else {
-        console.log(`Not enough movements to halve for sound ${sound}`);
-    }
+    let loopDuration = getLoopDuration(sound);
+    setLoopDuration(sound, loopDuration / 2);
+    console.log(`Loop ${sound} duration halved to ${loopDuration / 2} ms`);
 }
 
 function doubleLoop(sound) {
-    let movements = getMovementsArray(sound);
-    if (movements.length > 0) {
-        let originalLength = movements.length;
-        let originalDuration = getLoopDuration(sound);
-        let newDuration = originalDuration * 2;
-        console.log(`Doubling loop for sound ${sound}. Original length: ${originalLength}, Original duration: ${originalDuration}`);
-        for (let i = 0; i < originalLength; i++) {
-            let newMovement = { ...movements[i], time: movements[i].time + originalDuration };
-            movements.push(newMovement); // Append the same values to double the array
-        }
-        console.log(`Loop for sound ${sound} doubled to ${movements.length} movements with new duration ${newDuration}`);
-        setLoopDuration(sound, newDuration);
-        startLoop(movements, sound); // Restart the loop with the new length
-    } else {
-        console.log(`No movements to double for sound ${sound}`);
-    }
+    let loopDuration = getLoopDuration(sound);
+    setLoopDuration(sound, loopDuration * 2);
+    console.log(`Loop ${sound} duration doubled to ${loopDuration * 2} ms`);
 }
 
 function setLoopDuration(sound, duration) {
