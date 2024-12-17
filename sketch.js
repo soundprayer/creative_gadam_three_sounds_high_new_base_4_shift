@@ -285,7 +285,10 @@ function draw() {
     }
 
     // Update loops
-    updateLoops();
+    updateLoop1();
+    updateLoop2();
+    updateLoop3();
+    updateLoop4();
 }
 
 function updateSound(sound, x, y) {
@@ -578,18 +581,22 @@ function keyReleased() {
             movements1.push({ time: millis() - recordStartTime, x: iconX1, y: iconY1, sound: 1 }); // Ensure the last position is recorded
             console.log("Final movement for sound 1 recorded at", movements1[movements1.length - 1]);
             startLoop(movements1, 1);
+            saveMovementsLog(1); // Save log file for sound 1
         } else if (selectedSound === 2) {
             movements2.push({ time: millis() - recordStartTime, x: iconX2, y: iconY2, sound: 2 }); // Ensure the last position is recorded
             console.log("Final movement for sound 2 recorded at", movements2[movements2.length - 1]);
             startLoop(movements2, 2);
+            saveMovementsLog(2); // Save log file for sound 2
         } else if (selectedSound === 3) {
             movements3.push({ time: millis() - recordStartTime, x: iconX3, y: iconY3, sound: 3 }); // Ensure the last position is recorded
             console.log("Final movement for sound 3 recorded at", movements3[movements3.length - 1]);
             startLoop(movements3, 3);
+            saveMovementsLog(3); // Save log file for sound 3
         } else if (selectedSound === 4) {
             movements4.push({ time: millis() - recordStartTime, x: iconX4, y: iconY4, sound: 4 }); // Ensure the last position is recorded
             console.log("Final movement for sound 4 recorded at", movements4[movements4.length - 1]);
             startLoop(movements4, 4);
+            saveMovementsLog(4); // Save log file for sound 4
         }
     } else if (keyCode === SHIFT) { // Check if the 'Shift' key is released
         let loopIndicator = document.getElementById('loopIndicator');
@@ -612,7 +619,7 @@ function keyReleased() {
         movements = movements.filter(movement => {
             let timeInLoop = movement.time % loopDuration;
             if (overdubEnd >= overdubStart) {
-                // Overdub within single loop cycle
+                // Overdub within a single loop cycle
                 return timeInLoop < overdubStart || timeInLoop > overdubEnd;
             } else {
                 // Overdub wraps around loop end
@@ -637,8 +644,15 @@ function keyReleased() {
         // Update the movements array for the selected sound
         setMovementsArray(selectedSound, movements);
 
+        // Save log file after movements are updated
+        saveMovementsLog(selectedSound);
+
         // Clear overdubMovements
         overdubMovements = [];
+
+        console.log('Overdub Start:', overdubStart);
+        console.log('Overdub End:', overdubEnd);
+        console.log('Adjusted Overdub Movements:', overdubMovements);
     }
 }
 
@@ -695,8 +709,10 @@ function startLoop(movements, sound) {
         console.log("No movements recorded, cannot start loop");
         return;
     }
+
     let loopDuration = movements[movements.length - 1].time;
     console.log("Starting loop with duration:", loopDuration);
+
     if (sound === 1) {
         loop1StartTime = millis();
         loop1Duration = loopDuration;
@@ -733,16 +749,20 @@ function updateLoops() {
 function updateLoop1() {
     if (!isLoop1Active || isDragging1) return;
     let elapsedTime = millis() - loop1StartTime;
-    while (loop1CurrentIndex < movements1.length && movements1[loop1CurrentIndex].time <= elapsedTime) {
+
+    while (
+        loop1CurrentIndex < movements1.length &&
+        movements1[loop1CurrentIndex].time <= elapsedTime
+    ) {
         let movement = movements1[loop1CurrentIndex];
         updateSound(1, movement.x, movement.y);
         loop1CurrentIndex++;
     }
+
     if (elapsedTime >= loop1Duration) {
-        loop1StartTime = millis();
+        loop1StartTime += loop1Duration;
         loop1CurrentIndex = 0;
     }
-    console.log("Loop 1 updated, elapsedTime:", elapsedTime, "loop1Duration:", loop1Duration);
 }
 
 function updateLoop2() {
@@ -837,13 +857,22 @@ function shrinkLoop(sound) {
     let loopStartTime = getLoopStartTime(sound);
     let elapsedTime = (millis() - loopStartTime) % loopDuration;
 
+    let movements = getMovementsArray(sound);
+    let newMovements = [];
+
     if (elapsedTime >= loopDuration / 2) {
-        setLoopDuration(sound, loopDuration / 2);
+        // Keep the second half of the loop
+        newMovements = movements.filter(movement => movement.time >= loopDuration / 2);
+        newMovements.forEach(movement => movement.time -= loopDuration / 2);
         console.log(`Loop ${sound} shrunk to second half, new duration: ${loopDuration / 2} ms`);
     } else {
-        setLoopDuration(sound, loopDuration / 2);
+        // Keep the first half of the loop
+        newMovements = movements.filter(movement => movement.time < loopDuration / 2);
         console.log(`Loop ${sound} shrunk to first half, new duration: ${loopDuration / 2} ms`);
     }
+
+    setMovementsArray(sound, newMovements);
+    setLoopDuration(sound, loopDuration / 2);
 }
 
 function doubleLoopArray(sound) {
@@ -870,6 +899,18 @@ function setLoopDuration(sound, duration) {
         loop4Duration = duration;
     }
     console.log(`Set loop duration for sound ${sound} to ${duration}`);
+}
+
+function formatMovements(movements) {
+    return movements.map(movement => {
+        return `time: ${movement.time}, x: ${movement.x}, y: ${movement.y}, sound: ${movement.sound}`;
+    });
+}
+
+function saveMovementsLog(sound) {
+    let movements = getMovementsArray(sound);
+    let formattedMovements = formatMovements(movements);
+    saveStrings(formattedMovements, `movements_log_sound_${sound}.txt`);
 }
 
 window.addEventListener('DOMContentLoaded', (event) => {
