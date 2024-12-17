@@ -551,9 +551,13 @@ function keyPressed() {
         overdubMovements = []; // Initialize the overdub movements array
         loopIndicator.textContent = 'Loop: OVERDUBBING';
     } else if (key === 'Z' || key === 'z') { // Check if the 'Z' key is pressed
-        halveLoop(selectedSound);
+        halveLoop(selectedSound); // Lasso effect halve
     } else if (key === 'X' || key === 'x') { // Check if the 'X' key is pressed
-        doubleLoop(selectedSound);
+        doubleLoop(selectedSound); // Lasso effect double
+    } else if (key === 'S' || key === 's') { // Check if the 'S' key is pressed
+        shrinkLoop(selectedSound); // Shrink loop
+    } else if (key === 'D' || key === 'd') { // Check if the 'D' key is pressed
+        doubleLoopArray(selectedSound); // Double loop array
     } else if (key === 'A' || key === 'a') { // Check if the 'A' key is pressed
         toggleSelectedSound();
     }
@@ -826,6 +830,33 @@ function doubleLoop(sound) {
     let loopDuration = getLoopDuration(sound);
     setLoopDuration(sound, loopDuration * 2);
     console.log(`Loop ${sound} duration doubled to ${loopDuration * 2} ms`);
+}
+
+function shrinkLoop(sound) {
+    let loopDuration = getLoopDuration(sound);
+    let loopStartTime = getLoopStartTime(sound);
+    let elapsedTime = (millis() - loopStartTime) % loopDuration;
+
+    if (elapsedTime >= loopDuration / 2) {
+        setLoopDuration(sound, loopDuration / 2);
+        console.log(`Loop ${sound} shrunk to second half, new duration: ${loopDuration / 2} ms`);
+    } else {
+        setLoopDuration(sound, loopDuration / 2);
+        console.log(`Loop ${sound} shrunk to first half, new duration: ${loopDuration / 2} ms`);
+    }
+}
+
+function doubleLoopArray(sound) {
+    let movements = getMovementsArray(sound);
+    let loopDuration = getLoopDuration(sound);
+    let doubledMovements = movements.concat(movements.map(movement => ({
+        ...movement,
+        time: movement.time + loopDuration
+    })));
+
+    setMovementsArray(sound, doubledMovements);
+    setLoopDuration(sound, loopDuration * 2);
+    console.log(`Loop ${sound} array doubled, new duration: ${loopDuration * 2} ms`);
 }
 
 function setLoopDuration(sound, duration) {
