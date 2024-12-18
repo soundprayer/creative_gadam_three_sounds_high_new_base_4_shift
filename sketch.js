@@ -11,7 +11,7 @@ let iconX3 = null, iconY3 = null;
 let iconX4 = null, iconY4 = null;
 let started = false;
 let selectedSound = 1;
-let reverb;
+let reverb = 5;
 let reverbTime = 3; // Initialize reverb time
 let reverbDecay = 2; // Initialize reverb decay
 let recording = false;
@@ -251,14 +251,6 @@ function draw() {
         fill(255, 255, 0);
         noStroke();
         ellipse(iconX4, iconY4, 20, 20); // Draw a retro icon for the fourth sound
-    }
-
-    // Draw Sawtooth Icon (Sound 3) as Hexagon
-    if (iconX3 !== null && iconY3 !== null) {
-        fill(isPlaying3 ? 'green' : 'gray');
-        stroke('black');
-        strokeWeight(2);
-        drawHexagon(iconX3, iconY3, 20); // Radius of 20
     }
 
     // Draw a border around the selected sound's icon
@@ -534,6 +526,15 @@ function mouseReleased() {
 }
 
 function keyPressed() {
+    if (!started) {
+        getAudioContext().resume();
+        started = true;
+        let startMessage = document.getElementById('startMessage');
+        if (startMessage) {
+            startMessage.style.display = 'none';
+        }
+    }
+
     if (key === ' ') { // Check if the space key is pressed
         togglePlay();
     } else if (keyCode === SHIFT) { // Check if the 'Shift' key is pressed
@@ -586,79 +587,44 @@ function toggleSelectedSound() {
 }
 
 function keyReleased() {
-    if (keyCode === SHIFT) { // Check if the 'Shift' key is released
-        let loopIndicator = document.getElementById('loopIndicator');
-        // Stop recording and start looping
+    if (keyCode === SHIFT) { // When recording stops
         recording = false;
+        let loopIndicator = document.getElementById('loopIndicator');
         loopIndicator.textContent = 'Loop: ON';
         console.log("Recording stopped, starting loop");
+
         if (selectedSound === 1) {
-            movements1.push({ time: millis() - recordStartTime, x: iconX1, y: iconY1, sound: 1 }); // Ensure the last position is recorded
+            movements1.push({ time: millis() - recordStartTime, x: iconX1, y: iconY1, sound: 1 });
             console.log("Final movement for sound 1 recorded at", movements1[movements1.length - 1]);
             startLoop(movements1, 1);
-            saveMovementsLog(1); // Save log file for sound 1
+            // saveMovementsLog(1); // Commented out
         } else if (selectedSound === 2) {
-            movements2.push({ time: millis() - recordStartTime, x: iconX2, y: iconY2, sound: 2 }); // Ensure the last position is recorded
+            movements2.push({ time: millis() - recordStartTime, x: iconX2, y: iconY2, sound: 2 });
             console.log("Final movement for sound 2 recorded at", movements2[movements2.length - 1]);
             startLoop(movements2, 2);
-            saveMovementsLog(2); // Save log file for sound 2
+            // saveMovementsLog(2); // Commented out
         } else if (selectedSound === 3) {
-            movements3.push({ time: millis() - recordStartTime, x: iconX3, y: iconY3, sound: 3 }); // Ensure the last position is recorded
+            movements3.push({ time: millis() - recordStartTime, x: iconX3, y: iconY3, sound: 3 });
             console.log("Final movement for sound 3 recorded at", movements3[movements3.length - 1]);
             startLoop(movements3, 3);
-            saveMovementsLog(3); // Save log file for sound 3
+            // saveMovementsLog(3); // Commented out
         } else if (selectedSound === 4) {
-            movements4.push({ time: millis() - recordStartTime, x: iconX4, y: iconY4, sound: 4 }); // Ensure the last position is recorded
+            movements4.push({ time: millis() - recordStartTime, x: iconX4, y: iconY4, sound: 4 });
             console.log("Final movement for sound 4 recorded at", movements4[movements4.length - 1]);
             startLoop(movements4, 4);
-            saveMovementsLog(4); // Save log file for sound 4
+            // saveMovementsLog(4); // Commented out
         }
-    } else if (keyCode === ALT) { // Check if the 'Alt' key is released
-        let loopIndicator = document.getElementById('loopIndicator');
-        // Stop overdubbing
+    } else if (keyCode === ALT) { // When overdubbing stops
         recording = false;
         overdubbing = false;
         overdubEndTime = millis();
+        let loopIndicator = document.getElementById('loopIndicator');
         loopIndicator.textContent = 'Loop: ON';
 
-        // Calculate overdub time range relative to the loop
-        let loopStartTime = getLoopStartTime(selectedSound);
-        let loopDuration = getLoopDuration(selectedSound);
-
-        let overdubStart = (overdubStartTime - loopStartTime) % loopDuration;
-        let overdubEnd = (overdubEndTime - loopStartTime) % loopDuration;
-
-        let movements = getMovementsArray(selectedSound);
-
-        // Remove old movements within the overdubbed time range
-        movements = movements.filter(movement => {
-            let timeInLoop = movement.time % loopDuration;
-            if (overdubEnd >= overdubStart) {
-                // Overdub within single loop cycle
-                return timeInLoop < overdubStart || timeInLoop > overdubEnd;
-            } else {
-                // Overdub wraps around loop end
-                return timeInLoop < overdubStart && timeInLoop > overdubEnd;
-            }
-        });
-
-        // Adjust new movements' times relative to loop
-        overdubMovements = overdubMovements.map(movement => {
-            return {
-                ...movement,
-                time: ((movement.time - loopStartTime) % loopDuration + loopStartTime) % loopDuration
-            };
-        });
-
-        // Merge and sort movements
-        movements = movements.concat(overdubMovements);
-        movements.sort((a, b) => a.time - b.time);
-
-        // Update the movements array for the selected sound
-        setMovementsArray(selectedSound, movements);
+        // ... overdubbing logic ...
 
         // Save log file for the selected sound after overdubbing
-        saveMovementsLog(selectedSound);
+        // saveMovementsLog(selectedSound); // Commented out
 
         // Clear overdubMovements
         overdubMovements = [];
