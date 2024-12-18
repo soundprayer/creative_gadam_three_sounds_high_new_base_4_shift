@@ -37,6 +37,14 @@
             font-family: 'Press Start 2P', cursive;
             font-size: 12px;
         }
+        .info-right {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            color: rgb(255, 255, 255);
+            font-family: 'Press Start 2P', cursive;
+            font-size: 12px;
+        }
         .start-message {
             position: absolute;
             top: 50%;
@@ -167,6 +175,7 @@
     <div class="start-message" id="startMessage">Click on a soundboard to put a first sound</div>
     <!-- <div class="pause-button">Pause</div> -->
     <div class="info">Press Spacebar to <span id="playPauseStatus">Pause</span></div>
+    <div class="info-right">CTRL and +/- to ZOOM IN/OUT</div>
     <div class="controls">
         <div class="slider-container">
             <div class="slider-label">Reverb</div>
@@ -192,6 +201,6 @@
             </div>
         </div>
     </div>
-    <div class="loop-indicator" id="loopIndicator">Loop: OFF</div>
+    <div class="loop-indicator" id="loopIndicator">SHIFT + DRAG to LOOP: OFF</div>
 </body>
 </html>

@@ -13,7 +13,7 @@ let started = false;
 let selectedSound = 1;
 let reverb = 5;
 let reverbTime = 3; // Initialize reverb time
-let reverbDecay = 2; // Initialize reverb decay
+let reverbDecay = 2;   // Initialize reverb decay
 let recording = false;
 let overdubbing = false; // Flag to track overdubbing state
 let recordStartTime;
@@ -52,6 +52,8 @@ let loop4CurrentIndex = 0;
 let overdubStartTime = 0;
 let overdubEndTime = 0;
 let overdubMovements = [];
+
+let loggingEnabled = false;
 
 function setup() {
     createCanvas(windowWidth, 400);
@@ -569,6 +571,9 @@ function keyPressed() {
         overdubStartTime = millis();
         overdubMovements = []; // Initialize the overdub movements array
         loopIndicator.textContent = 'Loop: OVERDUBBING';
+    } else if (key === 'L' || key === 'l') { // Check if the 'L' key is pressed
+        loggingEnabled = !loggingEnabled; // Toggle logging state
+        console.log(`File logging ${loggingEnabled ? 'enabled' : 'disabled'}`);
     } else if (key === 'Z' || key === 'z') { // Check if the 'Z' key is pressed
         halveLoop(selectedSound); // Lasso effect halve
     } else if (key === 'X' || key === 'x') { // Check if the 'X' key is pressed
@@ -597,22 +602,22 @@ function keyReleased() {
             movements1.push({ time: millis() - recordStartTime, x: iconX1, y: iconY1, sound: 1 });
             console.log("Final movement for sound 1 recorded at", movements1[movements1.length - 1]);
             startLoop(movements1, 1);
-            // saveMovementsLog(1); // Commented out
+            if (loggingEnabled) saveMovementsLog(1); // Save log file for sound 1 if logging is enabled
         } else if (selectedSound === 2) {
             movements2.push({ time: millis() - recordStartTime, x: iconX2, y: iconY2, sound: 2 });
             console.log("Final movement for sound 2 recorded at", movements2[movements2.length - 1]);
             startLoop(movements2, 2);
-            // saveMovementsLog(2); // Commented out
+            if (loggingEnabled) saveMovementsLog(2); // Save log file for sound 2 if logging is enabled
         } else if (selectedSound === 3) {
             movements3.push({ time: millis() - recordStartTime, x: iconX3, y: iconY3, sound: 3 });
             console.log("Final movement for sound 3 recorded at", movements3[movements3.length - 1]);
             startLoop(movements3, 3);
-            // saveMovementsLog(3); // Commented out
+            if (loggingEnabled) saveMovementsLog(3); // Save log file for sound 3 if logging is enabled
         } else if (selectedSound === 4) {
             movements4.push({ time: millis() - recordStartTime, x: iconX4, y: iconY4, sound: 4 });
             console.log("Final movement for sound 4 recorded at", movements4[movements4.length - 1]);
             startLoop(movements4, 4);
-            // saveMovementsLog(4); // Commented out
+            if (loggingEnabled) saveMovementsLog(4); // Save log file for sound 4 if logging is enabled
         }
     } else if (keyCode === ALT) { // When overdubbing stops
         recording = false;
@@ -623,8 +628,8 @@ function keyReleased() {
 
         // ... overdubbing logic ...
 
-        // Save log file for the selected sound after overdubbing
-        // saveMovementsLog(selectedSound); // Commented out
+        // Save log file for the selected sound after overdubbing if logging is enabled
+        if (loggingEnabled) saveMovementsLog(selectedSound);
 
         // Clear overdubMovements
         overdubMovements = [];
