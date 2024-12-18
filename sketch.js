@@ -253,6 +253,14 @@ function draw() {
         ellipse(iconX4, iconY4, 20, 20); // Draw a retro icon for the fourth sound
     }
 
+    // Draw Sawtooth Icon (Sound 3) as Hexagon
+    if (iconX3 !== null && iconY3 !== null) {
+        fill(isPlaying3 ? 'green' : 'gray');
+        stroke('black');
+        strokeWeight(2);
+        drawHexagon(iconX3, iconY3, 20); // Radius of 20
+    }
+
     // Draw a border around the selected sound's icon
     if (selectedSound === 1 && iconX1 !== null && iconY1 !== null) {
         stroke(255);
@@ -289,6 +297,17 @@ function draw() {
     updateLoop2();
     updateLoop3();
     updateLoop4();
+}
+
+// Function to draw a hexagon
+function drawHexagon(x, y, radius) {
+    beginShape();
+    for (let angle = 0; angle < TWO_PI; angle += TWO_PI / 6) {
+        let sx = x + cos(angle) * radius;
+        let sy = y + sin(angle) * radius;
+        vertex(sx, sy);
+    }
+    endShape(CLOSE);
 }
 
 function updateSound(sound, x, y) {
