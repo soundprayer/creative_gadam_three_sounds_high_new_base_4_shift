@@ -368,58 +368,54 @@ function mousePressed() {
         if (iconX1 !== null && iconY1 !== null && dist(mouseX, mouseY, iconX1, iconY1) < 20) {
             selectedSound = 1;
             clickedOnIcon = true;
+            isDragging1 = true;
         } else if (iconX2 !== null && iconY2 !== null && dist(mouseX, mouseY, iconX2, iconY2) < 20) {
             selectedSound = 2;
             clickedOnIcon = true;
+            isDragging2 = true;
         } else if (iconX3 !== null && iconY3 !== null && dist(mouseX, mouseY, iconX3, iconY3) < 20) {
             selectedSound = 3;
             clickedOnIcon = true;
+            isDragging3 = true;
         } else if (iconX4 !== null && iconY4 !== null && dist(mouseX, mouseY, iconX4, iconY4) < 20) {
             selectedSound = 4;
             clickedOnIcon = true;
-        }
-        
-        // Only start new sounds if we didn't click on an existing icon
-        if (!clickedOnIcon) {
-            if (selectedSound === 1 && !isPlaying1) {
-                osc1.start();
-                isPlaying1 = true;
-            }
-            if (selectedSound === 2 && !isPlaying2) {
-                osc2.start();
-                isPlaying2 = true;
-            }
-            if (selectedSound === 3 && !isPlaying3) {
-                osc3.start();
-                isPlaying3 = true;
-            }
-            if (selectedSound === 4 && !isPlaying4) {
-                osc4.start();
-                isPlaying4 = true;
-            }
-        }
-
-        // Record the position even if the mouse is not dragged
-        if (recording) {
-            console.log(`Recording movement for sound ${selectedSound} at (${mouseX}, ${mouseY})`);
-            let currentTime = millis() - recordStartTime;
-            if (overdubbing) {
-                // Add new movements to the existing movements array at the correct position
+            isDragging4 = true;
+        } else {
+            // Not clicking on any icon
+            if (recording && overdubbing) {
+                // Record the click position during overdubbing
+                overdubMovements.push({
+                    time: millis(),
+                    x: mouseX,
+                    y: mouseY,
+                    sound: selectedSound
+                });
+                console.log("Overdub click recorded at", mouseX, mouseY);
+            } else if (recording && !overdubbing) {
+                // Record the click position during initial recording
                 let movements = getMovementsArray(selectedSound);
-                let loopStartTime = getLoopStartTime(selectedSound);
-                let loopElapsedTime = (millis() - loopStartTime) % getLoopDuration(selectedSound);
-                let index = findInsertIndex(movements, loopElapsedTime);
-                movements.splice(index, 1, { time: loopElapsedTime, x: mouseX, y: mouseY, sound: selectedSound });
+                movements.push({
+                    time: millis() - recordStartTime,
+                    x: mouseX,
+                    y: mouseY,
+                    sound: selectedSound
+                });
+                console.log("Recording click at", mouseX, mouseY);
             } else {
-                // Normal recording
-                if (selectedSound === 1) {
-                    movements1.push({ time: currentTime, x: mouseX, y: mouseY, sound: 1 });
-                } else if (selectedSound === 2) {
-                    movements2.push({ time: currentTime, x: mouseX, y: mouseY, sound: 2 });
-                } else if (selectedSound === 3) {
-                    movements3.push({ time: currentTime, x: mouseX, y: mouseY, sound: 3 });
-                } else if (selectedSound === 4) {
-                    movements4.push({ time: currentTime, x: mouseX, y: mouseY, sound: 4 });
+                // Start playing the selected sound if not already playing
+                if (selectedSound === 1 && !isPlaying1) {
+                    osc1.start();
+                    isPlaying1 = true;
+                } else if (selectedSound === 2 && !isPlaying2) {
+                    osc2.start();
+                    isPlaying2 = true;
+                } else if (selectedSound === 3 && !isPlaying3) {
+                    osc3.start();
+                    isPlaying3 = true;
+                } else if (selectedSound === 4 && !isPlaying4) {
+                    osc4.start();
+                    isPlaying4 = true;
                 }
             }
         }
@@ -521,7 +517,7 @@ function mouseReleased() {
 function keyPressed() {
     if (key === ' ') { // Check if the space key is pressed
         togglePlay();
-    } else if (keyCode === CONTROL) { // Check if the 'Control' key is pressed
+    } else if (keyCode === SHIFT) { // Check if the 'Shift' key is pressed
         let loopIndicator = document.getElementById('loopIndicator');
         // Start recording
         recording = true;
@@ -545,7 +541,7 @@ function keyPressed() {
             console.log("Loop 4 stopped");
         }
         loopIndicator.textContent = 'Loop: RECORDING';
-    } else if (keyCode === SHIFT) { // Check if the 'Shift' key is pressed
+    } else if (keyCode === ALT) { // Check if the 'Alt' key is pressed
         let loopIndicator = document.getElementById('loopIndicator');
         // Start overdubbing
         recording = true;
@@ -561,7 +557,7 @@ function keyPressed() {
         shrinkLoop(selectedSound); // Shrink loop
     } else if (key === 'D' || key === 'd') { // Check if the 'D' key is pressed
         doubleLoopArray(selectedSound); // Double loop array
-    } else if (key === 'A' || key === 'a') { // Check if the 'A' key is pressed
+    } else if (key === 'Q' || key === 'q') { // Check if the 'Q' key is pressed
         toggleSelectedSound();
     }
 }
@@ -571,7 +567,7 @@ function toggleSelectedSound() {
 }
 
 function keyReleased() {
-    if (keyCode === CONTROL) { // Check if the 'Control' key is released
+    if (keyCode === SHIFT) { // Check if the 'Shift' key is released
         let loopIndicator = document.getElementById('loopIndicator');
         // Stop recording and start looping
         recording = false;
@@ -598,7 +594,7 @@ function keyReleased() {
             startLoop(movements4, 4);
             saveMovementsLog(4); // Save log file for sound 4
         }
-    } else if (keyCode === SHIFT) { // Check if the 'Shift' key is released
+    } else if (keyCode === ALT) { // Check if the 'Alt' key is released
         let loopIndicator = document.getElementById('loopIndicator');
         // Stop overdubbing
         recording = false;
@@ -619,7 +615,7 @@ function keyReleased() {
         movements = movements.filter(movement => {
             let timeInLoop = movement.time % loopDuration;
             if (overdubEnd >= overdubStart) {
-                // Overdub within a single loop cycle
+                // Overdub within single loop cycle
                 return timeInLoop < overdubStart || timeInLoop > overdubEnd;
             } else {
                 // Overdub wraps around loop end
@@ -631,28 +627,22 @@ function keyReleased() {
         overdubMovements = overdubMovements.map(movement => {
             return {
                 ...movement,
-                time: ((movement.time - loopStartTime) % loopDuration + loopDuration) % loopDuration
+                time: ((movement.time - loopStartTime) % loopDuration + loopStartTime) % loopDuration
             };
         });
 
-        // Add new movements to the movements array
+        // Merge and sort movements
         movements = movements.concat(overdubMovements);
-
-        // Sort movements by time
         movements.sort((a, b) => a.time - b.time);
 
         // Update the movements array for the selected sound
         setMovementsArray(selectedSound, movements);
 
-        // Save log file after movements are updated
+        // Save log file for the selected sound after overdubbing
         saveMovementsLog(selectedSound);
 
         // Clear overdubMovements
         overdubMovements = [];
-
-        console.log('Overdub Start:', overdubStart);
-        console.log('Overdub End:', overdubEnd);
-        console.log('Adjusted Overdub Movements:', overdubMovements);
     }
 }
 
