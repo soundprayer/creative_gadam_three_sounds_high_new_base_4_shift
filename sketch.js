@@ -400,15 +400,15 @@ function mousePressed() {
 
         // Record the position even if the mouse is not dragged
         if (recording) {
-            console.log(`Recording movement for sound ${selectedSound} at (${mouseX}, ${mouseY})`);
+            // console.log(`Recording movement for sound ${selectedSound} at (${mouseX}, ${mouseY})`);
             let currentTime = millis() - recordStartTime;
             if (overdubbing) {
                 // Add new movements to the existing movements array at the correct position
-                let movements = getMovementsArray(selectedSound);
-                let loopStartTime = getLoopStartTime(selectedSound);
-                let loopElapsedTime = (millis() - loopStartTime) % getLoopDuration(selectedSound);
-                let index = findInsertIndex(movements, loopElapsedTime);
-                movements.splice(index, 1, { time: loopElapsedTime, x: mouseX, y: mouseY, sound: selectedSound });
+                // let movements = getMovementsArray(selectedSound);
+                // let loopStartTime = getLoopStartTime(selectedSound);
+                // let loopElapsedTime = (millis() - loopStartTime) % getLoopDuration(selectedSound);
+                // let index = findInsertIndex(movements, loopElapsedTime);
+                // movements.splice(index, 1, { time: loopElapsedTime, x: mouseX, y: mouseY, sound: selectedSound });
             } else {
                 // Normal recording
                 if (selectedSound === 1) {
@@ -431,19 +431,19 @@ function mouseDragged() {
             isDragging1 = true;
             updateSound(1, mouseX, mouseY);
             if (recording) {
-                console.log(`Dragging and recording movement for sound 1 at (${mouseX}, ${mouseY})`);
+                // console.log(`Dragging and recording movement for sound 1 at (${mouseX}, ${mouseY})`);
                 if (overdubbing) {
                     // Record movements into overdubMovements array only
-                    let loopStartTime = getLoopStartTime(selectedSound);
-                    let loopDuration = getLoopDuration(selectedSound);
-                    let currentTime = (millis() - loopStartTime) % loopDuration;
+                    // let loopStartTime = getLoopStartTime(selectedSound);
+                    // let loopDuration = getLoopDuration(selectedSound);
+                    // let currentTime = (millis() - loopStartTime) % loopDuration;
 
-                    overdubMovements.push({
-                        time: currentTime,
-                        x: mouseX,
-                        y: mouseY,
-                        sound: selectedSound
-                    });
+                    // overdubMovements.push({
+                    //     time: currentTime,
+                    //     x: mouseX,
+                    //     y: mouseY,
+                    //     sound: selectedSound
+                    // });
                 } else {
                     // Normal recording
                     let currentTime = millis() - recordStartTime;
@@ -456,13 +456,13 @@ function mouseDragged() {
             isDragging2 = true;
             updateSound(2, mouseX, mouseY);
             if (recording) {
-                console.log(`Dragging and recording movement for sound 2 at (${mouseX}, ${mouseY})`);
+                // console.log(`Dragging and recording movement for sound 2 at (${mouseX}, ${mouseY})`);
                 let currentTime = millis() - recordStartTime;
                 if (overdubbing) {
-                    let loopStartTime = getLoopStartTime(2);
-                    let loopElapsedTime = (millis() - loopStartTime) % getLoopDuration(2);
-                    let index = findInsertIndex(movements2, loopElapsedTime);
-                    movements2.splice(index, 1, { time: loopElapsedTime, x: mouseX, y: mouseY, sound: 2 });
+                    // let loopStartTime = getLoopStartTime(2);
+                    // let loopElapsedTime = (millis() - loopStartTime) % getLoopDuration(2);
+                    // let index = findInsertIndex(movements2, loopElapsedTime);
+                    // movements2.splice(index, 1, { time: loopElapsedTime, x: mouseX, y: mouseY, sound: 2 });
                 } else {
                     movements2.push({ time: currentTime, x: mouseX, y: mouseY, sound: 2 });
                 }
@@ -472,13 +472,13 @@ function mouseDragged() {
             isDragging3 = true;
             updateSound(3, mouseX, mouseY);
             if (recording) {
-                console.log(`Dragging and recording movement for sound 3 at (${mouseX}, ${mouseY})`);
+                // console.log(`Dragging and recording movement for sound 3 at (${mouseX}, ${mouseY})`);
                 let currentTime = millis() - recordStartTime;
                 if (overdubbing) {
-                    let loopStartTime = getLoopStartTime(3);
-                    let loopElapsedTime = (millis() - loopStartTime) % getLoopDuration(3);
-                    let index = findInsertIndex(movements3, loopElapsedTime);
-                    movements3.splice(index, 1, { time: loopElapsedTime, x: mouseX, y: mouseY, sound: 3 });
+                    // let loopStartTime = getLoopStartTime(3);
+                    // let loopElapsedTime = (millis() - loopStartTime) % getLoopDuration(3);
+                    // let index = findInsertIndex(movements3, loopElapsedTime);
+                    // movements3.splice(index, 1, { time: loopElapsedTime, x: mouseX, y: mouseY, sound: 3 });
                 } else {
                     movements3.push({ time: currentTime, x: mouseX, y: mouseY, sound: 3 });
                 }
@@ -488,13 +488,13 @@ function mouseDragged() {
             isDragging4 = true;
             updateSound(4, mouseX, mouseY);
             if (recording) {
-                console.log(`Dragging and recording movement for sound 4 at (${mouseX}, ${mouseY})`);
+                // console.log(`Dragging and recording movement for sound 4 at (${mouseX}, ${mouseY})`);
                 let currentTime = millis() - recordStartTime;
                 if (overdubbing) {
-                    let loopStartTime = getLoopStartTime(4);
-                    let loopElapsedTime = (millis() - loopStartTime) % getLoopDuration(4);
-                    let index = findInsertIndex(movements4, loopElapsedTime);
-                    movements4.splice(index, 1, { time: loopElapsedTime, x: mouseX, y: mouseY, sound: 4 });
+                    // let loopStartTime = getLoopStartTime(4);
+                    // let loopElapsedTime = (millis() - loopStartTime) % getLoopDuration(4);
+                    // let index = findInsertIndex(movements4, loopElapsedTime);
+                    // movements4.splice(index, 1, { time: loopElapsedTime, x: mouseX, y: mouseY, sound: 4 });
                 } else {
                     movements4.push({ time: currentTime, x: mouseX, y: mouseY, sound: 4 });
                 }
@@ -502,15 +502,15 @@ function mouseDragged() {
         }
     }
     if (recording && overdubbing) {
-        let currentTime = millis();
-        let movement = {
-            time: currentTime,
-            x: mouseX,
-            y: mouseY,
-            sound: selectedSound
-        };
-        overdubMovements.push(movement);
-        updateSound(selectedSound, mouseX, mouseY);
+        // let currentTime = millis();
+        // let movement = {
+        //     time: currentTime,
+        //     x: mouseX,
+        //     y: mouseY,
+        //     sound: selectedSound
+        // };
+        // overdubMovements.push(movement);
+        // updateSound(selectedSound, mouseX, mouseY);
     }
 }
 
@@ -600,7 +600,9 @@ function keyReleased() {
             console.log("Final movement for sound 4 recorded at", movements4[movements4.length - 1]);
             startLoop(movements4, 4);
         }
-        saveMovementsToFile(); // Automatically save movements to file
+        if (logging) {
+            saveMovementsToFile(); // Automatically save movements to file if logging is enabled
+        } // Automatically save movements to file
     } else if (keyCode === ALT) { // Check if the 'ALT' key is released
         let loopIndicator = document.getElementById('loopIndicator');
         // Stop overdubbing
@@ -645,7 +647,9 @@ function keyReleased() {
         // Clear overdubMovements
         overdubMovements = [];
 
-        saveMovementsToFile(); // Automatically save movements to file
+        if (logging) {
+            saveMovementsToFile(); // Automatically save movements to file if logging is enabled
+        } // Automatically save movements to file
     }
 }
 
@@ -744,7 +748,7 @@ function updateLoop1() {
         loop1StartTime = millis();
         loop1CurrentIndex = 0;
     }
-    console.log("Loop 1 updated, elapsedTime:", elapsedTime, "loop1Duration:", loop1Duration);
+    // console.log("Loop 1 updated, elapsedTime:", elapsedTime, "loop1Duration:", loop1Duration);
 }
 
 function updateLoop2() {
@@ -759,7 +763,7 @@ function updateLoop2() {
         loop2StartTime = millis();
         loop2CurrentIndex = 0;
     }
-    console.log("Loop 2 updated, elapsedTime:", elapsedTime, "loop2Duration:", loop2Duration);
+    // console.log("Loop 2 updated, elapsedTime:", elapsedTime, "loop2Duration:", loop2Duration);
 }
 
 function updateLoop3() {
@@ -774,7 +778,7 @@ function updateLoop3() {
         loop3StartTime = millis();
         loop3CurrentIndex = 0;
     }
-    console.log("Loop 3 updated, elapsedTime:", elapsedTime, "loop3Duration:", loop3Duration);
+    // console.log("Loop 3 updated, elapsedTime:", elapsedTime, "loop3Duration:", loop3Duration);
 }
 
 function updateLoop4() {
@@ -789,7 +793,7 @@ function updateLoop4() {
         loop4StartTime = millis();
         loop4CurrentIndex = 0;
     }
-    console.log("Loop 4 updated, elapsedTime:", elapsedTime, "loop4Duration:", loop4Duration);
+    // console.log("Loop 4 updated, elapsedTime:", elapsedTime, "loop4Duration:", loop4Duration);
 }
 
 function getMovementsArray(sound) {
@@ -879,7 +883,6 @@ function toggleLogging() {
         console.log("Logging enabled");
     } else {
         console.log("Logging disabled");
-        saveMovementsToFile();
     }
 }
 
