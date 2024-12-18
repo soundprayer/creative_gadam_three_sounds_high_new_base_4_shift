@@ -11,9 +11,9 @@ let iconX3 = null, iconY3 = null;
 let iconX4 = null, iconY4 = null;
 let started = false;
 let selectedSound = 1;
-let reverb = 5;
+let reverb;
 let reverbTime = 3; // Initialize reverb time
-let reverbDecay = 2;   // Initialize reverb decay
+let reverbDecay = 2; // Initialize reverb decay
 let recording = false;
 let overdubbing = false; // Flag to track overdubbing state
 let recordStartTime;
@@ -53,7 +53,7 @@ let overdubStartTime = 0;
 let overdubEndTime = 0;
 let overdubMovements = [];
 
-let loggingEnabled = false;
+let logging = false; // Flag to track logging state
 
 function setup() {
     createCanvas(windowWidth, 400);
@@ -287,21 +287,7 @@ function draw() {
     }
 
     // Update loops
-    updateLoop1();
-    updateLoop2();
-    updateLoop3();
-    updateLoop4();
-}
-
-// Function to draw a hexagon
-function drawHexagon(x, y, radius) {
-    beginShape();
-    for (let angle = 0; angle < TWO_PI; angle += TWO_PI / 6) {
-        let sx = x + cos(angle) * radius;
-        let sy = y + sin(angle) * radius;
-        vertex(sx, sy);
-    }
-    endShape(CLOSE);
+    updateLoops();
 }
 
 function updateSound(sound, x, y) {
@@ -381,54 +367,58 @@ function mousePressed() {
         if (iconX1 !== null && iconY1 !== null && dist(mouseX, mouseY, iconX1, iconY1) < 20) {
             selectedSound = 1;
             clickedOnIcon = true;
-            isDragging1 = true;
         } else if (iconX2 !== null && iconY2 !== null && dist(mouseX, mouseY, iconX2, iconY2) < 20) {
             selectedSound = 2;
             clickedOnIcon = true;
-            isDragging2 = true;
         } else if (iconX3 !== null && iconY3 !== null && dist(mouseX, mouseY, iconX3, iconY3) < 20) {
             selectedSound = 3;
             clickedOnIcon = true;
-            isDragging3 = true;
         } else if (iconX4 !== null && iconY4 !== null && dist(mouseX, mouseY, iconX4, iconY4) < 20) {
             selectedSound = 4;
             clickedOnIcon = true;
-            isDragging4 = true;
-        } else {
-            // Not clicking on any icon
-            if (recording && overdubbing) {
-                // Record the click position during overdubbing
-                overdubMovements.push({
-                    time: millis(),
-                    x: mouseX,
-                    y: mouseY,
-                    sound: selectedSound
-                });
-                console.log("Overdub click recorded at", mouseX, mouseY);
-            } else if (recording && !overdubbing) {
-                // Record the click position during initial recording
+        }
+        
+        // Only start new sounds if we didn't click on an existing icon
+        if (!clickedOnIcon) {
+            if (selectedSound === 1 && !isPlaying1) {
+                osc1.start();
+                isPlaying1 = true;
+            }
+            if (selectedSound === 2 && !isPlaying2) {
+                osc2.start();
+                isPlaying2 = true;
+            }
+            if (selectedSound === 3 && !isPlaying3) {
+                osc3.start();
+                isPlaying3 = true;
+            }
+            if (selectedSound === 4 && !isPlaying4) {
+                osc4.start();
+                isPlaying4 = true;
+            }
+        }
+
+        // Record the position even if the mouse is not dragged
+        if (recording) {
+            console.log(`Recording movement for sound ${selectedSound} at (${mouseX}, ${mouseY})`);
+            let currentTime = millis() - recordStartTime;
+            if (overdubbing) {
+                // Add new movements to the existing movements array at the correct position
                 let movements = getMovementsArray(selectedSound);
-                movements.push({
-                    time: millis() - recordStartTime,
-                    x: mouseX,
-                    y: mouseY,
-                    sound: selectedSound
-                });
-                console.log("Recording click at", mouseX, mouseY);
+                let loopStartTime = getLoopStartTime(selectedSound);
+                let loopElapsedTime = (millis() - loopStartTime) % getLoopDuration(selectedSound);
+                let index = findInsertIndex(movements, loopElapsedTime);
+                movements.splice(index, 1, { time: loopElapsedTime, x: mouseX, y: mouseY, sound: selectedSound });
             } else {
-                // Start playing the selected sound if not already playing
-                if (selectedSound === 1 && !isPlaying1) {
-                    osc1.start();
-                    isPlaying1 = true;
-                } else if (selectedSound === 2 && !isPlaying2) {
-                    osc2.start();
-                    isPlaying2 = true;
-                } else if (selectedSound === 3 && !isPlaying3) {
-                    osc3.start();
-                    isPlaying3 = true;
-                } else if (selectedSound === 4 && !isPlaying4) {
-                    osc4.start();
-                    isPlaying4 = true;
+                // Normal recording
+                if (selectedSound === 1) {
+                    movements1.push({ time: currentTime, x: mouseX, y: mouseY, sound: 1 });
+                } else if (selectedSound === 2) {
+                    movements2.push({ time: currentTime, x: mouseX, y: mouseY, sound: 2 });
+                } else if (selectedSound === 3) {
+                    movements3.push({ time: currentTime, x: mouseX, y: mouseY, sound: 3 });
+                } else if (selectedSound === 4) {
+                    movements4.push({ time: currentTime, x: mouseX, y: mouseY, sound: 4 });
                 }
             }
         }
@@ -442,14 +432,23 @@ function mouseDragged() {
             updateSound(1, mouseX, mouseY);
             if (recording) {
                 console.log(`Dragging and recording movement for sound 1 at (${mouseX}, ${mouseY})`);
-                let currentTime = millis() - recordStartTime;
                 if (overdubbing) {
-                    let loopStartTime = getLoopStartTime(1);
-                    let loopElapsedTime = (millis() - loopStartTime) % getLoopDuration(1);
-                    let index = findInsertIndex(movements1, loopElapsedTime);
-                    movements1.splice(index, 1, { time: loopElapsedTime, x: mouseX, y: mouseY, sound: 1 });
+                    // Record movements into overdubMovements array only
+                    let loopStartTime = getLoopStartTime(selectedSound);
+                    let loopDuration = getLoopDuration(selectedSound);
+                    let currentTime = (millis() - loopStartTime) % loopDuration;
+
+                    overdubMovements.push({
+                        time: currentTime,
+                        x: mouseX,
+                        y: mouseY,
+                        sound: selectedSound
+                    });
                 } else {
-                    movements1.push({ time: currentTime, x: mouseX, y: mouseY, sound: 1 });
+                    // Normal recording
+                    let currentTime = millis() - recordStartTime;
+                    let movements = getMovementsArray(selectedSound);
+                    movements.push({ time: currentTime, x: mouseX, y: mouseY, sound: selectedSound });
                 }
             }
         }
@@ -528,18 +527,9 @@ function mouseReleased() {
 }
 
 function keyPressed() {
-    if (!started) {
-        getAudioContext().resume();
-        started = true;
-        let startMessage = document.getElementById('startMessage');
-        if (startMessage) {
-            startMessage.style.display = 'none';
-        }
-    }
-
     if (key === ' ') { // Check if the space key is pressed
         togglePlay();
-    } else if (keyCode === SHIFT) { // Check if the 'Shift' key is pressed
+    } else if (keyCode === CONTROL) { // Check if the 'Control' key is pressed
         let loopIndicator = document.getElementById('loopIndicator');
         // Start recording
         recording = true;
@@ -563,7 +553,7 @@ function keyPressed() {
             console.log("Loop 4 stopped");
         }
         loopIndicator.textContent = 'Loop: RECORDING';
-    } else if (keyCode === ALT) { // Check if the 'Alt' key is pressed
+    } else if (keyCode === SHIFT) { // Check if the 'Shift' key is pressed
         let loopIndicator = document.getElementById('loopIndicator');
         // Start overdubbing
         recording = true;
@@ -571,19 +561,14 @@ function keyPressed() {
         overdubStartTime = millis();
         overdubMovements = []; // Initialize the overdub movements array
         loopIndicator.textContent = 'Loop: OVERDUBBING';
-    } else if (key === 'L' || key === 'l') { // Check if the 'L' key is pressed
-        loggingEnabled = !loggingEnabled; // Toggle logging state
-        console.log(`File logging ${loggingEnabled ? 'enabled' : 'disabled'}`);
     } else if (key === 'Z' || key === 'z') { // Check if the 'Z' key is pressed
-        halveLoop(selectedSound); // Lasso effect halve
+        halveLoop(selectedSound);
     } else if (key === 'X' || key === 'x') { // Check if the 'X' key is pressed
-        doubleLoop(selectedSound); // Lasso effect double
-    } else if (key === 'S' || key === 's') { // Check if the 'S' key is pressed
-        shrinkLoop(selectedSound); // Shrink loop
-    } else if (key === 'D' || key === 'd') { // Check if the 'D' key is pressed
-        doubleLoopArray(selectedSound); // Double loop array
-    } else if (key === 'Q' || key === 'q') { // Check if the 'Q' key is pressed
+        doubleLoop(selectedSound);
+    } else if (key === 'A' || key === 'a') { // Check if the 'A' key is pressed
         toggleSelectedSound();
+    } else if (key === 'L' || key === 'l') { // Check if the 'L' key is pressed
+        toggleLogging();
     }
 }
 
@@ -592,60 +577,83 @@ function toggleSelectedSound() {
 }
 
 function keyReleased() {
-    if (keyCode === SHIFT) { // When recording stops
-        recording = false;
+    if (keyCode === CONTROL) { // Check if the 'Control' key is released
         let loopIndicator = document.getElementById('loopIndicator');
+        // Stop recording and start looping
+        recording = false;
         loopIndicator.textContent = 'Loop: ON';
         console.log("Recording stopped, starting loop");
-
         if (selectedSound === 1) {
-            movements1.push({ time: millis() - recordStartTime, x: iconX1, y: iconY1, sound: 1 });
+            movements1.push({ time: millis() - recordStartTime, x: iconX1, y: iconY1, sound: 1 }); // Ensure the last position is recorded
             console.log("Final movement for sound 1 recorded at", movements1[movements1.length - 1]);
             startLoop(movements1, 1);
-            if (loggingEnabled) saveMovementsLog(1); // Save log file for sound 1 if logging is enabled
         } else if (selectedSound === 2) {
-            movements2.push({ time: millis() - recordStartTime, x: iconX2, y: iconY2, sound: 2 });
+            movements2.push({ time: millis() - recordStartTime, x: iconX2, y: iconY2, sound: 2 }); // Ensure the last position is recorded
             console.log("Final movement for sound 2 recorded at", movements2[movements2.length - 1]);
             startLoop(movements2, 2);
-            if (loggingEnabled) saveMovementsLog(2); // Save log file for sound 2 if logging is enabled
         } else if (selectedSound === 3) {
-            movements3.push({ time: millis() - recordStartTime, x: iconX3, y: iconY3, sound: 3 });
+            movements3.push({ time: millis() - recordStartTime, x: iconX3, y: iconY3, sound: 3 }); // Ensure the last position is recorded
             console.log("Final movement for sound 3 recorded at", movements3[movements3.length - 1]);
             startLoop(movements3, 3);
-            if (loggingEnabled) saveMovementsLog(3); // Save log file for sound 3 if logging is enabled
         } else if (selectedSound === 4) {
-            movements4.push({ time: millis() - recordStartTime, x: iconX4, y: iconY4, sound: 4 });
+            movements4.push({ time: millis() - recordStartTime, x: iconX4, y: iconY4, sound: 4 }); // Ensure the last position is recorded
             console.log("Final movement for sound 4 recorded at", movements4[movements4.length - 1]);
             startLoop(movements4, 4);
-            if (loggingEnabled) saveMovementsLog(4); // Save log file for sound 4 if logging is enabled
         }
-    } else if (keyCode === ALT) { // When overdubbing stops
+        saveMovementsToFile(); // Automatically save movements to file
+    } else if (keyCode === SHIFT) { // Check if the 'Shift' key is released
+        let loopIndicator = document.getElementById('loopIndicator');
+        // Stop overdubbing
         recording = false;
         overdubbing = false;
         overdubEndTime = millis();
-        let loopIndicator = document.getElementById('loopIndicator');
         loopIndicator.textContent = 'Loop: ON';
 
-        // ... overdubbing logic ...
+        let movements = getMovementsArray(selectedSound);
+        let loopStartTime = getLoopStartTime(selectedSound);
+        let loopDuration = getLoopDuration(selectedSound);
 
-        // Save log file for the selected sound after overdubbing if logging is enabled
-        if (loggingEnabled) saveMovementsLog(selectedSound);
+        // Adjust overdubMovements times relative to the loop
+        overdubMovements = overdubMovements.map(movement => {
+            let adjustedTime = (movement.time + loopDuration) % loopDuration;
+            return { ...movement, time: adjustedTime };
+        });
+
+        // Calculate overdub time range
+        let overdubStart = overdubMovements[0].time;
+        let overdubEnd = overdubMovements[overdubMovements.length - 1].time;
+
+        // Remove old movements within the overdubbed time range
+        movements = movements.filter(movement => {
+            let timeInLoop = movement.time % loopDuration;
+            if (overdubEnd >= overdubStart) {
+                // Overdub within a single loop cycle
+                return timeInLoop < overdubStart || timeInLoop > overdubEnd;
+            } else {
+                // Overdub wraps around loop end
+                return timeInLoop < overdubStart && timeInLoop > overdubEnd;
+            }
+        });
+
+        // Add new movements and sort
+        movements = movements.concat(overdubMovements);
+        movements.sort((a, b) => a.time - b.time);
+
+        // Update the movements array for the selected sound
+        setMovementsArray(selectedSound, movements);
 
         // Clear overdubMovements
         overdubMovements = [];
+
+        saveMovementsToFile(); // Automatically save movements to file
     }
 }
 
 function setMovementsArray(sound, movements) {
-    if (sound === 1) {
-        movements1 = movements;
-    } else if (sound === 2) {
-        movements2 = movements;
-    } else if (sound === 3) {
-        movements3 = movements;
-    } else if (sound === 4) {
-        movements4 = movements;
-    }
+    if (sound === 1) movements1 = movements;
+    else if (sound === 2) movements2 = movements;
+    else if (sound === 3) movements3 = movements;
+    else if (sound === 4) movements4 = movements;
 }
 
 // Updated playMovements function
@@ -689,10 +697,8 @@ function startLoop(movements, sound) {
         console.log("No movements recorded, cannot start loop");
         return;
     }
-
     let loopDuration = movements[movements.length - 1].time;
     console.log("Starting loop with duration:", loopDuration);
-
     if (sound === 1) {
         loop1StartTime = millis();
         loop1Duration = loopDuration;
@@ -729,20 +735,16 @@ function updateLoops() {
 function updateLoop1() {
     if (!isLoop1Active || isDragging1) return;
     let elapsedTime = millis() - loop1StartTime;
-
-    while (
-        loop1CurrentIndex < movements1.length &&
-        movements1[loop1CurrentIndex].time <= elapsedTime
-    ) {
+    while (loop1CurrentIndex < movements1.length && movements1[loop1CurrentIndex].time <= elapsedTime) {
         let movement = movements1[loop1CurrentIndex];
         updateSound(1, movement.x, movement.y);
         loop1CurrentIndex++;
     }
-
     if (elapsedTime >= loop1Duration) {
-        loop1StartTime += loop1Duration;
+        loop1StartTime = millis();
         loop1CurrentIndex = 0;
     }
+    console.log("Loop 1 updated, elapsedTime:", elapsedTime, "loop1Duration:", loop1Duration);
 }
 
 function updateLoop2() {
@@ -821,51 +823,41 @@ function getLoopDuration(sound) {
 }
 
 function halveLoop(sound) {
-    let loopDuration = getLoopDuration(sound);
-    setLoopDuration(sound, loopDuration / 2);
-    console.log(`Loop ${sound} duration halved to ${loopDuration / 2} ms`);
+    let movements = getMovementsArray(sound);
+    if (movements.length > 1) {
+        let halfLength = Math.floor(movements.length / 2);
+        let originalDuration = getLoopDuration(sound);
+        let newDuration = originalDuration / 2;
+        console.log(`Halving loop for sound ${sound}. Original length: ${movements.length}, Original duration: ${originalDuration}`);
+        movements.length = halfLength; // Halve the array
+        for (let i = 0; i < halfLength; i++) {
+            movements[i].time = (movements[i].time / originalDuration) * newDuration;
+        }
+        console.log(`Loop for sound ${sound} halved to ${halfLength} movements with new duration ${newDuration}`);
+        setLoopDuration(sound, newDuration);
+        startLoop(movements, sound); // Restart the loop with the new length
+    } else {
+        console.log(`Not enough movements to halve for sound ${sound}`);
+    }
 }
 
 function doubleLoop(sound) {
-    let loopDuration = getLoopDuration(sound);
-    setLoopDuration(sound, loopDuration * 2);
-    console.log(`Loop ${sound} duration doubled to ${loopDuration * 2} ms`);
-}
-
-function shrinkLoop(sound) {
-    let loopDuration = getLoopDuration(sound);
-    let loopStartTime = getLoopStartTime(sound);
-    let elapsedTime = (millis() - loopStartTime) % loopDuration;
-
     let movements = getMovementsArray(sound);
-    let newMovements = [];
-
-    if (elapsedTime >= loopDuration / 2) {
-        // Keep the second half of the loop
-        newMovements = movements.filter(movement => movement.time >= loopDuration / 2);
-        newMovements.forEach(movement => movement.time -= loopDuration / 2);
-        console.log(`Loop ${sound} shrunk to second half, new duration: ${loopDuration / 2} ms`);
+    if (movements.length > 0) {
+        let originalLength = movements.length;
+        let originalDuration = getLoopDuration(sound);
+        let newDuration = originalDuration * 2;
+        console.log(`Doubling loop for sound ${sound}. Original length: ${originalLength}, Original duration: ${originalDuration}`);
+        for (let i = 0; i < originalLength; i++) {
+            let newMovement = { ...movements[i], time: movements[i].time + originalDuration };
+            movements.push(newMovement); // Append the same values to double the array
+        }
+        console.log(`Loop for sound ${sound} doubled to ${movements.length} movements with new duration ${newDuration}`);
+        setLoopDuration(sound, newDuration);
+        startLoop(movements, sound); // Restart the loop with the new length
     } else {
-        // Keep the first half of the loop
-        newMovements = movements.filter(movement => movement.time < loopDuration / 2);
-        console.log(`Loop ${sound} shrunk to first half, new duration: ${loopDuration / 2} ms`);
+        console.log(`No movements to double for sound ${sound}`);
     }
-
-    setMovementsArray(sound, newMovements);
-    setLoopDuration(sound, loopDuration / 2);
-}
-
-function doubleLoopArray(sound) {
-    let movements = getMovementsArray(sound);
-    let loopDuration = getLoopDuration(sound);
-    let doubledMovements = movements.concat(movements.map(movement => ({
-        ...movement,
-        time: movement.time + loopDuration
-    })));
-
-    setMovementsArray(sound, doubledMovements);
-    setLoopDuration(sound, loopDuration * 2);
-    console.log(`Loop ${sound} array doubled, new duration: ${loopDuration * 2} ms`);
 }
 
 function setLoopDuration(sound, duration) {
@@ -881,16 +873,28 @@ function setLoopDuration(sound, duration) {
     console.log(`Set loop duration for sound ${sound} to ${duration}`);
 }
 
-function formatMovements(movements) {
-    return movements.map(movement => {
-        return `time: ${movement.time}, x: ${movement.x}, y: ${movement.y}, sound: ${movement.sound}`;
-    });
+function toggleLogging() {
+    logging = !logging;
+    if (logging) {
+        console.log("Logging enabled");
+    } else {
+        console.log("Logging disabled");
+        saveMovementsToFile();
+    }
 }
 
-function saveMovementsLog(sound) {
-    let movements = getMovementsArray(sound);
-    let formattedMovements = formatMovements(movements);
-    saveStrings(formattedMovements, `movements_log_sound_${sound}.txt`);
+function saveMovementsToFile() {
+    let movements = getMovementsArray(selectedSound);
+    let logContent = movements.map(movement => `time: ${movement.time}, x: ${movement.x}, y: ${movement.y}, sound: ${movement.sound}`).join('\n');
+    let blob = new Blob([logContent], { type: 'text/plain' });
+    let url = URL.createObjectURL(blob);
+    let a = document.createElement('a');
+    a.href = url;
+    a.download = `movements_log_sound_${selectedSound}_${Date.now()}.txt`; // Include timestamp in filename
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
 }
 
 window.addEventListener('DOMContentLoaded', (event) => {
