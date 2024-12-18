@@ -529,7 +529,7 @@ function mouseReleased() {
 function keyPressed() {
     if (key === ' ') { // Check if the space key is pressed
         togglePlay();
-    } else if (keyCode === CONTROL) { // Check if the 'Control' key is pressed
+    } else if (keyCode === SHIFT) { // Check if the 'SHIFT' key is pressed
         let loopIndicator = document.getElementById('loopIndicator');
         // Start recording
         recording = true;
@@ -553,7 +553,7 @@ function keyPressed() {
             console.log("Loop 4 stopped");
         }
         loopIndicator.textContent = 'Loop: RECORDING';
-    } else if (keyCode === SHIFT) { // Check if the 'Shift' key is pressed
+    } else if (keyCode === ALT) { // Check if the 'ALT' key is pressed
         let loopIndicator = document.getElementById('loopIndicator');
         // Start overdubbing
         recording = true;
@@ -577,7 +577,7 @@ function toggleSelectedSound() {
 }
 
 function keyReleased() {
-    if (keyCode === CONTROL) { // Check if the 'Control' key is released
+    if (keyCode === SHIFT) { // Check if the 'SHIFT ' key is released
         let loopIndicator = document.getElementById('loopIndicator');
         // Stop recording and start looping
         recording = false;
@@ -601,7 +601,7 @@ function keyReleased() {
             startLoop(movements4, 4);
         }
         saveMovementsToFile(); // Automatically save movements to file
-    } else if (keyCode === SHIFT) { // Check if the 'Shift' key is released
+    } else if (keyCode === ALT) { // Check if the 'ALT' key is released
         let loopIndicator = document.getElementById('loopIndicator');
         // Stop overdubbing
         recording = false;
