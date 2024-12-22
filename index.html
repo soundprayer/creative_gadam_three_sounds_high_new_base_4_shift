@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>p5.js Project</title>
     <style>
+        :root {
+            --color-green: rgb(111, 255, 0);
+            --color-red: rgb(255, 0, 234);
+            --color-blue: rgb(0, 242, 255);
+            --color-yellow: rgb(255, 238, 0);
+        }
         body {
             background-color: black;
             color: green;
@@ -69,18 +75,18 @@
             cursor: pointer;
         }
         .sound-option.green {
-            background-color: green;
+            background-color: var(--color-green);
             border-radius: 50%;
         }
         .sound-option.red {
-            background-color: red;
+            background-color: var(--color-red);
             clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
         }
         .sound-option.blue {
-            background-color: blue;
+            background-color: var(--color-blue);
         }
         .sound-option.yellow {
-            background-color: yellow;
+            background-color: var(--color-yellow);
             border-radius: 50%;
         }
         @keyframes flash {

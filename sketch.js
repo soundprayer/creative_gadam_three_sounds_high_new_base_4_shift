@@ -168,28 +168,29 @@ function draw() {
 
     // Reset drawing styles before drawing text
     noStroke();
-    fill(0, 255, 0);
+    fill(getComputedStyle(document.documentElement).getPropertyValue('--color-green').trim());
     textAlign(CENTER, CENTER);
     textSize(64);
     textFont('Press Start 2P');
     text(freq1.toFixed(2) + ' Hz', width / 2, height / 2 - 120);
 
-    fill(255, 0, 0);
+    fill(getComputedStyle(document.documentElement).getPropertyValue('--color-red').trim());
     text(freq2.toFixed(2) + ' Hz', width / 2, height / 2 - 40);
 
-    fill(0, 0, 255);
+    fill(getComputedStyle(document.documentElement).getPropertyValue('--color-blue').trim());
     text(freq3.toFixed(2) + ' Hz', width / 2, height / 2 + 40);
 
-    fill(255, 255, 0);
+    fill(getComputedStyle(document.documentElement).getPropertyValue('--color-yellow').trim());
     text(freq4.toFixed(2) + ' Hz', width / 2, height / 2 + 120);
 
     if (isPlaying1 && amp1 > 0.1) {
         let particleSize1 = map(freq1, 100, 1000, 20, 2);
+        let colorGreen = getComputedStyle(document.documentElement).getPropertyValue('--color-green').trim();
         for (let i = 0; i < 100; i++) {
             let x = random(width);
             let y = random(height);
             let alpha1 = map(amp1, 0.1, 1, 0, 255);
-            fill(0, 255, 0, alpha1);
+            fill(color(colorGreen).levels[0], color(colorGreen).levels[1], color(colorGreen).levels[2], alpha1);
             noStroke();
             rect(x, y, particleSize1, particleSize1);
         }
@@ -197,11 +198,12 @@ function draw() {
 
     if (isPlaying2 && amp2 > 0.1) {
         let particleSize2 = map(freq2, 100, 1000, 20, 2);
+        let colorRed = getComputedStyle(document.documentElement).getPropertyValue('--color-red').trim();
         for (let i = 0; i < 100; i++) {
             let x = random(width);
             let y = random(height);
             let alpha2 = map(amp2, 0.1, 1, 0, 255);
-            fill(255, 0, 0, alpha2);
+            fill(color(colorRed).levels[0], color(colorRed).levels[1], color(colorRed).levels[2], alpha2);
             noStroke();
             rect(x, y, particleSize2, particleSize2);
         }
@@ -209,11 +211,12 @@ function draw() {
 
     if (isPlaying3 && amp3 > 0.1) {
         let particleSize3 = map(freq3, 100, 1000, 20, 2);
+        let colorBlue = getComputedStyle(document.documentElement).getPropertyValue('--color-blue').trim();
         for (let i = 0; i < 100; i++) {
             let x = random(width);
             let y = random(height);
             let alpha3 = map(amp3, 0.1, 1, 0, 255);
-            fill(0, 0, 255, alpha3);
+            fill(color(colorBlue).levels[0], color(colorBlue).levels[1], color(colorBlue).levels[2], alpha3);
             noStroke();
             rect(x, y, particleSize3, particleSize3);
         }
@@ -221,36 +224,37 @@ function draw() {
 
     if (isPlaying4 && amp4 > 0.1) {
         let particleSize4 = map(freq4, 100, 1000, 20, 2);
+        let colorYellow = getComputedStyle(document.documentElement).getPropertyValue('--color-yellow').trim();
         for (let i = 0; i < 100; i++) {
             let x = random(width);
             let y = random(height);
             let alpha4 = map(amp4, 0.1, 1, 0, 255);
-            fill(255, 255, 0, alpha4);
+            fill(color(colorYellow).levels[0], color(colorYellow).levels[1], color(colorYellow).levels[2], alpha4);
             noStroke();
             rect(x, y, particleSize4, particleSize4);
         }
     }
 
     if (iconX1 !== null && iconY1 !== null) {
-        fill(0, 255, 0);
+        fill(getComputedStyle(document.documentElement).getPropertyValue('--color-green').trim());
         noStroke();
         ellipse(iconX1, iconY1, 20, 20); // Draw a retro icon for the first sound
     }
 
     if (iconX2 !== null && iconY2 !== null) {
-        fill(255, 0, 0);
+        fill(getComputedStyle(document.documentElement).getPropertyValue('--color-red').trim());
         noStroke();
         triangle(iconX2 - 10, iconY2 + 10, iconX2 + 10, iconY2 + 10, iconX2, iconY2 - 10); // Draw a retro icon for the second sound
     }
 
     if (iconX3 !== null && iconY3 !== null) {
-        fill(0, 0, 255);
+        fill(getComputedStyle(document.documentElement).getPropertyValue('--color-blue').trim());
         noStroke();
         rect(iconX3 - 10, iconY3 - 10, 20, 20); // Draw a retro icon for the third sound
     }
 
     if (iconX4 !== null && iconY4 !== null) {
-        fill(255, 255, 0);
+        fill(getComputedStyle(document.documentElement).getPropertyValue('--color-yellow').trim());
         noStroke();
         ellipse(iconX4, iconY4, 20, 20); // Draw a retro icon for the fourth sound
     }
