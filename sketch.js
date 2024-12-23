@@ -55,6 +55,8 @@ let overdubMovements = [];
 
 let logging = false; // Flag to track logging state
 
+let debugMode = false; // New debug flag
+
 function setup() {
     createCanvas(windowWidth, 400);
     noSmooth(); // Disable anti-aliasing for a pixelated look
@@ -119,6 +121,9 @@ function windowResized() {
 
 function draw() {
     background(0);
+
+    // Draw semitransparent red vertical lines for notes
+    drawNoteLines();
 
     // Highlight the selected sound in the menu
     let soundButtons = document.querySelectorAll('.sound-option');
@@ -292,6 +297,40 @@ function draw() {
 
     // Update loops
     updateLoops();
+}
+
+function drawNoteLines() {
+    let notes = [
+        { freq: 261.63, name: 'C' }, { freq: 293.66, name: 'D' }, { freq: 329.63, name: 'E' },
+        { freq: 349.23, name: 'F' }, { freq: 392.00, name: 'G' }, { freq: 440.00, name: 'A' },
+        { freq: 493.88, name: 'B' }, { freq: 523.25, name: 'C' }, { freq: 587.33, name: 'D' },
+        { freq: 659.25, name: 'E' }, { freq: 698.46, name: 'F' }, { freq: 783.99, name: 'G' },
+        { freq: 880.00, name: 'A' }, { freq: 987.77, name: 'B' }, { freq: 1046.50, name: 'C' },
+        { freq: 1174.66, name: 'D' }, { freq: 1318.51, name: 'E' }, { freq: 1396.91, name: 'F' },
+        { freq: 1567.98, name: 'G' }, { freq: 1760.00, name: 'A' }, { freq: 1975.53, name: 'B' }
+    ];
+    stroke(255, 0, 0, 127); // Semitransparent red
+    strokeWeight(1);
+    
+    if (debugMode) {
+        console.log("Debug: Checking note line drawing");
+        strokeWeight(2);
+        stroke(255, 255, 255); // Force visible color for debugging
+    }
+
+    notes.forEach(note => {
+        let x = map(note.freq, 40, 2000, 0, width); // Adjusted frequency range to fit within the screen width
+        console.log(`Drawing line for note ${note.name} at x=${x}`); // Debugging log
+        if (x >= 0 && x <= width) { // Ensure the line is within the screen width
+            line(x, 0, x, height);
+            fill(255, 0, 0, 127);
+            textSize(12);
+            text(note.name, x, 20);
+        }
+        if (debugMode) {
+            console.log(`Debug: freq=${note.freq}, x=${x}, inCanvas=${(x>=0 && x<=width)}`);
+        }
+    });
 }
 
 function updateSound(sound, x, y) {
