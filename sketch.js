@@ -218,19 +218,19 @@ function draw() {
     textAlign(CENTER, CENTER);
     textSize(64);
     textFont('Press Start 2P');
-    text(freq1.toFixed(2) + ' Hz', width / 2, height / 2 - 120);
+    text(Math.round(freq1) + ' Hz', width / 2, height / 2 - 120);
 
     fill(getComputedStyle(document.documentElement).getPropertyValue('--color-red').trim());
-    text(freq2.toFixed(2) + ' Hz', width / 2, height / 2 - 40);
+    text(Math.round(freq2) + ' Hz', width / 2, height / 2 - 40);
 
     fill(getComputedStyle(document.documentElement).getPropertyValue('--color-blue').trim());
-    text(freq3.toFixed(2) + ' Hz', width / 2, height / 2 + 40);
+    text(Math.round(freq3) + ' Hz', width / 2, height / 2 + 40);
 
     fill(getComputedStyle(document.documentElement).getPropertyValue('--color-yellow').trim());
-    text(freq4.toFixed(2) + ' Hz', width / 2, height / 2 + 120);
+    text(Math.round(freq4) + ' Hz', width / 2, height / 2 + 120);
 
     if (isPlaying1 && amp1 > 0.1) {
-        let particleSize1 = map(freq1, 100, 1000, 20, 2);
+        let particleSize1 = map(Math.log(freq1), Math.log(40), Math.log(1000), 20, 2);
         let colorGreen = getComputedStyle(document.documentElement).getPropertyValue('--color-green').trim();
         for (let i = 0; i < 100; i++) {
             let x = random(width);
@@ -243,7 +243,7 @@ function draw() {
     }
 
     if (isPlaying2 && amp2 > 0.1) {
-        let particleSize2 = map(freq2, 100, 1000, 20, 2);
+        let particleSize2 = map(Math.log(freq2), Math.log(40), Math.log(1000), 20, 2);
         let colorRed = getComputedStyle(document.documentElement).getPropertyValue('--color-red').trim();
         for (let i = 0; i < 100; i++) {
             let x = random(width);
@@ -256,7 +256,7 @@ function draw() {
     }
 
     if (isPlaying3 && amp3 > 0.1) {
-        let particleSize3 = map(freq3, 100, 1000, 20, 2);
+        let particleSize3 = map(Math.log(freq3), Math.log(40), Math.log(1000), 20, 2);
         let colorBlue = getComputedStyle(document.documentElement).getPropertyValue('--color-blue').trim();
         for (let i = 0; i < 100; i++) {
             let x = random(width);
@@ -269,7 +269,7 @@ function draw() {
     }
 
     if (isPlaying4 && amp4 > 0.1) {
-        let particleSize4 = map(freq4, 100, 1000, 20, 2);
+        let particleSize4 = map(Math.log(freq4), Math.log(40), Math.log(1000), 20, 2);
         let colorYellow = getComputedStyle(document.documentElement).getPropertyValue('--color-yellow').trim();
         for (let i = 0; i < 100; i++) {
             let x = random(width);
@@ -342,33 +342,33 @@ function draw() {
 
 function drawNoteLines() {
     let notes = getScaleNotes();
-    stroke(255, 0, 0, 127); // Semitransparent red
+    stroke(255, 0, 0, 127);
     strokeWeight(1);
     
-    if (debugMode) {
-        console.log("Debug: Checking note line drawing");
-        strokeWeight(2);
-        stroke(255, 255, 255); // Force visible color for debugging
-    }
-
     notes.forEach(note => {
-        let x = map(note.freq, 40, 2000, 0, width); // Adjusted frequency range to fit within the screen width
-        console.log(`Drawing line for note ${note.name} at x=${x}`); // Debugging log
-        if (x >= 0 && x <= width) { // Ensure the line is within the screen width
+        // Convert frequency to logarithmic position
+        let minFreq = 40;
+        let maxFreq = 1000;
+        let x = width * (Math.log(note.freq/minFreq)) / (Math.log(maxFreq/minFreq));
+        
+        if (x >= 0 && x <= width) {
             line(x, 0, x, height);
             fill(255, 0, 0, 127);
             textSize(12);
             text(note.name, x, 20);
         }
-        if (debugMode) {
-            console.log(`Debug: freq=${note.freq}, x=${x}, inCanvas=${(x>=0 && x<=width)}`);
-        }
     });
 }
 
 function updateSound(sound, x, y) {
-    let freq = map(x, 0, width, 40, 1000); // Adjusted frequency range to 40 Hz to 1 kHz
-    let amp = map(y, height, 0, 0, 0.8); // Limited amplitude to 0.8
+    // Logarithmic frequency mapping
+    let minFreq = 40;
+    let maxFreq = 1000;
+    let freq = minFreq * Math.pow(maxFreq/minFreq, x/width);
+    
+    let amp = map(y, height, 0, 0, 0.8);
+    
+    // Rest of the function remains the same
     if (sound === 1) {
         osc1.freq(freq);
         osc1.amp(amp, 0.1);
