@@ -57,6 +57,47 @@ let logging = false; // Flag to track logging state
 
 let debugMode = false; // New debug flag
 
+let scaleType = 'pentatonic'; // Default scale
+
+let rootNote = 'C'; // Default root
+
+function selectRootNote(value) {
+    rootNote = value;
+    console.log("Selected root note:", rootNote);
+}
+
+function selectScale(value) {
+    scaleType = value;
+    console.log("Selected scale:", scaleType);
+}
+
+function getScaleNotes() {
+    // Adjust these base frequencies as needed
+    const baseFreqMap = {
+        'C': 261.63,
+        'D': 293.66,
+        'E': 329.63,
+        'F': 349.23,
+        'G': 392.00,
+        'A': 440.00,
+        'B': 493.88
+    };
+    let rootFreq = baseFreqMap[rootNote] || 261.63;
+
+    let intervals = scaleType === 'pentatonic' ? [0, 2, 4, 7, 9] : [0, 2, 4, 5, 7, 9, 11, 12];
+    let octaves = [-2, -1, 0, 1, 2];
+    let notes = [];
+    octaves.forEach(oct => {
+        intervals.forEach(interval => {
+            let freq = rootFreq * Math.pow(2, (interval + 12 * oct) / 12);
+            if (freq >= 20 && freq <= 4000) {
+                notes.push({ freq, name: rootNote + (oct === 0 ? '' : (oct > 0 ? `+${oct}` : `${oct}`)) });
+            }
+        });
+    });
+    return notes;
+}
+
 function setup() {
     createCanvas(windowWidth, 400);
     noSmooth(); // Disable anti-aliasing for a pixelated look
@@ -300,15 +341,7 @@ function draw() {
 }
 
 function drawNoteLines() {
-    let notes = [
-        { freq: 261.63, name: 'C' }, { freq: 293.66, name: 'D' }, { freq: 329.63, name: 'E' },
-        { freq: 349.23, name: 'F' }, { freq: 392.00, name: 'G' }, { freq: 440.00, name: 'A' },
-        { freq: 493.88, name: 'B' }, { freq: 523.25, name: 'C' }, { freq: 587.33, name: 'D' },
-        { freq: 659.25, name: 'E' }, { freq: 698.46, name: 'F' }, { freq: 783.99, name: 'G' },
-        { freq: 880.00, name: 'A' }, { freq: 987.77, name: 'B' }, { freq: 1046.50, name: 'C' },
-        { freq: 1174.66, name: 'D' }, { freq: 1318.51, name: 'E' }, { freq: 1396.91, name: 'F' },
-        { freq: 1567.98, name: 'G' }, { freq: 1760.00, name: 'A' }, { freq: 1975.53, name: 'B' }
-    ];
+    let notes = getScaleNotes();
     stroke(255, 0, 0, 127); // Semitransparent red
     strokeWeight(1);
     
