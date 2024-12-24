@@ -61,6 +61,17 @@ let scaleType = 'pentatonic'; // Default scale
 
 let rootNote = 'C'; // Default root
 
+let transitionTime1 = 0.1;
+let transitionTime2 = 0.1;
+let transitionTime3 = 0.1;
+let transitionTime4 = 0.1;
+
+let freqTransitionTime1 = 0.1;
+let freqTransitionTime2 = 0.1;
+let freqTransitionTime3 = 0.1;
+let freqTransitionTime4 = 0.1;
+const AMP_TRANSITION_TIME = 0.1; // Fixed amplitude transition
+
 function selectRootNote(value) {
     rootNote = value;
     console.log("Selected root note:", rootNote);
@@ -390,46 +401,57 @@ function drawNoteLines() {
 }
 
 function updateSound(sound, x, y) {
-    // Logarithmic frequency mapping
     let minFreq = 40;
     let maxFreq = 1000;
     let freq = minFreq * Math.pow(maxFreq/minFreq, x/width);
-    
     let amp = map(y, height, 0, 0, 0.8);
     
-    // Rest of the function remains the same
     if (sound === 1) {
-        osc1.freq(freq);
-        osc1.amp(amp, 0.1);
-        osc1.phase(0); // Reset phase
+        osc1.freq(freq, freqTransitionTime1);
+        osc1.amp(amp, AMP_TRANSITION_TIME);
         iconX1 = x;
         iconY1 = y;
-        freq1 = freq; // Update global frequency variable for visualization
-        amp1 = amp; // Update global amplitude variable for visualization
+        freq1 = freq;
+        amp1 = amp;
     } else if (sound === 2) {
-        osc2.freq(freq);
-        osc2.amp(amp, 0.1);
-        osc2.phase(0); // Reset phase
+        osc2.freq(freq, freqTransitionTime2);
+        osc2.amp(amp, AMP_TRANSITION_TIME);
         iconX2 = x;
         iconY2 = y;
-        freq2 = freq; // Update global frequency variable for visualization
-        amp2 = amp; // Update global amplitude variable for visualization
+        freq2 = freq;
+        amp2 = amp;
     } else if (sound === 3) {
-        osc3.freq(freq);
-        osc3.amp(amp, 0.1);
-        osc3.phase(0); // Reset phase
+        osc3.freq(freq, freqTransitionTime3);
+        osc3.amp(amp, AMP_TRANSITION_TIME);
         iconX3 = x;
         iconY3 = y;
-        freq3 = freq; // Update global frequency variable for visualization
-        amp3 = amp; // Update global amplitude variable for visualization
+        freq3 = freq;
+        amp3 = amp;
     } else if (sound === 4) {
-        osc4.freq(freq);
-        osc4.amp(amp, 0.1);
-        osc4.phase(0); // Reset phase
+        osc4.freq(freq, freqTransitionTime4);
+        osc4.amp(amp, AMP_TRANSITION_TIME);
         iconX4 = x;
         iconY4 = y;
-        freq4 = freq; // Update global frequency variable for visualization
-        amp4 = amp; // Update global amplitude variable for visualization
+        freq4 = freq;
+        amp4 = amp;
+    }
+}
+
+function updateTransitionTime(sound, value) {
+    switch(sound) {
+        case 1: transitionTime1 = parseFloat(value); break;
+        case 2: transitionTime2 = parseFloat(value); break;
+        case 3: transitionTime3 = parseFloat(value); break;
+        case 4: transitionTime4 = parseFloat(value); break;
+    }
+}
+
+function updateFreqTransitionTime(sound, value) {
+    switch(sound) {
+        case 1: freqTransitionTime1 = parseFloat(value); break;
+        case 2: freqTransitionTime2 = parseFloat(value); break;
+        case 3: freqTransitionTime3 = parseFloat(value); break;
+        case 4: freqTransitionTime4 = parseFloat(value); break;
     }
 }
 
