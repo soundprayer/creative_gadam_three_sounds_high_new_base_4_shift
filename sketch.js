@@ -66,10 +66,13 @@ let transitionTime2 = 0.1;
 let transitionTime3 = 0.1;
 let transitionTime4 = 0.1;
 
-let freqTransitionTime1 = 0.1;
-let freqTransitionTime2 = 0.1;
-let freqTransitionTime3 = 0.1;
-let freqTransitionTime4 = 0.1;
+let freqTransitionTimes = {
+    1: 0.1,
+    2: 0.1,
+    3: 0.1,
+    4: 0.1
+};
+
 const AMP_TRANSITION_TIME = 0.1; // Fixed amplitude transition
 
 function selectRootNote(value) {
@@ -407,28 +410,28 @@ function updateSound(sound, x, y) {
     let amp = map(y, height, 0, 0, 0.8);
     
     if (sound === 1) {
-        osc1.freq(freq, freqTransitionTime1);
+        osc1.freq(freq, freqTransitionTimes[1]);  // Use global transition time
         osc1.amp(amp, AMP_TRANSITION_TIME);
         iconX1 = x;
         iconY1 = y;
         freq1 = freq;
         amp1 = amp;
     } else if (sound === 2) {
-        osc2.freq(freq, freqTransitionTime2);
+        osc2.freq(freq, freqTransitionTimes[2]);  // Use global transition time
         osc2.amp(amp, AMP_TRANSITION_TIME);
         iconX2 = x;
         iconY2 = y;
         freq2 = freq;
         amp2 = amp;
     } else if (sound === 3) {
-        osc3.freq(freq, freqTransitionTime3);
+        osc3.freq(freq, freqTransitionTimes[3]);  // Use global transition time
         osc3.amp(amp, AMP_TRANSITION_TIME);
         iconX3 = x;
         iconY3 = y;
         freq3 = freq;
         amp3 = amp;
     } else if (sound === 4) {
-        osc4.freq(freq, freqTransitionTime4);
+        osc4.freq(freq, freqTransitionTimes[4]);  // Use global transition time
         osc4.amp(amp, AMP_TRANSITION_TIME);
         iconX4 = x;
         iconY4 = y;
@@ -447,12 +450,7 @@ function updateTransitionTime(sound, value) {
 }
 
 function updateFreqTransitionTime(sound, value) {
-    switch(sound) {
-        case 1: freqTransitionTime1 = parseFloat(value); break;
-        case 2: freqTransitionTime2 = parseFloat(value); break;
-        case 3: freqTransitionTime3 = parseFloat(value); break;
-        case 4: freqTransitionTime4 = parseFloat(value); break;
-    }
+    freqTransitionTimes[sound] = parseFloat(value);
 }
 
 function togglePlay() {
