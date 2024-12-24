@@ -11,7 +11,6 @@ let iconX3 = null, iconY3 = null;
 let iconX4 = null, iconY4 = null;
 let started = false;
 let selectedSound = 1;
-let reverb;
 let reverbTime = 3; // Initialize reverb time
 let reverbDecay = 2; // Initialize reverb decay
 let recording = false;
@@ -74,6 +73,14 @@ let freqTransitionTimes = {
 };
 
 const AMP_TRANSITION_TIME = 0.1; // Fixed amplitude transition
+
+let reverb1, reverb2, reverb3, reverb4;
+let reverbDryWet = {
+    1: 0.5,
+    2: 0.5,
+    3: 0.5,
+    4: 0.5
+};
 
 function selectRootNote(value) {
     rootNote = value;
@@ -154,31 +161,31 @@ function setup() {
     
     // Initialize audio context and reverb
     getAudioContext().resume().then(() => {
-        reverb = new p5.Reverb();
-        
-        // Get initial values from HTML sliders
-        let reverbSlider = document.getElementById('reverbSlider');
-        let reverbTimeSlider = document.getElementById('reverbTimeSlider');
-        let reverbDecaySlider = document.getElementById('reverbDecaySlider');
-        
-        // Set initial reverb parameters
-        reverb.set(parseFloat(reverbTimeSlider.value), 
-                  parseFloat(reverbDecaySlider.value));
-        reverb.drywet(parseFloat(reverbSlider.value));
-        
-        // Connect oscillators to reverb
-        osc1.disconnect();
-        osc2.disconnect();
-        osc3.disconnect();
-        osc4.disconnect();
-        
-        reverb.process(osc1);
-        reverb.process(osc2);
-        reverb.process(osc3);
-        reverb.process(osc4);
-        
         setupComplete = true;
     });
+
+    // Create individual reverbs
+    reverb1 = new p5.Reverb();
+    reverb2 = new p5.Reverb();
+    reverb3 = new p5.Reverb();
+    reverb4 = new p5.Reverb();
+    
+    // Set initial reverb parameters
+    [reverb1, reverb2, reverb3, reverb4].forEach((rev, i) => {
+        rev.set(3, 2); // Fixed reverb time and decay
+        rev.drywet(reverbDryWet[i + 1]);
+    });
+    
+    // Connect oscillators to their reverbs
+    osc1.disconnect();
+    osc2.disconnect();
+    osc3.disconnect();
+    osc4.disconnect();
+    
+    reverb1.process(osc1);
+    reverb2.process(osc2);
+    reverb3.process(osc3);
+    reverb4.process(osc4);
 }
 
 function windowResized() {
@@ -435,31 +442,43 @@ function updateFreqTransitionTime(sound, value) {
     freqTransitionTimes[sound] = parseFloat(value);
 }
 
+// Remove oscillator start from togglePlay
 function togglePlay() {
     let playPauseStatus = document.getElementById('playPauseStatus');
     if (isPlaying1 || isPlaying2 || isPlaying3 || isPlaying4) {
-        osc1.stop();
-        osc2.stop();
-        osc3.stop();
-        osc4.stop();
+        // Stop only active oscillators
+        if (isPlaying1) osc1.stop();
+        if (isPlaying2) osc2.stop();
+        if (isPlaying3) osc3.stop();
+        if (isPlaying4) osc4.stop();
         isPlaying1 = false;
         isPlaying2 = false;
         isPlaying3 = false;
         isPlaying4 = false;
         playPauseStatus.textContent = 'Play';
     } else {
-        osc1.start();
-        osc2.start();
-        osc3.start();
-        osc4.start();
-        isPlaying1 = true;
-        isPlaying2 = true;
-        isPlaying3 = true;
-        isPlaying4 = true;
+        // Start only existing oscillators
+        if (iconX1 !== null) {
+            osc1.start();
+            isPlaying1 = true;
+        }
+        if (iconX2 !== null) {
+            osc2.start();
+            isPlaying2 = true;
+        }
+        if (iconX3 !== null) {
+            osc3.start();
+            isPlaying3 = true;
+        }
+        if (iconX4 !== null) {
+            osc4.start();
+            isPlaying4 = true;
+        }
         playPauseStatus.textContent = 'Pause';
     }
 }
 
+// Update mousePressed to only start oscillators when first placed
 function mousePressed() {
     if (!started) {
         getAudioContext().resume().then(() => {
@@ -493,21 +512,33 @@ function mousePressed() {
         
         // Only start new sounds if we didn't click on an existing icon
         if (!clickedOnIcon) {
-            if (selectedSound === 1 && !isPlaying1) {
+            if (selectedSound === 1 && iconX1 === null) {
                 osc1.start();
                 isPlaying1 = true;
+                iconX1 = mouseX;
+                iconY1 = mouseY;
+                updateSound(1, mouseX, mouseY);
             }
-            if (selectedSound === 2 && !isPlaying2) {
+            if (selectedSound === 2 && iconX2 === null) {
                 osc2.start();
                 isPlaying2 = true;
+                iconX2 = mouseX;
+                iconY2 = mouseY;
+                updateSound(2, mouseX, mouseY);
             }
-            if (selectedSound === 3 && !isPlaying3) {
+            if (selectedSound === 3 && iconX3 === null) {
                 osc3.start();
                 isPlaying3 = true;
+                iconX3 = mouseX;
+                iconY3 = mouseY;
+                updateSound(3, mouseX, mouseY);
             }
-            if (selectedSound === 4 && !isPlaying4) {
+            if (selectedSound === 4 && iconX4 === null) {
                 osc4.start();
                 isPlaying4 = true;
+                iconX4 = mouseX;
+                iconY4 = mouseY;
+                updateSound(4, mouseX, mouseY);
             }
         }
 
@@ -1033,14 +1064,28 @@ window.updateReverb = function(value) {
     reverb.drywet(parseFloat(value));  // Ensure value is treated as number
 }
 
-window.updateReverbTime = function(value) {
-    console.log("Reverb time value:", value); // Debugging log
-    reverbTime = value; // Update the global variable
-    reverb.set(reverbTime, reverbDecay); // Apply the new reverb time
+window.updateReverbSend = function(sound, value) {
+    reverbDryWet[sound] = parseFloat(value);
+    switch(sound) {
+        case 1: reverb1.drywet(reverbDryWet[1]); break;
+        case 2: reverb2.drywet(reverbDryWet[2]); break;
+        case 3: reverb3.drywet(reverbDryWet[3]); break;
+        case 4: reverb4.drywet(reverbDryWet[4]); break;
+    }
 }
 
+// Update reverb time for all instances
+window.updateReverbTime = function(value) {
+    reverbTime = parseFloat(value);
+    [reverb1, reverb2, reverb3, reverb4].forEach(rev => {
+        rev.set(reverbTime, reverbDecay);
+    });
+}
+
+// Update reverb decay for all instances
 window.updateReverbDecay = function(value) {
-    console.log("Reverb decay value:", value); // Debugging log
-    reverbDecay = value; // Update the global variable
-    reverb.set(reverbTime, reverbDecay); // Apply the new reverb decay
+    reverbDecay = parseFloat(value);
+    [reverb1, reverb2, reverb3, reverb4].forEach(rev => {
+        rev.set(reverbTime, reverbDecay);
+    });
 }
