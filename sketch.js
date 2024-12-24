@@ -141,61 +141,43 @@ function getNoteNameFromInterval(root, interval, octave) {
     return noteOrder[noteIndex] + octave;
 }
 
+let setupComplete = false;
+
 function setup() {
     createCanvas(windowWidth, 400);
-    noSmooth(); // Disable anti-aliasing for a pixelated look
-
+    
+    // Create oscillators first
     osc1 = new p5.Oscillator('sine');
     osc2 = new p5.Oscillator('triangle');
     osc3 = new p5.Oscillator('square');
     osc4 = new p5.Oscillator('sawtooth');
     
-    // Create reverb effect
-    reverb = new p5.Reverb();
-    
-    // Set initial parameters
-    reverb.set(reverbTime, reverbDecay);
-    
-    // Initialize reverb dry/wet to match the slider value
-    let reverbSlider = document.getElementById('reverbSlider');
-    reverb.drywet(reverbSlider.value / 100);
-
-    // Disconnect oscillators from master output
-    osc1.disconnect();
-    osc2.disconnect();
-    osc3.disconnect();
-    osc4.disconnect();
-    
-    // Process oscillators with reverb
-    reverb.process(osc1);
-    reverb.process(osc2);
-    reverb.process(osc3);
-    reverb.process(osc4);
-
-    // Initialize oscillator amplitudes
-    osc1.amp(0);
-    osc2.amp(0);
-    osc3.amp(0);
-    osc4.amp(0);
-
-    // Show start message
-    let startMessage = document.getElementById('startMessage');
-    startMessage.style.display = 'block';
-
-    // Add event listener for visibility change
-    document.addEventListener('visibilitychange', function() {
-        if (document.visibilityState === 'visible') {
-            // Resume audio context
-            if (getAudioContext().state !== 'running') {
-                getAudioContext().resume();
-                console.log('Audio context resumed');
-            }
-            // Restart the draw loop
-            loop();
-        } else {
-            // Optionally pause the draw loop to save resources
-            noLoop();
-        }
+    // Initialize audio context and reverb
+    getAudioContext().resume().then(() => {
+        reverb = new p5.Reverb();
+        
+        // Get initial values from HTML sliders
+        let reverbSlider = document.getElementById('reverbSlider');
+        let reverbTimeSlider = document.getElementById('reverbTimeSlider');
+        let reverbDecaySlider = document.getElementById('reverbDecaySlider');
+        
+        // Set initial reverb parameters
+        reverb.set(parseFloat(reverbTimeSlider.value), 
+                  parseFloat(reverbDecaySlider.value));
+        reverb.drywet(parseFloat(reverbSlider.value));
+        
+        // Connect oscillators to reverb
+        osc1.disconnect();
+        osc2.disconnect();
+        osc3.disconnect();
+        osc4.disconnect();
+        
+        reverb.process(osc1);
+        reverb.process(osc2);
+        reverb.process(osc3);
+        reverb.process(osc4);
+        
+        setupComplete = true;
     });
 }
 
@@ -480,10 +462,16 @@ function togglePlay() {
 
 function mousePressed() {
     if (!started) {
-        getAudioContext().resume();
-        started = true;
-        let startMessage = document.getElementById('startMessage');
-        startMessage.style.display = 'none';
+        getAudioContext().resume().then(() => {
+            started = true;
+            let startMessage = document.getElementById('startMessage');
+            startMessage.style.display = 'none';
+            
+            // Re-initialize reverb if needed
+            if (!setupComplete) {
+                setup();
+            }
+        });
     }
     
     if (mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= height) {
@@ -1042,9 +1030,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
 });
 
 window.updateReverb = function(value) {
-    console.log("Reverb value:", value); // Debugging log
-    reverb.drywet(value);
-    console.log("Reverb drywet set to:", reverb.drywet()); // Verify the value
+    reverb.drywet(parseFloat(value));  // Ensure value is treated as number
 }
 
 window.updateReverbTime = function(value) {
