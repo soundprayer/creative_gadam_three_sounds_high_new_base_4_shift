@@ -72,30 +72,49 @@ function selectScale(value) {
 }
 
 function getScaleNotes() {
-    // Adjust these base frequencies as needed
+    // Base frequencies for middle octave (4)
     const baseFreqMap = {
-        'C': 261.63,
-        'D': 293.66,
-        'E': 329.63,
-        'F': 349.23,
-        'G': 392.00,
-        'A': 440.00,
-        'B': 493.88
+        'C': 261.63, 'C#': 277.18, 'D': 293.66, 'D#': 311.13,
+        'E': 329.63, 'F': 349.23, 'F#': 369.99, 'G': 392.00,
+        'G#': 415.30, 'A': 440.00, 'A#': 466.16, 'B': 493.88
     };
-    let rootFreq = baseFreqMap[rootNote] || 261.63;
 
-    let intervals = scaleType === 'pentatonic' ? [0, 2, 4, 7, 9] : [0, 2, 4, 5, 7, 9, 11, 12];
-    let octaves = [-2, -1, 0, 1, 2];
+    // Scale patterns (intervals from root)
+    const scalePatterns = {
+        'pentatonic': [0, 2, 4, 7, 9],
+        'major': [0, 2, 4, 5, 7, 9, 11],
+        'minor': [0, 2, 3, 5, 7, 8, 10],
+        'chromatic': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+    };
+
+    let rootFreq = baseFreqMap[rootNote];
+    let pattern = scalePatterns[scaleType];
     let notes = [];
-    octaves.forEach(oct => {
-        intervals.forEach(interval => {
-            let freq = rootFreq * Math.pow(2, (interval + 12 * oct) / 12);
-            if (freq >= 20 && freq <= 4000) {
-                notes.push({ freq, name: rootNote + (oct === 0 ? '' : (oct > 0 ? `+${oct}` : `${oct}`)) });
+    
+    // Generate notes for octaves 2 through 6
+    for (let octave = 2; octave <= 6; octave++) {
+        let octaveMultiplier = Math.pow(2, octave - 4); // Reference is octave 4
+        
+        pattern.forEach(interval => {
+            let freq = rootFreq * Math.pow(2, interval/12) * octaveMultiplier;
+            if (freq >= 40 && freq <= 1000) { // Stay within synth range
+                let noteName = getNoteNameFromInterval(rootNote, interval, octave);
+                notes.push({
+                    name: noteName,
+                    freq: freq
+                });
             }
         });
-    });
+    }
+    
     return notes;
+}
+
+function getNoteNameFromInterval(root, interval, octave) {
+    const noteOrder = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    let rootIndex = noteOrder.indexOf(root);
+    let noteIndex = (rootIndex + interval) % 12;
+    return noteOrder[noteIndex] + octave;
 }
 
 function setup() {
