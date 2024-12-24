@@ -240,6 +240,32 @@
         .slider-container[data-sound="4"] .slider::-webkit-slider-thumb {
             background: var(--color-yellow);
         }
+
+        .control-row {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .selector-container {
+            flex: 1;
+        }
+
+        .wide-select {
+            width: 100%;
+            height: 20px;
+            background: black;
+            color: white;
+            border: 1px solid green;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 12px;
+        }
+
+        .reverb-row,
+        .control-row {
+            margin-bottom: 10px;
+        }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <script src="node_modules/p5/lib/p5.js"></script>
@@ -287,38 +313,44 @@
                        oninput="updateReverbSend(4, this.value)">
             </div>
         </div>
-        <select id="scaleSelector" onchange="selectScale(this.value)">
-            <option value="pentatonic">Pentatonic</option>
-            <option value="major">Major</option>
-            <option value="minor">Natural Minor</option>
-            <option value="harmonic_minor">Harmonic Minor</option>
-            <option value="melodic_minor">Melodic Minor</option>
-            <option value="dorian">Dorian</option>
-            <option value="phrygian">Phrygian</option>
-            <option value="lydian">Lydian</option>
-            <option value="mixolydian">Mixolydian</option>
-            <option value="locrian">Locrian</option>
-            <option value="whole_tone">Whole Tone</option>
-            <option value="diminished">Diminished</option>
-            <option value="arabic">Arabic</option>
-            <option value="japanese">Japanese</option>
-            <option value="gamelan">Gamelan</option>
-        </select>
-        <select id="rootNoteSelector" onchange="selectRootNote(this.value)">
-            <option value="A">A</option>
-            <option value="A#">A#</option>
-            <option value="B">B</option>
-            <option value="C">C</option>
-            <option value="C#">C#</option>
-            <option value="D">D</option>
-            <option value="D#">D#</option>
-            <option value="E">E</option>
-            <option value="F">F</option>
-            <option value="F#">F#</option>
-            <option value="G">G</option>
-            <option value="G#">G#</option>
-        </select>
-        <div class="glide-row">
+        <div class="control-row">
+            <div class="selector-container">
+                <div class="slider-label">Scale</div>
+                <select id="scaleSelector" class="wide-select" onchange="selectScale(this.value)">
+                    <option value="pentatonic">Pentatonic</option>
+                    <option value="major">Major</option>
+                    <option value="minor">Natural Minor</option>
+                    <option value="harmonic_minor">Harmonic Minor</option>
+                    <option value="melodic_minor">Melodic Minor</option>
+                    <option value="dorian">Dorian</option>
+                    <option value="phrygian">Phrygian</option>
+                    <option value="lydian">Lydian</option>
+                    <option value="mixolydian">Mixolydian</option>
+                    <option value="locrian">Locrian</option>
+                    <option value="whole_tone">Whole Tone</option>
+                    <option value="diminished">Diminished</option>
+                    <option value="arabic">Arabic</option>
+                    <option value="japanese">Japanese</option>
+                    <option value="gamelan">Gamelan</option>
+                </select>
+            </div>
+            <div class="selector-container">
+                <div class="slider-label">Root Note</div>
+                <select id="rootNoteSelector" class="wide-select" onchange="selectRootNote(this.value)">
+                    <option value="A">A</option>
+                    <option value="A#">A#</option>
+                    <option value="B">B</option>
+                    <option value="C">C</option>
+                    <option value="C#">C#</option>
+                    <option value="D">D</option>
+                    <option value="D#">D#</option>
+                    <option value="E">E</option>
+                    <option value="F">F</option>
+                    <option value="F#">F#</option>
+                    <option value="G">G</option>
+                    <option value="G#">G#</option>
+                </select>
+            </div>
             <div class="slider-container" data-sound="1">
                 <div class="slider-label">Glide 1</div>
                 <input type="range" id="freqTransition1Slider" class="slider" 
@@ -344,7 +376,6 @@
                        oninput="updateFreqTransitionTime(4, this.value)">
             </div>
         </div>
-    </div>
     </div>
     <div class="container">
         <div class="effects-box"></div>
