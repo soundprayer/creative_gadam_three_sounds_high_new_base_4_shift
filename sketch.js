@@ -635,6 +635,10 @@ function mouseDragged() {
         constrainedY = constrain(mouseY, 0, height);
     }
 
+    if (recording && overdubbing) {
+        recordOverdubMovement();  // Call the function here
+    }
+
     // Sound 1
     if (isPlaying1 && selectedSound === 1) {
         isDragging1 = true;
@@ -676,17 +680,7 @@ function mouseDragged() {
     }
 
     if (recording && overdubbing) {
-        let currentTime = millis() - overdubStartTime;
-        overdubMovements.push({
-            time: currentTime,
-            x: mouseX,
-            y: mouseY,
-            sound: selectedSound
-        });
-        console.log('Overdub movement recorded:', {
-            time: currentTime,
-            total: overdubMovements.length
-        });
+        recordOverdubMovement();
     }
 }
 
@@ -790,52 +784,15 @@ function keyReleased() {
             saveMovementsToFile(); // Automatically save movements to file if logging is enabled
         } // Automatically save movements to file
     } else if (key === 'D' || key === 'd') {
-        overdubActive = false;
-        overdubStartTime = null;
-        let loopIndicator = document.getElementById('loopIndicator');
-        loopIndicator.textContent = 'Loop: PLAYING';
-        console.log('Ending overdub');
-        recording = false;
-        overdubbing = false;
-        
         let originalMovements = getMovementsArray(selectedSound);
-        console.log('Original movements:', {
-            sound: selectedSound,
-            count: originalMovements.length
-        });
-        
         if (overdubMovements.length > 0) {
-            let overdubStart = overdubMovements[0].time;
-            let overdubEnd = overdubMovements[overdubMovements.length - 1].time;
-            
-            console.log('Overdub movements to merge:', {
-                count: overdubMovements.length,
-                timeRange: { start: overdubStart, end: overdubEnd }
-            });
-            
-            // Filter original movements
-            originalMovements = originalMovements.filter(mov => 
-                mov.time < overdubStart || mov.time > overdubEnd
-            );
-            
-            console.log('After filtering:', {
-                remaining: originalMovements.length
-            });
-            
-            // Merge and sort
             originalMovements.push(...overdubMovements);
             originalMovements.sort((a, b) => a.time - b.time);
-            
             setMovementsArray(selectedSound, originalMovements);
-            
-            console.log('Final merged movements:', {
-                total: originalMovements.length,
-                timeRange: {
-                    start: originalMovements[0].time,
-                    end: originalMovements[originalMovements.length - 1].time
-                }
-            });
+            overdubMovements = [];  // Clear after merge
         }
+        overdubbing = false;
+        overdubStartTime = null;
     }
 }
 
@@ -883,6 +840,7 @@ function playMovements(movements, sound) {
 }
 
 function startLoop(movements, sound) {
+    loopStartTimes[sound] = millis();
     if (movements.length === 0) {
         console.log("No movements recorded, cannot start loop");
         return;
@@ -1143,13 +1101,16 @@ function iconExists(sound) {
 }
 
 function recordOverdubMovement() {
-    let currentTime = millis();
-    let relativeTime = currentTime - overdubStartTime;
+    let loopDuration = getLoopDuration(selectedSound);
+    let loopStartTime = loopStartTimes[selectedSound];
+    let currentLoopPosition = (millis() - loopStartTime) % loopDuration;
     
     overdubMovements.push({
-        time: relativeTime,
+        time: currentLoopPosition,
         x: mouseX,
         y: mouseY,
         sound: selectedSound
     });
 }
+
+let loopStartTimes = {1: 0, 2: 0, 3: 0, 4: 0};
