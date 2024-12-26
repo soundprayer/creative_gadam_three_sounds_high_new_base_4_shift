@@ -60,10 +60,10 @@ let scaleType = 'pentatonic'; // Default scale
 
 let rootNote = 'C'; // Default root
 
-let transitionTime1 = 0.1;
-let transitionTime2 = 0.1;
-let transitionTime3 = 0.1;
-let transitionTime4 = 0.1;
+let transitionTime1 = 0.5;
+let transitionTime5 = 0.5;
+let transitionTime3 = 0.5;
+let transitionTime4 = 0.5;
 
 let freqTransitionTimes = {
     1: 0.1,
@@ -191,6 +191,13 @@ function setup() {
 function windowResized() {
     resizeCanvas(windowWidth, 400);
 }
+
+let overridePositions = {
+    1: null,
+    2: null,
+    3: null,
+    4: null
+};
 
 function draw() {
     background(0);
@@ -369,7 +376,24 @@ function draw() {
     }
 
     // Update loops
-    updateLoops();
+    if (mouseIsPressed) {
+        // Override sound position if mouse is within canvas
+        if (mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= height) {
+            if (selectedSound && iconExists(selectedSound)) {
+                overridePositions[selectedSound] = { x: mouseX, y: mouseY };
+                updateSound(selectedSound, mouseX, mouseY);
+            }
+        }
+    } else {
+        // Clear override when mouse released
+        overridePositions = { 1: null, 2: null, 3: null, 4: null };
+    }
+    
+    // Update loops only if not being overridden
+    if (!overridePositions[1]) updateLoop1();
+    if (!overridePositions[2]) updateLoop2();
+    if (!overridePositions[3]) updateLoop3();
+    if (!overridePositions[4]) updateLoop4();
 }
 
 function drawNoteLines() {
@@ -393,10 +417,20 @@ function drawNoteLines() {
 }
 
 function updateSound(sound, x, y) {
+    // Add validation for y parameter
+    if (y === undefined || y === null) {
+        y = height; // Default to bottom of canvas (silence)
+    }
+    
+    // Ensure height is defined
+    if (!height) return;
+    
+    // Safe mapping with validated parameters
+    let amp = map(y, height, 0, 0, 0.8);
+    
     let minFreq = 40;
     let maxFreq = 1000;
     let freq = minFreq * Math.pow(maxFreq/minFreq, x/width);
-    let amp = map(y, height, 0, 0, 0.8);
     
     if (sound === 1) {
         osc1.freq(freq, freqTransitionTimes[1]);  // Use global transition time
@@ -740,7 +774,7 @@ function keyReleased() {
         });
 
         // Calculate overdub time range
-        let overdubStart = overdubMovements[0].time;
+        let overdubStart = overdubMovements.length > 0 ? overdubMovements[0].time : 0;
         let overdubEnd = overdubMovements[overdubMovements.length - 1].time;
 
         // Remove old movements within the overdubbed time range
@@ -1062,4 +1096,14 @@ window.updateReverbDecay = function(value) {
     [reverb1, reverb2, reverb3, reverb4].forEach(rev => {
         rev.set(reverbTime, reverbDecay);
     });
+}
+
+function iconExists(sound) {
+    switch(sound) {
+        case 1: return iconX1 !== null;
+        case 2: return iconX2 !== null;
+        case 3: return iconX3 !== null;
+        case 4: return iconX4 !== null;
+        default: return false;
+    }
 }
