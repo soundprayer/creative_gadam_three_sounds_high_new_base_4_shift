@@ -570,91 +570,65 @@ function mousePressed() {
 }
 
 function mouseDragged() {
-    if (mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= height) {
-        if (isPlaying1 && selectedSound === 1) {
-            isDragging1 = true;
-            updateSound(1, mouseX, mouseY);
-            if (recording) {
-                // console.log(`Dragging and recording movement for sound 1 at (${mouseX}, ${mouseY})`);
-                if (overdubbing) {
-                    // Record movements into overdubMovements array only
-                    // let loopStartTime = getLoopStartTime(selectedSound);
-                    // let loopDuration = getLoopDuration(selectedSound);
-                    // let currentTime = (millis() - loopStartTime) % loopDuration;
+    const EDGE_BUFFER = 35; // pixels beyond canvas edge
+    let constrainedX = mouseX;
+    let constrainedY = mouseY;
+    
+    // Constrain X to canvas width
+    constrainedX = constrain(mouseX, 0, width);
+    
+    // Check if we're beyond edge buffer
+    if (mouseY < 0 - EDGE_BUFFER || mouseY > height + EDGE_BUFFER) {
+        return; // Stop movement beyond buffer
+    }
+    
+    // Lock Y to edge when in buffer zone
+    if (mouseY < 0 && mouseY > -EDGE_BUFFER) {
+        constrainedY = 0;
+    } else if (mouseY > height && mouseY < height + EDGE_BUFFER) {
+        constrainedY = height;
+    } else {
+        constrainedY = constrain(mouseY, 0, height);
+    }
 
-                    // overdubMovements.push({
-                    //     time: currentTime,
-                    //     x: mouseX,
-                    //     y: mouseY,
-                    //     sound: selectedSound
-                    // });
-                } else {
-                    // Normal recording
-                    let currentTime = millis() - recordStartTime;
-                    let movements = getMovementsArray(selectedSound);
-                    movements.push({ time: currentTime, x: mouseX, y: mouseY, sound: selectedSound });
-                }
-            }
-        }
-        if (isPlaying2 && selectedSound === 2) {
-            isDragging2 = true;
-            updateSound(2, mouseX, mouseY);
-            if (recording) {
-                // console.log(`Dragging and recording movement for sound 2 at (${mouseX}, ${mouseY})`);
-                let currentTime = millis() - recordStartTime;
-                if (overdubbing) {
-                    // let loopStartTime = getLoopStartTime(2);
-                    // let loopElapsedTime = (millis() - loopStartTime) % getLoopDuration(2);
-                    // let index = findInsertIndex(movements2, loopElapsedTime);
-                    // movements2.splice(index, 1, { time: loopElapsedTime, x: mouseX, y: mouseY, sound: 2 });
-                } else {
-                    movements2.push({ time: currentTime, x: mouseX, y: mouseY, sound: 2 });
-                }
-            }
-        }
-        if (isPlaying3 && selectedSound === 3) {
-            isDragging3 = true;
-            updateSound(3, mouseX, mouseY);
-            if (recording) {
-                // console.log(`Dragging and recording movement for sound 3 at (${mouseX}, ${mouseY})`);
-                let currentTime = millis() - recordStartTime;
-                if (overdubbing) {
-                    // let loopStartTime = getLoopStartTime(3);
-                    // let loopElapsedTime = (millis() - loopStartTime) % getLoopDuration(3);
-                    // let index = findInsertIndex(movements3, loopElapsedTime);
-                    // movements3.splice(index, 1, { time: loopElapsedTime, x: mouseX, y: mouseY, sound: 3 });
-                } else {
-                    movements3.push({ time: currentTime, x: mouseX, y: mouseY, sound: 3 });
-                }
-            }
-        }
-        if (isPlaying4 && selectedSound === 4) {
-            isDragging4 = true;
-            updateSound(4, mouseX, mouseY);
-            if (recording) {
-                // console.log(`Dragging and recording movement for sound 4 at (${mouseX}, ${mouseY})`);
-                let currentTime = millis() - recordStartTime;
-                if (overdubbing) {
-                    // let loopStartTime = getLoopStartTime(4);
-                    // let loopElapsedTime = (millis() - loopStartTime) % getLoopDuration(4);
-                    // let index = findInsertIndex(movements4, loopElapsedTime);
-                    // movements4.splice(index, 1, { time: loopElapsedTime, x: mouseX, y: mouseY, sound: 4 });
-                } else {
-                    movements4.push({ time: currentTime, x: mouseX, y: mouseY, sound: 4 });
-                }
-            }
+    // Sound 1
+    if (isPlaying1 && selectedSound === 1) {
+        isDragging1 = true;
+        updateSound(1, constrainedX, constrainedY);
+        if (recording) {
+            let currentTime = millis() - recordStartTime;
+            movements1.push({ time: currentTime, x: constrainedX, y: constrainedY, sound: 1 });
         }
     }
-    if (recording && overdubbing) {
-        // let currentTime = millis();
-        // let movement = {
-        //     time: currentTime,
-        //     x: mouseX,
-        //     y: mouseY,
-        //     sound: selectedSound
-        // };
-        // overdubMovements.push(movement);
-        // updateSound(selectedSound, mouseX, mouseY);
+    
+    // Sound 2
+    else if (isPlaying2 && selectedSound === 2) {
+        isDragging2 = true;
+        updateSound(2, constrainedX, constrainedY);
+        if (recording) {
+            let currentTime = millis() - recordStartTime;
+            movements2.push({ time: currentTime, x: constrainedX, y: constrainedY, sound: 2 });
+        }
+    }
+    
+    // Sound 3
+    else if (isPlaying3 && selectedSound === 3) {
+        isDragging3 = true;
+        updateSound(3, constrainedX, constrainedY);
+        if (recording) {
+            let currentTime = millis() - recordStartTime;
+            movements3.push({ time: currentTime, x: constrainedX, y: constrainedY, sound: 3 });
+        }
+    }
+    
+    // Sound 4
+    else if (isPlaying4 && selectedSound === 4) {
+        isDragging4 = true;
+        updateSound(4, constrainedX, constrainedY);
+        if (recording) {
+            let currentTime = millis() - recordStartTime;
+            movements4.push({ time: currentTime, x: constrainedX, y: constrainedY, sound: 4 });
+        }
     }
 }
 
