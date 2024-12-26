@@ -14,6 +14,7 @@ let selectedSound = 1;
 let reverbTime = 3; // Initialize reverb time
 let reverbDecay = 2; // Initialize reverb decay
 let recording = false;
+let overdubActive = false;
 let overdubbing = false; // Flag to track overdubbing state
 let recordStartTime;
 let movements1 = [], movements2 = [], movements3 = [], movements4 = [];
@@ -48,7 +49,7 @@ let loop4StartTime = 0;
 let loop4Duration = 0;
 let loop4CurrentIndex = 0;
 
-let overdubStartTime = 0;
+let overdubStartTime;
 let overdubEndTime = 0;
 let overdubMovements = [];
 
@@ -700,9 +701,6 @@ function mouseReleased() {
         isDragging4 = false;
     }
 }
-
-// overdubStartTime = null;
-let overdubActive = false;
 
 function keyPressed() {
     if (key === ' ') { // Check if the space key is pressed
