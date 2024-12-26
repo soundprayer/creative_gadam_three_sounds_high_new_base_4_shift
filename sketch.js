@@ -548,11 +548,11 @@ function mousePressed() {
             let currentTime = millis() - recordStartTime;
             if (overdubbing) {
                 // Add new movements to the existing movements array at the correct position
-                // let movements = getMovementsArray(selectedSound);
-                // let loopStartTime = getLoopStartTime(selectedSound);
-                // let loopElapsedTime = (millis() - loopStartTime) % getLoopDuration(selectedSound);
-                // let index = findInsertIndex(movements, loopElapsedTime);
-                // movements.splice(index, 1, { time: loopElapsedTime, x: mouseX, y: mouseY, sound: selectedSound });
+                let movements= getMovementsArray(selectedSound);
+                let loopStartTime = getLoopStartTime(selectedSound);
+                let loopElapsedTime = (millis() - loopStartTime) % getLoopDuration(selectedSound);
+                let index = findInsertIndex(movements, loopElapsedTime);
+                movements.splice(index, 1, { time: loopElapsedTime, x: mouseX, y: mouseY, sound: selectedSound });
             } else {
                 // Normal recording
                 if (selectedSound === 1) {
@@ -671,7 +671,7 @@ function keyPressed() {
             console.log("Loop 4 stopped");
         }
         loopIndicator.textContent = 'Loop: RECORDING';
-    } else if (keyCode === ALT) { // Check if the 'ALT' key is pressed
+    } else if (key === 'D' || key === 'd') { // Changed to 'D'
         let loopIndicator = document.getElementById('loopIndicator');
         // Start overdubbing
         recording = true;
@@ -679,13 +679,13 @@ function keyPressed() {
         overdubStartTime = millis();
         overdubMovements = []; // Initialize the overdub movements array
         loopIndicator.textContent = 'Loop: OVERDUBBING';
-    } else if (key === 'Z' || key === 'z') { // Check if the 'Z' key is pressed
+    } else if (key === 'Z' || key === 'z') {
         halveLoop(selectedSound);
-    } else if (key === 'X' || key === 'x') { // Check if the 'X' key is pressed
+    } else if (key === 'X' || key === 'x') {
         doubleLoop(selectedSound);
-    } else if (key === 'A' || key === 'a') { // Check if the 'A' key is pressed
+    } else if (key === 'Q' || key === 'q') { // Changed from 'A' to 'Q'
         toggleSelectedSound();
-    } else if (key === 'L' || key === 'l') { // Check if the 'L' key is pressed
+    } else if (key === 'L' || key === 'l') {
         toggleLogging();
     }
 }
@@ -721,7 +721,7 @@ function keyReleased() {
         if (logging) {
             saveMovementsToFile(); // Automatically save movements to file if logging is enabled
         } // Automatically save movements to file
-    } else if (keyCode === ALT) { // Check if the 'ALT' key is released
+    } else if (key === 'D' || key === 'd') { // Check if the 'D' key is released
         let loopIndicator = document.getElementById('loopIndicator');
         // Stop overdubbing
         recording = false;
