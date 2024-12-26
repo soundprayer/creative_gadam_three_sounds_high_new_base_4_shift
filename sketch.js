@@ -711,7 +711,12 @@ function keyPressed() {
         recording = true;
         overdubbing = true;
         overdubStartTime = millis();
-        overdubMovements = []; // Initialize the overdub movements array
+        overdubMovements = [{
+            time: 0,  // First movement starts at time 0
+            x: mouseX,
+            y: mouseY,
+            sound: selectedSound
+        }];
         loopIndicator.textContent = 'Loop: OVERDUBBING';
     } else if (key === 'Z' || key === 'z') {
         halveLoop(selectedSound);
@@ -1106,4 +1111,16 @@ function iconExists(sound) {
         case 4: return iconX4 !== null;
         default: return false;
     }
+}
+
+function recordOverdubMovement() {
+    let currentTime = millis();
+    let relativeTime = currentTime - overdubStartTime;
+    
+    overdubMovements.push({
+        time: relativeTime,
+        x: mouseX,
+        y: mouseY,
+        sound: selectedSound
+    });
 }
