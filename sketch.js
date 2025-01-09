@@ -14,8 +14,9 @@ let selectedSound = 1;
 let reverbTime = 3; // Initialize reverb time
 let reverbDecay = 2; // Initialize reverb decay
 let recording = false;
-let overdubActive = false;
-let overdubbing = false; // Flag to track overdubbing state
+let isOverdubbing = false;  // Single overdub state
+let overdubStartTime = null;
+let overdubMovements = [];
 let recordStartTime;
 let movements1 = [], movements2 = [], movements3 = [], movements4 = [];
 let loopInterval1, loopInterval2, loopInterval3, loopInterval4;
@@ -49,9 +50,9 @@ let loop4StartTime = 0;
 let loop4Duration = 0;
 let loop4CurrentIndex = 0;
 
-let overdubStartTime;
-let overdubEndTime = 0;
-let overdubMovements = [];
+// Add to global variables
+let isOverdubMode = false;
+let hasOverdubStarted = false;
 
 let logging = false; // Flag to track logging state
 
@@ -581,7 +582,7 @@ function mousePressed() {
         if (recording) {
             // console.log(`Recording movement for sound ${selectedSound} at (${mouseX}, ${mouseY})`);
             let currentTime = millis() - recordStartTime;
-            if (overdubbing) {
+            if (isOverdubbing) {
                 // Add new movements to the existing movements array at the correct position
                 let movements= getMovementsArray(selectedSound);
                 let loopStartTime = getLoopStartTime(selectedSound);
@@ -603,13 +604,24 @@ function mousePressed() {
         }
     }
 
-    if (overdubActive && overdubStartTime === null) {
+    if (isOverdubMode && !hasOverdubStarted) {
+        hasOverdubStarted = true;
         overdubStartTime = millis();
-        recording = true;
-        overdubbing = true;
+        let loopDuration = getLoopDuration(selectedSound);
+        overdubStartPosition = (millis() - loopStartTimes[selectedSound]) % loopDuration;
+    }
+
+    if (isOverdubbing && overdubStartTime === null) {
+        overdubStartTime = millis();
         overdubMovements = [];
-        let loopIndicator = document.getElementById('loopIndicator');
-        loopIndicator.textContent = 'Loop: OVERDUBBING';
+        let loopDuration = getLoopDuration(selectedSound);
+        let currentPosition = (millis() - loopStartTimes[selectedSound]) % loopDuration;
+        overdubMovements.push({
+            time: currentPosition,
+            x: mouseX,
+            y: mouseY,
+            sound: selectedSound
+        });
     }
 }
 
@@ -635,7 +647,7 @@ function mouseDragged() {
         constrainedY = constrain(mouseY, 0, height);
     }
 
-    if (recording && overdubbing) {
+    if (recording && isOverdubbing) {
         recordOverdubMovement();  // Call the function here
     }
 
@@ -679,8 +691,40 @@ function mouseDragged() {
         }
     }
 
-    if (recording && overdubbing) {
+    if (recording && isOverdubbing) {
         recordOverdubMovement();
+    }
+
+    if (isOverdubbing && overdubStartPosition !== null) {
+        let currentPosition = getCurrentLoopPosition(selectedSound);
+        overdubMovements.push({
+            time: currentPosition,
+            x: mouseX,
+            y: mouseY,
+            sound: selectedSound
+        });
+    }
+
+    if (isOverdubMode && hasOverdubStarted) {
+        let loopDuration = getLoopDuration(selectedSound);
+        let currentPosition = (millis() - loopStartTimes[selectedSound]) % loopDuration;
+        overdubMovements.push({
+            time: currentPosition,
+            x: mouseX,
+            y: mouseY,
+            sound: selectedSound
+        });
+    }
+
+    if (isOverdubbing && overdubStartTime !== null) {
+        let loopDuration = getLoopDuration(selectedSound);
+        let currentPosition = (millis() - loopStartTimes[selectedSound]) % loopDuration;
+        overdubMovements.push({
+            time: currentPosition,
+            x: mouseX,
+            y: mouseY,
+            sound: selectedSound
+        });
     }
 }
 
@@ -724,11 +768,10 @@ function keyPressed() {
         }
         loopIndicator.textContent = 'Loop: RECORDING';
     } else if (key === 'D' || key === 'd') { // Changed to 'D'
-        overdubActive = true;
         if (mouseIsPressed) {
             overdubStartTime = millis();
             recording = true;
-            overdubbing = true;
+            isOverdubbing = true;
             overdubMovements = [];
             let loopIndicator = document.getElementById('loopIndicator');
             loopIndicator.textContent = 'Loop: OVERDUBBING';
@@ -742,11 +785,23 @@ function keyPressed() {
     } else if (key === 'L' || key === 'l') {
         toggleLogging();
     }
+
+    if (key === 'D' || key === 'd') {
+        isOverdubMode = true;
+        hasOverdubStarted = false;
+        overdubMovements = [];
+    }
+
+    if (key === 'D' || key === 'd') {
+        isOverdubbing = true;
+        let loopIndicator = document.getElementById('loopIndicator');
+        loopIndicator.textContent = 'Loop: OVERDUBBING';
+    }
 }
 
 function startOverdubRecording() {
     recording = true;
-    overdubbing = true;
+    isOverdubbing = true;
     overdubMovements = [];
     let loopIndicator = document.getElementById('loopIndicator');
     loopIndicator.textContent = 'Loop: OVERDUBBING';
@@ -791,8 +846,53 @@ function keyReleased() {
             setMovementsArray(selectedSound, originalMovements);
             overdubMovements = [];  // Clear after merge
         }
-        overdubbing = false;
+        isOverdubbing = false;
         overdubStartTime = null;
+    }
+
+    if (key === 'D' || key === 'd') {
+        if (overdubMovements.length > 0) {
+            let originalMovements = getMovementsArray(selectedSound);
+            let endPosition = getCurrentLoopPosition(selectedSound);
+            
+            // Remove old movements in range
+            originalMovements = originalMovements.filter(mov => {
+                let pos = mov.time % getLoopDuration(selectedSound);
+                return pos < overdubStartPosition || pos > endPosition;
+            });
+            
+            // Add new movements
+            originalMovements.push(...overdubMovements);
+            originalMovements.sort((a, b) => a.time - b.time);
+            setMovementsArray(selectedSound, originalMovements);
+        }
+        isOverdubbing = false;
+        overdubStartPosition = null;
+        overdubMovements = [];
+    }
+
+    if (key === 'D' || key === 'd') {
+        if (hasOverdubStarted && overdubMovements.length > 0) {
+            mergeOverdubMovements();
+        }
+        isOverdubMode = false;
+        hasOverdubStarted = false;
+        overdubStartTime = null;
+        overdubMovements = [];
+    }
+
+    if (key === 'D' || key === 'd') {
+        if (overdubMovements.length > 0) {
+            let originalMovements = getMovementsArray(selectedSound);
+            originalMovements.push(...overdubMovements);
+            originalMovements.sort((a, b) => a.time - b.time);
+            setMovementsArray(selectedSound, originalMovements);
+        }
+        isOverdubbing = false;
+        overdubStartTime = null;
+        overdubMovements = [];
+        let loopIndicator = document.getElementById('loopIndicator');
+        loopIndicator.textContent = 'Loop: PLAYING';
     }
 }
 
@@ -1114,3 +1214,9 @@ function recordOverdubMovement() {
 }
 
 let loopStartTimes = {1: 0, 2: 0, 3: 0, 4: 0};
+let overdubStartPosition = null;
+
+function getCurrentLoopPosition(sound) {
+    let loopDuration = getLoopDuration(sound);
+    return (millis() - loopStartTimes[sound]) % loopDuration;
+}
