@@ -657,7 +657,6 @@ function mousePressed() {
         let loopDuration = getLoopDuration(selectedSound);
         overdubState.startTime = millis();
         overdubState.loopPosition = (millis() - loopStartTimes[selectedSound]) % loopDuration;
-        overdubState.sound = selectedSound;
         
         // Clear future movements
         let movements = getMovementsArray(selectedSound);
@@ -1291,21 +1290,21 @@ function removeExistingMovements(sound, startPosition) {
 }
 
 function recordOverdubPosition() {
-    if (!isOverdubbing || !overdubRange.start) return;
+    if (!overdubState.isActive) return;
     
-    let loopDuration = getLoopDuration(overdubRange.sound);
-    let currentPosition = (millis() - loopStartTimes[overdubRange.sound]) % loopDuration;
+    let loopDuration = getLoopDuration(overdubState.sound);
+    let currentPosition = (millis() - loopStartTimes[overdubState.sound]) % loopDuration;
     
-    // Record new position
-    overdubBuffer.push({
+    // Remove old movements first
+    removeOverdubMovements(currentPosition);
+    
+    // Then add new position
+    overdubState.buffer.push({
         time: currentPosition,
         x: mouseX,
         y: mouseY,
-        sound: overdubRange.sound
+        sound: overdubState.sound
     });
-    
-    // Clean old movements in real-time
-    removeExistingMovements(overdubRange.sound, currentPosition);
 }
 
 function finalizeOverdub() {
@@ -1352,12 +1351,32 @@ function startOverdub() {
     overdubState.loopPosition = (millis() - loopStartTimes[selectedSound]) % loopDuration;
 }
 
+function removeOverdubMovements(currentPosition) {
+    if (!overdubState.isActive) return;
+    
+    let movements = getMovementsArray(overdubState.sound);
+    let loopDuration = getLoopDuration(overdubState.sound);
+    
+    // Remove movements between start and current position
+    movements = movements.filter(mov => {
+        let normalizedTime = mov.time % loopDuration;
+        return normalizedTime < overdubState.loopPosition || 
+               normalizedTime > currentPosition;
+    });
+    
+    setMovementsArray(overdubState.sound, movements);
+}
+
 function recordOverdubPosition() {
     if (!overdubState.isActive) return;
     
     let loopDuration = getLoopDuration(overdubState.sound);
     let currentPosition = (millis() - loopStartTimes[overdubState.sound]) % loopDuration;
     
+    // Remove old movements first
+    removeOverdubMovements(currentPosition);
+    
+    // Then add new position
     overdubState.buffer.push({
         time: currentPosition,
         x: mouseX,
