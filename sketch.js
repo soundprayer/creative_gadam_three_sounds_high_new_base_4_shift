@@ -700,6 +700,10 @@ function mouseDragged() {
     
     // Repeat for sounds 2-4...
     // Similar changes for other sound blocks
+
+    if (overdubState.isActive && mouseIsPressed) {
+        recordOverdubPosition();
+    }
 }
 
 function mouseReleased() {
@@ -1322,8 +1326,8 @@ let overdubState = {
     isActive: false,
     startTime: null,
     loopPosition: null,
-    sound: null,
-    buffer: []
+    buffer: [],
+    sound: null
 };
 
 function recordPosition(x, y) {
@@ -1341,9 +1345,9 @@ function recordPosition(x, y) {
 
 function startOverdub() {
     overdubState.isActive = true;
-    overdubState.buffer = [];
     overdubState.startTime = millis();
     overdubState.sound = selectedSound;
+    overdubState.buffer = [];
     let loopDuration = getLoopDuration(selectedSound);
     overdubState.loopPosition = (millis() - loopStartTimes[selectedSound]) % loopDuration;
 }
@@ -1354,21 +1358,30 @@ function recordOverdubPosition() {
     let loopDuration = getLoopDuration(overdubState.sound);
     let currentPosition = (millis() - loopStartTimes[overdubState.sound]) % loopDuration;
     
-    // Remove old movements
-    let movements = getMovementsArray(overdubState.sound);
-    movements = movements.filter(mov => {
-        let normalizedTime = mov.time % loopDuration;
-        return normalizedTime < overdubState.loopPosition;
-    });
-    setMovementsArray(overdubState.sound, movements);
-    
-    // Add new position
     overdubState.buffer.push({
         time: currentPosition,
         x: mouseX,
         y: mouseY,
         sound: overdubState.sound
     });
+}
+
+function finalizeOverdub() {
+    if (!overdubState.isActive || overdubState.buffer.length === 0) return;
+    
+    let movements = getMovementsArray(overdubState.sound);
+    movements.push(...overdubState.buffer);
+    movements.sort((a, b) => a.time - b.time);
+    setMovementsArray(overdubState.sound, movements);
+    
+    // Clear state
+    overdubState = {
+        isActive: false,
+        startTime: null,
+        loopPosition: null,
+        buffer: [],
+        sound: null
+    };
 }
 
 function endOverdub() {
