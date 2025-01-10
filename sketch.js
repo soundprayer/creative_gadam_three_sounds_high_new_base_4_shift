@@ -495,6 +495,51 @@ function updateFreqTransitionTime(sound, value) {
     freqTransitionTimes[sound] = parseFloat(value);
 }
 
+// Replace individual states with object
+let soundStates = {
+    1: { isDragging: false, iconX: null, iconY: null, isPlaying: false },
+    2: { isDragging: false, iconX: null, iconY: null, isPlaying: false },
+    3: { isDragging: false, iconX: null, iconY: null, isPlaying: false },
+    4: { isDragging: false, iconX: null, iconY: null, isPlaying: false }
+};
+
+function handleMousePress(sound) {
+    soundStates[sound].isDragging = true;
+    soundStates[sound].iconX = mouseX;
+    soundStates[sound].iconY = mouseY;
+    updateSound(sound, mouseX, mouseY);
+}
+
+function handleMouseRelease(sound) {
+    if (!isOverdubbing) {
+        soundStates[sound].isDragging = false;
+        if (!soundStates[sound].isPlaying) {
+            soundStates[sound].iconX = null;
+            soundStates[sound].iconY = null;
+        }
+    }
+}
+
+function mousePressed() {
+    if (selectedSound && mouseY < height - CONTROL_BUFFER) {
+        handleMousePress(selectedSound);
+    }
+}
+
+function mouseReleased() {
+    if (selectedSound) {
+        handleMouseRelease(selectedSound);
+    }
+}
+
+function updateSoundPosition(sound, x, y) {
+    if (soundStates[sound].isDragging || isOverdubbing) {
+        soundStates[sound].iconX = x;
+        soundStates[sound].iconY = y;
+        updateSound(sound, x, y);
+    }
+}
+
 // Remove oscillator start from togglePlay
 function togglePlay() {
     let playPauseStatus = document.getElementById('playPauseStatus');
