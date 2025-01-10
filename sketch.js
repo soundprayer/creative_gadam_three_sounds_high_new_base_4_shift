@@ -838,6 +838,8 @@ function keyPressed() {
         toggleSelectedSound();
     } else if (key === 'L' || key === 'l') {
         toggleLogging();
+    } else if (key === 'P' || key === 'p') {
+        togglePlay();
     }
 
     if (key === 'D' || key === 'd') {
@@ -907,6 +909,8 @@ function keyReleased() {
         }
         isOverdubbing = false;
         overdubStartTime = null;
+    } else if (key === 'P' || key === 'p') {
+        togglePlay();
     }
 
     if (key === 'D' || key === 'd') {
