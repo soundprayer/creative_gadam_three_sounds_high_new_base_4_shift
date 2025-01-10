@@ -495,48 +495,81 @@ function updateFreqTransitionTime(sound, value) {
     freqTransitionTimes[sound] = parseFloat(value);
 }
 
-// Replace individual states with object
-let soundStates = {
-    1: { isDragging: false, iconX: null, iconY: null, isPlaying: false },
-    2: { isDragging: false, iconX: null, iconY: null, isPlaying: false },
-    3: { isDragging: false, iconX: null, iconY: null, isPlaying: false },
-    4: { isDragging: false, iconX: null, iconY: null, isPlaying: false }
+// Sound State Management
+const SOUND_STATE = {
+    IDLE: 'idle',
+    ACTIVE: 'active',
+    DRAGGING: 'dragging',
+    OVERDUBBING: 'overdubbing'
 };
 
+let soundStates = {
+    1: { state: SOUND_STATE.IDLE, iconX: null, iconY: null, isPlaying: false },
+    2: { state: SOUND_STATE.IDLE, iconX: null, iconY: null, isPlaying: false },
+    3: { state: SOUND_STATE.IDLE, iconX: null, iconY: null, isPlaying: false },
+    4: { state: SOUND_STATE.IDLE, iconX: null, iconY: null, isPlaying: false }
+};
+
+// Event Handlers
 function handleMousePress(sound) {
-    soundStates[sound].isDragging = true;
-    soundStates[sound].iconX = mouseX;
-    soundStates[sound].iconY = mouseY;
+    let state = soundStates[sound];
+    
+    if (isOverdubbing) {
+        state.state = SOUND_STATE.OVERDUBBING;
+    } else if (state.isPlaying) {
+        state.state = SOUND_STATE.DRAGGING;
+    } else {
+        state.state = SOUND_STATE.ACTIVE;
+    }
+    
+    state.iconX = mouseX;
+    state.iconY = mouseY;
     updateSound(sound, mouseX, mouseY);
 }
 
-function handleMouseRelease(sound) {
-    if (!isOverdubbing) {
-        soundStates[sound].isDragging = false;
-        if (!soundStates[sound].isPlaying) {
-            soundStates[sound].iconX = null;
-            soundStates[sound].iconY = null;
+function handleMouseDrag(sound) {
+    let state = soundStates[sound];
+    if (state.state === SOUND_STATE.DRAGGING || state.state === SOUND_STATE.OVERDUBBING) {
+        state.iconX = mouseX;
+        state.iconY = mouseY;
+        updateSound(sound, mouseX, mouseY);
+        
+        if (state.state === SOUND_STATE.OVERDUBBING) {
+            recordOverdubPosition();
         }
     }
 }
 
+function handleMouseRelease(sound) {
+    let state = soundStates[sound];
+    
+    if (state.state === SOUND_STATE.DRAGGING) {
+        state.state = SOUND_STATE.ACTIVE;
+    }
+    
+    if (!state.isPlaying && !isOverdubbing) {
+        state.state = SOUND_STATE.IDLE;
+        state.iconX = null;
+        state.iconY = null;
+    }
+}
+
+// Mouse Event Integration
 function mousePressed() {
     if (selectedSound && mouseY < height - CONTROL_BUFFER) {
         handleMousePress(selectedSound);
     }
 }
 
-function mouseReleased() {
-    if (selectedSound) {
-        handleMouseRelease(selectedSound);
+function mouseDragged() {
+    if (selectedSound && mouseY < height - CONTROL_BUFFER) {
+        handleMouseDrag(selectedSound);
     }
 }
 
-function updateSoundPosition(sound, x, y) {
-    if (soundStates[sound].isDragging || isOverdubbing) {
-        soundStates[sound].iconX = x;
-        soundStates[sound].iconY = y;
-        updateSound(sound, x, y);
+function mouseReleased() {
+    if (selectedSound) {
+        handleMouseRelease(selectedSound);
     }
 }
 
