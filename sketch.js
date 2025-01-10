@@ -504,38 +504,37 @@ const SOUND_STATE = {
 };
 
 let soundStates = {
-    1: { state: SOUND_STATE.IDLE, iconX: null, iconY: null, isPlaying: false },
-    2: { state: SOUND_STATE.IDLE, iconX: null, iconY: null, isPlaying: false },
-    3: { state: SOUND_STATE.IDLE, iconX: null, iconY: null, isPlaying: false },
-    4: { state: SOUND_STATE.IDLE, iconX: null, iconY: null, isPlaying: false }
+    1: { state: SOUND_STATE.IDLE, iconX: null, iconY: null, isPlaying: false, lastUpdate: 0 },
+    2: { state: SOUND_STATE.IDLE, iconX: null, iconY: null, isPlaying: false, lastUpdate: 0 },
+    3: { state: SOUND_STATE.IDLE, iconX: null, iconY: null, isPlaying: false, lastUpdate: 0 },
+    4: { state: SOUND_STATE.IDLE, iconX: null, iconY: null, isPlaying: false, lastUpdate: 0 }
 };
 
 // Event Handlers
 function handleMousePress(sound) {
     let state = soundStates[sound];
+    state.lastUpdate = millis();
     
     if (isOverdubbing) {
         state.state = SOUND_STATE.OVERDUBBING;
+        startOverdubRecording(sound);
     } else if (state.isPlaying) {
         state.state = SOUND_STATE.DRAGGING;
     } else {
         state.state = SOUND_STATE.ACTIVE;
+        state.isPlaying = true;
     }
     
-    state.iconX = mouseX;
-    state.iconY = mouseY;
-    updateSound(sound, mouseX, mouseY);
+    updateSoundPosition(sound, mouseX, mouseY);
 }
 
 function handleMouseDrag(sound) {
     let state = soundStates[sound];
-    if (state.state === SOUND_STATE.DRAGGING || state.state === SOUND_STATE.OVERDUBBING) {
-        state.iconX = mouseX;
-        state.iconY = mouseY;
-        updateSound(sound, mouseX, mouseY);
+    if (state.state !== SOUND_STATE.IDLE) {
+        updateSoundPosition(sound, mouseX, mouseY);
         
         if (state.state === SOUND_STATE.OVERDUBBING) {
-            recordOverdubPosition();
+            recordOverdubPosition(sound, mouseX, mouseY);
         }
     }
 }
@@ -543,14 +542,14 @@ function handleMouseDrag(sound) {
 function handleMouseRelease(sound) {
     let state = soundStates[sound];
     
-    if (state.state === SOUND_STATE.DRAGGING) {
-        state.state = SOUND_STATE.ACTIVE;
+    if (state.state === SOUND_STATE.OVERDUBBING) {
+        finishOverdubRecording(sound);
     }
     
-    if (!state.isPlaying && !isOverdubbing) {
-        state.state = SOUND_STATE.IDLE;
-        state.iconX = null;
-        state.iconY = null;
+    if (!state.isPlaying && state.state !== SOUND_STATE.OVERDUBBING) {
+        resetSoundState(sound);
+    } else {
+        state.state = SOUND_STATE.ACTIVE;
     }
 }
 
