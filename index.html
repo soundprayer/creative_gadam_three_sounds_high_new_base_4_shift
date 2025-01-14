@@ -254,12 +254,13 @@
 
         .wide-select {
             width: 100%;
-            height: 20px;
+            height: 22.5px;
             background: black;
             color: white;
-            border: 1px solid green;
+            border: 2px solid rgb(255, 255, 255);
             font-family: 'Press Start 2P', cursive;
             font-size: 12px;
+            margin-top: 3px; /* Add space between label and selector */
         }
 
         .reverb-row,
@@ -389,5 +390,8 @@
         </div>
     </div>
     <div class="loop-indicator" id="loopIndicator">Use SHIFT to Record movement</div> <!-- ALT to Overdub -->
+    <div id="overdubIndicator" style="display: none; position: absolute; top: 10px; left: 10px; background-color: red; color: white; padding: 5px; border-radius: 5px;">
+        Overdubbing...
+    </div>
 </body>
 </html>
