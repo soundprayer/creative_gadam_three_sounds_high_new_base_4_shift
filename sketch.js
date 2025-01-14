@@ -202,7 +202,7 @@ let overridePositions = {
 };
 
 // Define buffer zone constants
-const BUFFER_ZONE = 35;
+const BUFFER_ZONE = 66;
 
 // Central function to constrain positions
 function constrainToBufferZone(x, y) {
