@@ -20,7 +20,7 @@ let overdubMovements = [];
 let recordStartTime;
 let movements1 = [], movements2 = [], movements3 = [], movements4 = [];
 let loopInterval1, loopInterval2, loopInterval3, loopInterval4;
-// let isDragging = false;  // Remove this line
+
 let isDragging1 = false;
 let isDragging2 = false;
 let isDragging3 = false;
@@ -125,7 +125,7 @@ function getScaleNotes() {
     let notes = [];
     
     // Generate notes for octaves 2 through 6
-    for (let octave = 2; octave <= 6; octave++) {
+    for (let octave = 1; octave <= 6; octave++) {
         let octaveMultiplier = Math.pow(2, octave - 4); // Reference is octave 4
         
         pattern.forEach(interval => {
@@ -201,8 +201,43 @@ let overridePositions = {
     4: null
 };
 
+// Define buffer zone constants
+const BUFFER_ZONE = 35;
+
+// Central function to constrain positions
+function constrainToBufferZone(x, y) {
+    let position = {
+        x: constrain(x, 0, width),
+        y: y,
+        isInBuffer: false,
+        edge: null
+    };
+    
+    // Check if in upper buffer zone (above canvas)
+    if (y < 0 && y > -BUFFER_ZONE) {
+        position.y = 0;  // Lock to top edge
+        position.isInBuffer = true;
+        position.edge = 'top';
+    }
+    // Check if in lower buffer zone (below canvas)
+    else if (y > height && y < height + BUFFER_ZONE) {
+        position.y = height;  // Lock to bottom edge
+        position.isInBuffer = true;
+        position.edge = 'bottom';
+    }
+    // Normal range
+    else if (y >= 0 && y <= height) {
+        position.y = constrain(y, 0, height);
+    } else {
+        // Outside soundboard and buffer zone
+        position.y = null;
+    }
+    
+    return position;
+}
+
 function draw() {
-    background(0);
+    background(1);
 
     // Draw semitransparent red vertical lines for notes
     drawNoteLines();
@@ -217,38 +252,30 @@ function draw() {
         }
     });
 
-    if (isPlaying1) {
-        if (mouseIsPressed && selectedSound === 1 && mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= height) {
-            updateSound(1, mouseX, mouseY);
-            if (recording) {
-                movements1.push({ time: millis() - recordStartTime, x: mouseX, y: mouseY, sound: 1 });
-            }
-        }
-    }
-
-    if (isPlaying2) {
-        if (mouseIsPressed && selectedSound === 2 && mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= height) {
-            updateSound(2, mouseX, mouseY);
-            if (recording) {
-                movements2.push({ time: millis() - recordStartTime, x: mouseX, y: mouseY, sound: 2 });
-            }
-        }
-    }
-
-    if (isPlaying3) {
-        if (mouseIsPressed && selectedSound === 3 && mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= height) {
-            updateSound(3, mouseX, mouseY);
-            if (recording) {
-                movements3.push({ time: millis() - recordStartTime, x: mouseX, y: mouseY, sound: 3 });
-            }
-        }
-    }
-
-    if (isPlaying4) {
-        if (mouseIsPressed && selectedSound === 4 && mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= height) {
-            updateSound(4, mouseX, mouseY);
-            if (recording) {
-                movements4.push({ time: millis() - recordStartTime, x: mouseX, y: mouseY, sound: 4 });
+    // Generalize the logic for all sounds
+    if (mouseIsPressed && mouseX >= 0 && mouseX <= width) {
+        let position = constrainToBufferZone(mouseX, mouseY);
+        if (position.y !== null) {
+            if (selectedSound === 1 && isPlaying1) {
+                updateSound(1, position.x, position.y);
+                if (recording) {
+                    movements1.push({ time: millis() - recordStartTime, x: position.x, y: position.y, sound: 1 });
+                }
+            } else if (selectedSound === 2 && isPlaying2) {
+                updateSound(2, position.x, position.y);
+                if (recording) {
+                    movements2.push({ time: millis() - recordStartTime, x: position.x, y: position.y, sound: 2 });
+                }
+            } else if (selectedSound === 3 && isPlaying3) {
+                updateSound(3, position.x, position.y);
+                if (recording) {
+                    movements3.push({ time: millis() - recordStartTime, x: position.x, y: position.y, sound: 3 });
+                }
+            } else if (selectedSound === 4 && isPlaying4) {
+                updateSound(4, position.x, position.y);
+                if (recording) {
+                    movements4.push({ time: millis() - recordStartTime, x: position.x, y: position.y, sound: 4 });
+                }
             }
         }
     }
@@ -749,34 +776,6 @@ function mousePressed() {
 }
 
 function mouseDragged() {
-    // Allow x movement beyond canvas, but constrain to width
-    let constrainedX = constrain(mouseX, 0, width);
-    
-    // Only constrain y if we're near the canvas
-    let constrainedY = mouseY;
-    let nearCanvas = Math.abs(mouseY - height/2) < height;
-    
-    if (nearCanvas) {
-        constrainedY = constrain(mouseY, 0, height);
-    }
-    
-    if (selectedSound === 1 && isPlaying1) {
-        isDragging1 = true;
-        updateSound(1, constrainedX, constrainedY);
-        if (recording && nearCanvas) {
-            let currentTime = millis() - recordStartTime;
-            movements1.push({ 
-                time: currentTime, 
-                x: constrainedX, 
-                y: constrainedY, 
-                sound: 1 
-            });
-        }
-    }
-    
-    // Repeat for sounds 2-4...
-    // Similar changes for other sound blocks
-
     if (overdubState.isActive && mouseIsPressed) {
         recordOverdubPosition();
     }
