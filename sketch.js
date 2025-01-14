@@ -1157,22 +1157,29 @@ function getLoopDuration(sound) {
 }
 
 function halveLoop(sound) {
+    let loopDuration = getLoopDuration(sound);
+    let halfDuration = loopDuration / 2;
+    let currentTime = (millis() - loopStartTimes[sound]) % loopDuration;
+
     let movements = getMovementsArray(sound);
-    if (movements.length > 1) {
-        let halfLength = Math.floor(movements.length / 2);
-        let originalDuration = getLoopDuration(sound);
-        let newDuration = originalDuration / 2;
-        console.log(`Halving loop for sound ${sound}. Original length: ${movements.length}, Original duration: ${originalDuration}`);
-        movements.length = halfLength; // Halve the array
-        for (let i = 0; i < halfLength; i++) {
-            movements[i].time = (movements[i].time / originalDuration) * newDuration;
-        }
-        console.log(`Loop for sound ${sound} halved to ${halfLength} movements with new duration ${newDuration}`);
-        setLoopDuration(sound, newDuration);
-        startLoop(movements, sound); // Restart the loop with the new length
+
+    // Determine which half of the loop we are in
+    if (currentTime < halfDuration) {
+        // We are in the first half, keep movements in the first half
+        movements = movements.filter(mov => mov.time < halfDuration);
     } else {
-        console.log(`Not enough movements to halve for sound ${sound}`);
+        // We are in the second half, keep movements in the second half
+        movements = movements.filter(mov => mov.time >= halfDuration);
+        
+        // Adjust times to fit within the new loop duration
+        movements.forEach(mov => {
+            mov.time -= halfDuration;
+        });
     }
+
+    // Update loop duration and movements
+    setLoopDuration(sound, halfDuration);
+    setMovementsArray(sound, movements);
 }
 
 function doubleLoop(sound) {
