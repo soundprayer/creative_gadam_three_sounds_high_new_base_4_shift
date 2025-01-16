@@ -1509,3 +1509,8 @@ function endOverdub() {
         buffer: []
     };
 }
+
+function toggleShortcutsModal() {
+    const modal = document.getElementById('shortcutsModal');
+    modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
+}

@@ -50,6 +50,9 @@
             color: rgb(255, 255, 255);
             font-family: 'Press Start 2P', cursive;
             font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
         .start-message {
             position: absolute;
@@ -267,6 +270,73 @@
         .control-row {
             margin-bottom: 10px;
         }
+
+        .info-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 12px;
+            animation: rainbow 10s linear infinite;
+        }
+
+        @keyframes rainbow {
+            0% { background: red; }
+            17% { background: orange; }
+            33% { background: yellow; }
+            50% { background: green; }
+            67% { background: blue; }
+            84% { background: indigo; }
+            100% { background: violet; }
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            position: relative;
+            background: black;
+            margin: 5% auto;
+            padding: 20px;
+            width: 80%;
+            max-width: 800px;
+            border: 2px solid white;
+        }
+
+        .close-button {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            color: white;
+            cursor: pointer;
+            font-size: 24px;
+        }
+
+        .shortcuts-text {
+            color: white;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 12px;
+            white-space: pre-wrap;
+            line-height: 1.5;
+        }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <script src="node_modules/p5/lib/p5.js"></script>
@@ -277,7 +347,31 @@
     <div class="start-message" id="startMessage">Click on a soundboard to put a first sound</div>
     <!-- <div class="pause-button">Pause</div> -->
     <div class="info">Press Spacebar to <span id="playPauseStatus">Pause</span></div>
-    <div class="info-right">CLTR+R or F5 to START FRESH</div>
+    <div class="info-right">
+        CLTR+R or F5 to START FRESH
+        <div id="infoIcon" class="info-icon" onclick="toggleShortcutsModal()">i</div>
+    </div>
+
+    <!-- Shortcuts Modal -->
+    <div id="shortcutsModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="toggleShortcutsModal()">&times;</span>
+            <pre class="shortcuts-text">
+POSTAW LUB PRZECIĄGNIJ KTÓRYŚ Z ASPEKTÓW BY USŁYSZEĆ JAK BRZMISZ OBECNIE
+
+- SPACJA: WŁĄCZ SIĘ/ ODPOCZNIJ
+- Q: ZMIEŃ ASPEKT ŻYCIA, KTÓRYM KIERUJESZ (MOŻESZ TEŻ KLIKNĄĆ KSZTAŁT)
+- SHIFT: WPROWADŹ RUTYNĘ, ALBO NAGRAJ NOWĄ RUTYNĘ DLA ASPEKTU,
+- D: POPRAW FRAGMENT RUTYNY W TRAKCIE JEJ TRWANIA,
+- Z: SKRÓĆ ŚCIEŻKĘ WYBRANEJ RUTYNY O POŁOWĘ (PROSTSZYCH RZECZY ŁATWIEJ SIĘ NAUCZYĆ)
+- X: POWIEL ŚCIĘŻKĘ RUTYNY (POWTARZANIE POMAGA ZAPAMIĘTAĆ. CHOĆ NIE ZAWSZE OD RAZU USŁYSZYSZ EFEKT (PO UŻYCIU WARTO UŻYĆ D)
+- P: BAW SIĘ RYTMEM (DZIAŁA ZARÓWNO GDY BIERZESZ UDZIAŁ, JAK I NIE)
+- CLTR + R albo F5: ZACZNIJ OD NOWA
+
+ŁATWO JEST POPAŚĆ W CHAOS. SKALE (LINIE) TO ZASADY ŻYCIOWE KTÓRE POMOGĄ CI WPROWADZIĆ HARMONIĘ. MOŻESZ ZMIENIĆ ZESTAW ZASAD. ALE SAMA KOREKTA ASPEKTÓW TO TWOJE ZADANIE
+            </pre>
+        </div>
+    </div>
     <div class="controls">
         <div class="reverb-row">
             <!-- Global Reverb Controls -->
