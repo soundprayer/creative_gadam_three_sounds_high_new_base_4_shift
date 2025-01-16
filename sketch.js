@@ -399,9 +399,9 @@ function draw() {
     // Ensure the play/pause status is updated correctly
     let playPauseStatus = document.getElementById('playPauseStatus');
     if (isPlaying1 || isPlaying2 || isPlaying3 || isPlaying4) {
-        playPauseStatus.textContent = 'Pause';
+        playPauseStatus.textContent = 'Odpocząć';
     } else {
-        playPauseStatus.textContent = 'Play';
+        playPauseStatus.textContent = 'Grać';
     }
 
     // Update loops
@@ -612,7 +612,7 @@ function togglePlay() {
         isPlaying2 = false;
         isPlaying3 = false;
         isPlaying4 = false;
-        playPauseStatus.textContent = 'Play';
+        playPauseStatus.textContent = 'Graj';
     } else {
         // Start only existing oscillators
         if (iconX1 !== null) {
@@ -631,7 +631,7 @@ function togglePlay() {
             osc4.start();
             isPlaying4 = true;
         }
-        playPauseStatus.textContent = 'Pause';
+        playPauseStatus.textContent = 'Odpocząć';
     }
 }
 
@@ -819,7 +819,7 @@ function keyPressed() {
             isLoop4Active = false; // Stop the loop
             console.log("Loop 4 stopped");
         }
-        loopIndicator.textContent = 'Loop: RECORDING';
+        loopIndicator.textContent = 'Rutyna: OPRACOWYWANIE';
     } else if (key === 'D' || key === 'd') { // Changed to 'D'
         if (mouseIsPressed) {
             overdubStartTime = millis();
@@ -827,7 +827,7 @@ function keyPressed() {
             isOverdubbing = true;
             overdubMovements = [];
             let loopIndicator = document.getElementById('loopIndicator');
-            loopIndicator.textContent = 'Loop: OVERDUBBING';
+            loopIndicator.textContent = 'Rutyna: POPRAWIANIE';
         }
     } else if (key === 'Z' || key === 'z') {
         halveLoop(selectedSound);
@@ -851,7 +851,7 @@ function keyPressed() {
         isOverdubbing = true;
         overdubState.buffer = [];
         let loopIndicator = document.getElementById('loopIndicator');
-        loopIndicator.textContent = 'Loop: OVERDUBBING';
+        loopIndicator.textContent = 'Rutyna: POPRAWIANIE';
     }
 
     if (key === 'D' || key === 'd') {
@@ -864,7 +864,7 @@ function startOverdubRecording() {
     isOverdubbing = true;
     overdubMovements = [];
     let loopIndicator = document.getElementById('loopIndicator');
-    loopIndicator.textContent = 'Loop: OVERDUBBING';
+    loopIndicator.textContent = 'Rutyna: POPRAWIANIE';
 }
 
 function toggleSelectedSound() {
@@ -876,7 +876,7 @@ function keyReleased() {
         let loopIndicator = document.getElementById('loopIndicator');
         // Stop recording and start looping
         recording = false;
-        loopIndicator.textContent = 'Loop: ON';
+        loopIndicator.textContent = 'Rutyna: ODTWARZA SIĘ';
         console.log("Recording stopped, starting loop");
         if (selectedSound === 1) {
             movements1.push({ time: millis() - recordStartTime, x: iconX1, y: iconY1, sound: 1 }); // Ensure the last position is recorded
@@ -954,7 +954,7 @@ function keyReleased() {
         overdubStartTime = null;
         overdubMovements = [];
         let loopIndicator = document.getElementById('loopIndicator');
-        loopIndicator.textContent = 'Loop: PLAYING';
+        loopIndicator.textContent = 'Rutyna: ODTWARZA SIĘ';
     }
 
     if (key === 'D' || key === 'd') {
@@ -974,7 +974,7 @@ function keyReleased() {
         };
         
         let loopIndicator = document.getElementById('loopIndicator');
-        loopIndicator.textContent = 'Loop: PLAYING';
+        loopIndicator.textContent = 'Rutyna: ODTWARZA SIĘ';
     }
 
     if (key === 'D' || key === 'd') {

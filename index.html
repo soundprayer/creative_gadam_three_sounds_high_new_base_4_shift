@@ -344,11 +344,12 @@
     <script src="sketch.js"></script>
 </head>
 <body>
-    <div class="start-message" id="startMessage">Click on a soundboard to put a first sound</div>
+    <div class="start-message" id="startMessage">POSTAW LUB PRZECIĄGNIJ KTÓRYŚ Z ASPEKTÓW BY USŁYSZEĆ JAK DZIŚ BRZMISZ
+    </div>
     <!-- <div class="pause-button">Pause</div> -->
-    <div class="info">Press Spacebar to <span id="playPauseStatus">Pause</span></div>
+    <div class="info">Wciśnij SPACJĘ by <span id="playPauseStatus">Odpocząć</span></div>
     <div class="info-right">
-        CLTR+R or F5 to START FRESH
+        INNE SKRÓTY ŻYCIOWE
         <div id="infoIcon" class="info-icon" onclick="toggleShortcutsModal()">i</div>
     </div>
 
@@ -357,16 +358,14 @@
         <div class="modal-content">
             <span class="close-button" onclick="toggleShortcutsModal()">&times;</span>
             <pre class="shortcuts-text">
-POSTAW LUB PRZECIĄGNIJ KTÓRYŚ Z ASPEKTÓW BY USŁYSZEĆ JAK BRZMISZ OBECNIE
-
 - SPACJA: WŁĄCZ SIĘ/ ODPOCZNIJ
 - Q: ZMIEŃ ASPEKT ŻYCIA, KTÓRYM KIERUJESZ (MOŻESZ TEŻ KLIKNĄĆ KSZTAŁT)
 - SHIFT: WPROWADŹ RUTYNĘ, ALBO NAGRAJ NOWĄ RUTYNĘ DLA ASPEKTU,
 - D: POPRAW FRAGMENT RUTYNY W TRAKCIE JEJ TRWANIA,
 - Z: SKRÓĆ ŚCIEŻKĘ WYBRANEJ RUTYNY O POŁOWĘ (PROSTSZYCH RZECZY ŁATWIEJ SIĘ NAUCZYĆ)
-- X: POWIEL ŚCIĘŻKĘ RUTYNY (POWTARZANIE POMAGA ZAPAMIĘTAĆ. CHOĆ NIE ZAWSZE OD RAZU USŁYSZYSZ EFEKT (PO UŻYCIU WARTO UŻYĆ D)
-- P: BAW SIĘ RYTMEM (DZIAŁA ZARÓWNO GDY BIERZESZ UDZIAŁ, JAK I NIE)
-- CLTR + R albo F5: ZACZNIJ OD NOWA
+- X: POWIEL ŚCIĘŻKĘ RUTYNY - POWTARZANIE POMAGA ZAPAMIĘTAĆ, CHOĆ NIE ZAWSZE OD RAZU USŁYSZYSZ EFEKT (PO UŻYCIU WARTO UŻYĆ D)
+- P: BAW SIĘ RYTMEM (DZIAŁA ZARÓWNO GDY GRASZ lub ODPOCZYWASZ, JAK I NIE)
+- CLTR + R albo F5: CZASEM TRZEBA ZACZĄĆ OD NOWA
 
 ŁATWO JEST POPAŚĆ W CHAOS. SKALE (LINIE) TO ZASADY ŻYCIOWE KTÓRE POMOGĄ CI WPROWADZIĆ HARMONIĘ. MOŻESZ ZMIENIĆ ZESTAW ZASAD. ALE SAMA KOREKTA ASPEKTÓW TO TWOJE ZADANIE
             </pre>
@@ -483,7 +482,7 @@ POSTAW LUB PRZECIĄGNIJ KTÓRYŚ Z ASPEKTÓW BY USŁYSZEĆ JAK BRZMISZ OBECNIE
             </div>
         </div>
     </div>
-    <div class="loop-indicator" id="loopIndicator">Use SHIFT to Record movement</div> <!-- ALT to Overdub -->
+    <div class="loop-indicator" id="loopIndicator">trzymaj SHIFT by nagrać rutynę</div> <!-- ALT to Overdub -->
     <div id="overdubIndicator" style="display: none; position: absolute; top: 10px; left: 10px; background-color: red; color: white; padding: 5px; border-radius: 5px;">
         Overdubbing...
     </div>
