@@ -293,17 +293,15 @@
             cursor: pointer;
             font-family: 'Press Start 2P', cursive;
             font-size: 12px;
-            animation: rainbow 7s linear infinite;
+            animation: rainbow 4s linear infinite;
         }
 
         @keyframes rainbow {
-            0% { background: rgb(247, 0, 255); }
-            17% { background: orange; }
-            33% { background: yellow; }
-            50% { background: rgb(0, 215, 218); }
-            67% { background: blue; }
-            84% { background: indigo; }
-            100% { background: violet; }
+            0% { background: rgb(123, 0, 255); }    /* green from project */
+            25% { background: rgb(255, 0, 234); }   /* red from project */
+            50% { background: rgb(0, 255, 225); }   /* blue from project */
+            75% { background: rgb(255, 234, 0); }   /* yellow from project */
+            100% { background: rgb(123, 0, 255); }  /* back to first color */
         }
 
         .modal {
@@ -322,11 +320,11 @@
             background: black;
             margin: 5% auto;
             padding: 20px;
-            width: 80%;
-            max-width: 800px;
+            width: 90%;
+            max-width: 1000px;
             border: 2px solid white;
             display: grid;
-            grid-template-columns: 60% 40%;
+            grid-template-columns: 40% 60%;
             gap: 20px;
         }
 
@@ -355,8 +353,9 @@
 
         .shortcuts-section {
             margin-bottom: 30px;
-            border-right: 1px solid #444;
-            padding-right: 20px;
+            border-left: 1px solid #444;
+            padding-left: 20px;
+            grid-column: 2;
         }
 
         .shortcut-item {
@@ -368,30 +367,45 @@
         }
 
         .key {
-            color: #00ff00;
+            color: var(--color-blue);
             font-weight: bold;
-            font-size: 11px;
+            font-size: 13px;
             text-align: right;
         }
 
         .description {
             color: white;
             font-size: 11px;
+            text-align: left;
         }
 
         .note {
             grid-column: 2;
-            color: #888;
+            color: rgb(255, 0, 234);
             font-size: 10px;
-            margin-top: 4px;
+            margin-bottom: 25px;
+            text-align: left;
+        }
+
+        .explanation-section {
+            grid-column: 1;
+            padding-right: 20px;
         }
 
         .explanation-section p {
-            color: #aaa;
+            color: #ffffff;
             font-size: 12px;
             margin-bottom: 15px;
             text-align: center;
             line-height: 1.4;
+        }
+
+        .explanation-title {
+            color: white;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 14px;
+            margin-bottom: 20px;
+            text-align: center;
         }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
@@ -400,7 +414,7 @@
     <script src="sketch.js"></script>
 </head>
 <body>
-    <div class="start-message" id="startMessage">POSTAW LUB PRZECIĄGNIJ KTÓRYŚ Z ASPEKTÓW BY USŁYSZEĆ JAK DZIŚ BRZMISZ</div>
+    <div class="start-message" id="startMessage">POSTAW WYBRANY ASPEKT, BY USŁYSZEĆ JAK DZIŚ BRZMISZ</div>
     <!-- <div class="pause-button">Pause</div> -->
     <div class="info">Wciśnij SPACJĘ by <span id="playPauseStatus">Odpocząć</span></div>
     <div class="info-right">
@@ -412,7 +426,19 @@
     <div id="shortcutsModal" class="modal">
         <div class="modal-content">
             <span class="close-button" onclick="toggleShortcutsModal()">&times;</span>
+            
+            <!-- Explanation Section First -->
+            <div class="explanation-section">
+                <h2 class="explanation-title">ZASADY GRY</h2>
+                <p>ŁATWO JEST POPAŚĆ W CHAOS. <span style="color: #C31C00;">SKALE (LINIE)</span> TO ZASADY ŻYCIOWE KTÓRE POMOGĄ CI WPROWADZIĆ HARMONIĘ. POSTAW NA NICH DŹWIĘKI BY USŁYSZEĆ HARMONIĘ</p>
+                <p>MOŻESZ ZMIENIĆ ZESTAW ZASAD. ALE SAMA KOREKTA ASPEKTÓW TO TWOJE ZADANIE</p>
+                <p>JEŚLI CI SIĘ COŚ UDAŁO, NAUCZ KOGOŚ INNEGO <span style="color: red;">&#10084;</span></p>
+                <p>POWODZENIA</p>
+            </div>
+
+            <!-- Shortcuts Section Second -->
             <div class="shortcuts-section">
+                <h2 class="explanation-title">SKRÓTY ŻYCIOWE</h2>
                 <div class="shortcut-item">
                     <span class="key">SPACJA</span>
                     <span class="description">WŁĄCZ SIĘ / ODPOCZNIJ</span>
@@ -425,12 +451,14 @@
                 <div class="shortcut-item">
                     <span class="key">SHIFT</span>
                     <span class="description">WPROWADŹ RUTYNĘ, ALBO NAGRAJ NOWĄ RUTYNĘ DLA ASPEKTU</span>
+                    <span class="note">NAWYKI POMAGAJĄ PRZEJŚĆ PRZEZ ŻYCIE</span>
+
                 </div>
                 <div class="shortcut-item">
                     <span class="key">D</span>
                     <span class="description">POPRAW FRAGMENT RUTYNY W TRAKCIE JEJ TRWANIA</span>
                 </div>
-                <div class="shortcut-item">
+                <!-- <div class="shortcut-item">
                     <span class="key">Z</span>
                     <span class="description">SKRÓĆ ŚCIEŻKĘ WYBRANEJ RUTYNY O POŁOWĘ</span>
                     <span class="note">(PROSTSZYCH RZECZY ŁATWIEJ SIĘ NAUCZYĆ)</span>
@@ -439,21 +467,16 @@
                     <span class="key">X</span>
                     <span class="description">POWIEL ŚCIĘŻKĘ RUTYNY</span>
                     <span class="note">POWTARZANIE POMAGA ZAPAMIĘTAĆ, CHOĆ NIE ZAWSZE OD RAZU USŁYSZYSZ EFEKT (PO UŻYCIU WARTO UŻYĆ D)</span>
-                </div>
+                </div> -->
                 <div class="shortcut-item">
                     <span class="key">P</span>
-                    <span class="description">BAW SIĘ RYTMEM</span>
+                    <span class="description">BAW SIĘ RYTMEM NAGRANEJ RUTYNY</span>
                     <span class="note">(DZIAŁA ZARÓWNO GDY GRASZ LUB ODPOCZYWASZ)</span>
                 </div>
                 <div class="shortcut-item">
-                    <span class="key">CTRL+R / F5</span>
-                    <span class="description">CZASEM TRZEBA ZACZĄĆ OD NOWA</span>
+                    <span class="key">CTRL+R</span>
+                    <span class="description">CZASEM WARTO ZACZĄĆ OD NOWA</span>
                 </div>
-            </div>
-
-            <div class="explanation-section">
-                <p>ŁATWO JEST POPAŚĆ W CHAOS. SKALE (LINIE) TO ZASADY ŻYCIOWE KTÓRE POMOGĄ CI WPROWADZIĆ HARMONIĘ.</p>
-                <p>MOŻESZ ZMIENIĆ ZESTAW ZASAD. ALE SAMA KOREKTA ASPEKTÓW TO TWOJE ZADANIE</p>
             </div>
         </div>
     </div>
@@ -461,12 +484,12 @@
         <div class="reverb-row">
             <!-- Global Reverb Controls -->
             <div class="slider-container">
-                <div class="slider-label">Reverb Time</div>
+                <div class="slider-label">Przestrzeń</div>
                 <input type="range" id="reverbTimeSlider" class="slider" min="0" max="10" step="0.1" value="3" 
                        oninput="updateReverbTime(this.value)">
             </div>
             <div class="slider-container">
-                <div class="slider-label">Reverb Decay</div>
+                <div class="slider-label">Pogłos Czas</div>
                 <input type="range" id="reverbDecaySlider" class="slider" min="0" max="10" step="0.1" value="2" 
                        oninput="updateReverbDecay(10 - this.value)">
             </div>
@@ -495,7 +518,7 @@
         </div>
         <div class="control-row">
             <div class="selector-container">
-                <div class="slider-label">Scale</div>
+                <div class="slider-label">Skala</div>
                 <select id="scaleSelector" class="wide-select" onchange="selectScale(this.value)">
                     <option value="pentatonic">Pentatonic</option>
                     <option value="major">Major</option>
@@ -515,7 +538,7 @@
                 </select>
             </div>
             <div class="selector-container">
-                <div class="slider-label">Root Note</div>
+                <div class="slider-label">Nuta</div>
                 <select id="rootNoteSelector" class="wide-select" onchange="selectRootNote(this.value)">
                     <option value="C">C</option>
                     <option value="C#">C#</option>
