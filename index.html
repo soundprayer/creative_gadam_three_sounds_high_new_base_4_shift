@@ -293,14 +293,14 @@
             cursor: pointer;
             font-family: 'Press Start 2P', cursive;
             font-size: 12px;
-            animation: rainbow 10s linear infinite;
+            animation: rainbow 7s linear infinite;
         }
 
         @keyframes rainbow {
-            0% { background: red; }
+            0% { background: rgb(247, 0, 255); }
             17% { background: orange; }
             33% { background: yellow; }
-            50% { background: green; }
+            50% { background: rgb(0, 215, 218); }
             67% { background: blue; }
             84% { background: indigo; }
             100% { background: violet; }
@@ -349,6 +349,44 @@
             50% { opacity: 0.5; }
             100% { opacity: 1; }
         }
+
+        .shortcuts-section {
+            margin-bottom: 30px;
+        }
+
+        .shortcut-item {
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+
+        .key {
+            color: #00ff00;
+            font-weight: bold;
+            margin-right: 10px;
+            display: inline-block;
+            min-width: 80px;
+        }
+
+        .description {
+            color: white;
+        }
+
+        .note {
+            display: block;
+            color: #888;
+            margin-left: 90px;
+            font-size: 0.9em;
+        }
+
+        .explanation-section {
+            border-top: 1px solid #444;
+            padding-top: 20px;
+            color: #aaa;
+        }
+
+        .explanation-section p {
+            margin-bottom: 15px;
+        }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <script src="node_modules/p5/lib/p5.js"></script>
@@ -368,18 +406,49 @@
     <div id="shortcutsModal" class="modal">
         <div class="modal-content">
             <span class="close-button" onclick="toggleShortcutsModal()">&times;</span>
-            <pre class="shortcuts-text">
-- SPACJA: WŁĄCZ SIĘ/ ODPOCZNIJ
-- Q: ZMIEŃ ASPEKT ŻYCIA, KTÓRYM KIERUJESZ (MOŻESZ TEŻ KLIKNĄĆ KSZTAŁT)
-- SHIFT: WPROWADŹ RUTYNĘ, ALBO NAGRAJ NOWĄ RUTYNĘ DLA ASPEKTU,
-- D: POPRAW FRAGMENT RUTYNY W TRAKCIE JEJ TRWANIA,
-- Z: SKRÓĆ ŚCIEŻKĘ WYBRANEJ RUTYNY O POŁOWĘ (PROSTSZYCH RZECZY ŁATWIEJ SIĘ NAUCZYĆ)
-- X: POWIEL ŚCIĘŻKĘ RUTYNY - POWTARZANIE POMAGA ZAPAMIĘTAĆ, CHOĆ NIE ZAWSZE OD RAZU USŁYSZYSZ EFEKT (PO UŻYCIU WARTO UŻYĆ D)
-- P: BAW SIĘ RYTMEM (DZIAŁA ZARÓWNO GDY GRASZ lub ODPOCZYWASZ, JAK I NIE)
-- CLTR + R albo F5: CZASEM TRZEBA ZACZĄĆ OD NOWA
+            <div class="shortcuts-section">
+                <div class="shortcut-item">
+                    <span class="key">SPACJA</span>
+                    <span class="description">WŁĄCZ SIĘ / ODPOCZNIJ</span>
+                </div>
+                <div class="shortcut-item">
+                    <span class="key">Q</span>
+                    <span class="description">ZMIEŃ ASPEKT ŻYCIA, KTÓRYM KIERUJESZ</span>
+                    <span class="note">(MOŻESZ TEŻ KLIKNĄĆ KSZTAŁT)</span>
+                </div>
+                <div class="shortcut-item">
+                    <span class="key">SHIFT</span>
+                    <span class="description">WPROWADŹ RUTYNĘ, ALBO NAGRAJ NOWĄ RUTYNĘ DLA ASPEKTU</span>
+                </div>
+                <div class="shortcut-item">
+                    <span class="key">D</span>
+                    <span class="description">POPRAW FRAGMENT RUTYNY W TRAKCIE JEJ TRWANIA</span>
+                </div>
+                <div class="shortcut-item">
+                    <span class="key">Z</span>
+                    <span class="description">SKRÓĆ ŚCIEŻKĘ WYBRANEJ RUTYNY O POŁOWĘ</span>
+                    <span class="note">(PROSTSZYCH RZECZY ŁATWIEJ SIĘ NAUCZYĆ)</span>
+                </div>
+                <div class="shortcut-item">
+                    <span class="key">X</span>
+                    <span class="description">POWIEL ŚCIĘŻKĘ RUTYNY</span>
+                    <span class="note">POWTARZANIE POMAGA ZAPAMIĘTAĆ, CHOĆ NIE ZAWSZE OD RAZU USŁYSZYSZ EFEKT (PO UŻYCIU WARTO UŻYĆ D)</span>
+                </div>
+                <div class="shortcut-item">
+                    <span class="key">P</span>
+                    <span class="description">BAW SIĘ RYTMEM</span>
+                    <span class="note">(DZIAŁA ZARÓWNO GDY GRASZ LUB ODPOCZYWASZ)</span>
+                </div>
+                <div class="shortcut-item">
+                    <span class="key">CTRL+R / F5</span>
+                    <span class="description">CZASEM TRZEBA ZACZĄĆ OD NOWA</span>
+                </div>
+            </div>
 
-ŁATWO JEST POPAŚĆ W CHAOS. SKALE (LINIE) TO ZASADY ŻYCIOWE KTÓRE POMOGĄ CI WPROWADZIĆ HARMONIĘ. MOŻESZ ZMIENIĆ ZESTAW ZASAD. ALE SAMA KOREKTA ASPEKTÓW TO TWOJE ZADANIE
-            </pre>
+            <div class="explanation-section">
+                <p>ŁATWO JEST POPAŚĆ W CHAOS. SKALE (LINIE) TO ZASADY ŻYCIOWE KTÓRE POMOGĄ CI WPROWADZIĆ HARMONIĘ.</p>
+                <p>MOŻESZ ZMIENIĆ ZESTAW ZASAD. ALE SAMA KOREKTA ASPEKTÓW TO TWOJE ZADANIE</p>
+            </div>
         </div>
     </div>
     <div class="controls">
