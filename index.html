@@ -55,14 +55,20 @@
             gap: 10px;
         }
         .start-message {
-            position: absolute;
+            position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            color: rgb(255, 255, 255);
             font-family: 'Press Start 2P', cursive;
             font-size: 24px;
+            color: white;
             text-align: center;
+            max-width: 800px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid white;
+            animation: pulse 2s infinite;
+            z-index: 1000;
         }
         .sound-selector {
             position: absolute;
@@ -337,6 +343,12 @@
             white-space: pre-wrap;
             line-height: 1.5;
         }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <script src="node_modules/p5/lib/p5.js"></script>
@@ -344,8 +356,7 @@
     <script src="sketch.js"></script>
 </head>
 <body>
-    <div class="start-message" id="startMessage">POSTAW LUB PRZECIĄGNIJ KTÓRYŚ Z ASPEKTÓW BY USŁYSZEĆ JAK DZIŚ BRZMISZ
-    </div>
+    <div class="start-message" id="startMessage">POSTAW LUB PRZECIĄGNIJ KTÓRYŚ Z ASPEKTÓW BY USŁYSZEĆ JAK DZIŚ BRZMISZ</div>
     <!-- <div class="pause-button">Pause</div> -->
     <div class="info">Wciśnij SPACJĘ by <span id="playPauseStatus">Odpocząć</span></div>
     <div class="info-right">
