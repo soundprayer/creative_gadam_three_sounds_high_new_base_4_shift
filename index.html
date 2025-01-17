@@ -407,6 +407,16 @@
             margin-bottom: 25px;
             text-align: center;
         }
+
+        .restart-text {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: white;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 12px;
+            z-index: 100;
+        }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <script src="node_modules/p5/lib/p5.js"></script>
@@ -414,6 +424,7 @@
     <script src="sketch.js"></script>
 </head>
 <body>
+    <!-- <div class="restart-text">CTRL+R by zacząć od nowa</div> -->
     <div class="start-message" id="startMessage">POSTAW WYBRANY ASPEKT, BY USŁYSZEĆ JAK DZIŚ BRZMISZ</div>
     <!-- <div class="pause-button">Pause</div> -->
     <div class="info">Wciśnij SPACJĘ by <span id="playPauseStatus">Odpocząć</span></div>
@@ -430,8 +441,8 @@
             <!-- Explanation Section First -->
             <div class="explanation-section">
                 <h2 class="explanation-title">ZASADY GRY</h2>
-                <p>ŁATWO JEST POPAŚĆ W CHAOS. <span style="color: #C31C00;">SKALE (LINIE)</span> TO ZASADY ŻYCIOWE KTÓRE POMOGĄ CI WPROWADZIĆ HARMONIĘ. POSTAW NA NICH DŹWIĘKI BY USŁYSZEĆ HARMONIĘ</p>
-                <p>MOŻESZ ZMIENIĆ ZESTAW ZASAD. ALE SAMA KOREKTA ASPEKTÓW TO TWOJE ZADANIE</p>
+                <p>ŁATWO JEST POPAŚĆ W CHAOS. <span style="color: #C31C00;">SKALE (LINIE)</span> TO WARTOŚCI, KTÓRE CI POMOGĄ. POSTAW NA NICH DŹWIĘKI, BY USŁYSZEĆ <span style="color: #C31C00;">HARMONIĘ</span></p>
+                <p>MOŻESZ ZMIENIĆ <span style="color: #C31C00;">TE WYTYCZNE</span>. ALE SAMA KOREKTA ASPEKTÓW TO TWOJE ZADANIE</p>
                 <p>JEŚLI CI SIĘ COŚ UDAŁO, NAUCZ KOGOŚ INNEGO <span style="color: red;">&#10084;</span></p>
                 <p>POWODZENIA</p>
             </div>
@@ -446,17 +457,18 @@
                 <div class="shortcut-item">
                     <span class="key">Q</span>
                     <span class="description">ZMIEŃ ASPEKT ŻYCIA, KTÓRYM KIERUJESZ</span>
-                    <span class="note">(MOŻESZ TEŻ KLIKNĄĆ KSZTAŁT)</span>
+                    <span class="note">(MOŻESZ TEŻ KLIKNĄĆ NA KSZTAŁT NA DOLE EKRANU)</span>
                 </div>
                 <div class="shortcut-item">
                     <span class="key">SHIFT</span>
-                    <span class="description">WPROWADŹ RUTYNĘ, ALBO NAGRAJ NOWĄ RUTYNĘ DLA ASPEKTU</span>
-                    <span class="note">NAWYKI POMAGAJĄ PRZEJŚĆ PRZEZ ŻYCIE</span>
+                    <span class="description">WPROWADŹ RUTYNĘ, ALBO NAGRAJ NOWĄ</span>
+                    <span class="note">RYTMY I NAWYKI POMAGAJĄ PRZEJŚĆ PRZEZ ŻYCIE</span>
 
                 </div>
                 <div class="shortcut-item">
                     <span class="key">D</span>
                     <span class="description">POPRAW FRAGMENT RUTYNY W TRAKCIE JEJ TRWANIA</span>
+                    <span class="note">NAWYK ŁATWIEJ ZMIENIĆ STOPNIOWO ZASTĘPUJĄC GO NOWYM</span>
                 </div>
                 <!-- <div class="shortcut-item">
                     <span class="key">Z</span>
