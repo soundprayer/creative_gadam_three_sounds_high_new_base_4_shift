@@ -86,11 +86,13 @@ let reverbDryWet = {
 
 function selectRootNote(value) {
     rootNote = value;
+    window.scaleChanged = true;
     console.log("Selected root note:", rootNote);
 }
 
 function selectScale(value) {
     scaleType = value;
+    window.scaleChanged = true;
     console.log("Selected scale:", scaleType);
 }
 
@@ -448,18 +450,29 @@ function drawNoteLines() {
     strokeWeight(1);
     
     notes.forEach(note => {
-        // Convert frequency to logarithmic position
         let minFreq = 40;
         let maxFreq = 1000;
         let x = width * (Math.log(note.freq/minFreq)) / (Math.log(maxFreq/minFreq));
         
         if (x >= 0 && x <= width) {
+            // Add animation class to lines
+            push();
+            if (window.scaleChanged) {
+                stroke(255, 0, 0, map(sin(frameCount * 0.1), -1, 1, 50, 200));
+            }
             line(x, 0, x, height);
+            pop();
+            
             fill(255, 0, 0, 127);
             textSize(12);
             text(note.name, x, 20);
         }
     });
+    
+    // Reset scale changed flag after a few seconds
+    if (window.scaleChanged && frameCount % 60 === 0) {
+        window.scaleChanged = false;
+    }
 }
 
 function updateSound(sound, x, y) {
