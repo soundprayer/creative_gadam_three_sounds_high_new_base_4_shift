@@ -602,6 +602,8 @@ function mouseReleased() {
 // Remove oscillator start from togglePlay
 function togglePlay() {
     let playPauseStatus = document.getElementById('playPauseStatus');
+    let infoText = document.querySelector('.info');
+    
     if (isPlaying1 || isPlaying2 || isPlaying3 || isPlaying4) {
         // Stop only active oscillators
         if (isPlaying1) osc1.stop();
@@ -613,6 +615,7 @@ function togglePlay() {
         isPlaying3 = false;
         isPlaying4 = false;
         playPauseStatus.textContent = 'Graj';
+        infoText.classList.add('blinking');
     } else {
         // Start only existing oscillators
         if (iconX1 !== null) {
@@ -632,6 +635,7 @@ function togglePlay() {
             isPlaying4 = true;
         }
         playPauseStatus.textContent = 'Odpocząć';
+        infoText.classList.remove('blinking');
     }
 }
 
