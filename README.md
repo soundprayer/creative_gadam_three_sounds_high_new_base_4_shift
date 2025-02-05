@@ -83,3 +83,4 @@ If you succeed at something, teach someone else ❤
 ## Contact
 
 For questions, collaborations, or suggestions, please reach out via your preferred channel: m.rusnar@gmail.com, instagram: https://www.instagram.com/gadam_do_siebie/
+www.gadamstudio.pl
