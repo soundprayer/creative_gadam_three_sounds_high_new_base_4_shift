@@ -59,6 +59,7 @@ If you succeed at something, teach someone else ❤
 
 3. **Running the Project:**  
    Open the using a live server (e.g., Live Server extension in Visual Studio Code). Web demo will be implemented soon, stay in touch!
+   Or run ```npm run dev``` locally to setup dev environment
 
 ---
 

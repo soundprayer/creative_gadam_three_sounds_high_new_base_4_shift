@@ -1,0 +1,89 @@
+// ui.js
+
+/**
+ * Toggles play/pause status of oscillators and updates the UI accordingly.
+ */
+function togglePlay() {
+    const playPauseStatus = document.getElementById('playPauseStatus');
+    const infoText = document.querySelector('.info');
+
+    if (isPlaying1 || isPlaying2 || isPlaying3 || isPlaying4) {
+        if (isPlaying1) osc1.stop();
+        if (isPlaying2) osc2.stop();
+        if (isPlaying3) osc3.stop();
+        if (isPlaying4) osc4.stop();
+
+        isPlaying1 = false;
+        isPlaying2 = false;
+        isPlaying3 = false;
+        isPlaying4 = false;
+
+        playPauseStatus.textContent = 'Graj';
+        infoText.classList.add('blinking');
+    } else {
+        if (iconX1 !== null) {
+            osc1.start();
+            isPlaying1 = true;
+        }
+        if (iconX2 !== null) {
+            osc2.start();
+            isPlaying2 = true;
+        }
+        if (iconX3 !== null) {
+            osc3.start();
+            isPlaying3 = true;
+        }
+        if (iconX4 !== null) {
+            osc4.start();
+            isPlaying4 = true;
+        }
+
+        playPauseStatus.textContent = 'Odpocząć';
+        infoText.classList.remove('blinking');
+    }
+}
+
+/**
+ * Toggles the visibility of the shortcuts modal.
+ */
+function toggleShortcutsModal() {
+    const modal = document.getElementById('shortcutsModal');
+    modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
+}
+
+/**
+ * Sets the currently selected sound and updates the UI with visual feedback.
+ */
+window.addEventListener('DOMContentLoaded', () => {
+    window.selectSound = (sound) => {
+        selectedSound = sound;
+        const soundButtons = document.querySelectorAll('.sound-option');
+
+        soundButtons.forEach((button, index) => {
+            if (index + 1 === selectedSound) {
+                button.classList.add('flash');
+                setTimeout(() => button.classList.remove('flash'), 500);
+            } else {
+                button.style.backgroundColor = '';
+            }
+        });
+    };
+});
+
+// ui.js additions:
+
+window.selectScale = function(scale) {
+    scaleType = scale;
+    window.scaleChanged = true;  // trigger note line animation
+    setTimeout(() => window.scaleChanged = false, 500);
+};
+
+window.selectRootNote = function(note) {
+    rootNote = note;
+    window.scaleChanged = true;  // trigger note line animation
+    setTimeout(() => window.scaleChanged = false, 500);
+};
+
+window.updateFreqTransitionTime = function(sound, value) {
+    freqTransitionTimes[sound] = parseFloat(value);
+};
