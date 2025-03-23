@@ -70,6 +70,21 @@ window.addEventListener('DOMContentLoaded', () => {
     };
 });
 
+function selectScale(value) {
+    scaleType = value;
+    window.scaleChanged = true;
+    redraw();  // explicitly redraw after changing scale
+    setTimeout(() => { window.scaleChanged = false; redraw(); }, 1000);
+}
+
+function selectRootNote(value) {
+    rootNote = value;
+    window.scaleChanged = true;
+    redraw();  // explicitly redraw after changing root note
+    setTimeout(() => { window.scaleChanged = false; redraw(); }, 1000);
+}
+
+
 // ui.js additions:
 
 window.selectScale = function(scale) {

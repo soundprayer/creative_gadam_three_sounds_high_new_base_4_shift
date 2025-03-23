@@ -134,3 +134,19 @@ function toggleSelectedSound() {
     selectedSound = selectedSound % 4 + 1;
     window.selectSound(selectedSound);
 }
+
+function handleMouseInteractions() {
+    if (mouseIsPressed) {
+        if (selectedSound && mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= height) {
+            let position = constrainToBufferZone(mouseX, mouseY);
+            if (position.y !== null) {
+                updateSound(selectedSound, position.x, position.y);
+            }
+        }
+    }
+}
+
+function handleOverdub() {
+    // Add logic here if needed
+    // For now, a placeholder will prevent the error
+}

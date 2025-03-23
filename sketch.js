@@ -3,9 +3,7 @@ function setup() {
     createCanvas(windowWidth, 400);
     setupOscillators();
     setupReverb();
-    getAudioContext().resume().then(() => {
-        setupComplete = true;
-    });
+    getAudioContext().resume();
 }
 
 function draw() {
