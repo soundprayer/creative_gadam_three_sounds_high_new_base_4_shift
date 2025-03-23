@@ -29,51 +29,72 @@ function setupReverb() {
 }
 
 function updateSound(sound, x, y) {
-    // Add validation for y parameter
-    if (y === undefined || y === null) {
-        y = height; // Default to bottom of canvas (silence)
-    }
+    const startMessage = document.getElementById('startMessage');
+    if (startMessage) startMessage.style.display = 'none';
 
-    // Ensure height is defined
+    if (y === undefined || y === null) y = height;
     if (!height) return;
 
-    // Safe mapping with validated parameters
     let amp = map(y, height, 0, 0, 0.8);
-
     let minFreq = 40;
     let maxFreq = 1000;
-    let freq = minFreq * Math.pow(maxFreq/minFreq, x/width);
+    let freq = minFreq * Math.pow(maxFreq / minFreq, x / width);
 
     if (sound === 1) {
-        osc1.freq(freq, freqTransitionTimes[1]);  // Use global transition time
+        osc1.freq(freq, freqTransitionTimes[1]);
         osc1.amp(amp, AMP_TRANSITION_TIME);
         iconX1 = x;
         iconY1 = y;
         freq1 = freq;
         amp1 = amp;
+
+        // 👇 Start playing if it wasn’t yet
+        if (!isPlaying1) {
+            osc1.start();
+            isPlaying1 = true;
+        }
+
     } else if (sound === 2) {
-        osc2.freq(freq, freqTransitionTimes[2]);  // Use global transition time
+        osc2.freq(freq, freqTransitionTimes[2]);
         osc2.amp(amp, AMP_TRANSITION_TIME);
         iconX2 = x;
         iconY2 = y;
         freq2 = freq;
         amp2 = amp;
+
+        if (!isPlaying2) {
+            osc2.start();
+            isPlaying2 = true;
+        }
+
     } else if (sound === 3) {
-        osc3.freq(freq, freqTransitionTimes[3]);  // Use global transition time
+        osc3.freq(freq, freqTransitionTimes[3]);
         osc3.amp(amp, AMP_TRANSITION_TIME);
         iconX3 = x;
         iconY3 = y;
         freq3 = freq;
         amp3 = amp;
+
+        if (!isPlaying3) {
+            osc3.start();
+            isPlaying3 = true;
+        }
+
     } else if (sound === 4) {
-        osc4.freq(freq, freqTransitionTimes[4]);  // Use global transition time
+        osc4.freq(freq, freqTransitionTimes[4]);
         osc4.amp(amp, AMP_TRANSITION_TIME);
         iconX4 = x;
         iconY4 = y;
         freq4 = freq;
         amp4 = amp;
+
+        if (!isPlaying4) {
+            osc4.start();
+            isPlaying4 = true;
+        }
     }
 }
+
 
 // Keep all window.* reverb update functions
 window.addEventListener('DOMContentLoaded', (event) => {

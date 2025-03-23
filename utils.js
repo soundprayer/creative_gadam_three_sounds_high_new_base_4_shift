@@ -115,3 +115,22 @@ function iconExists(sound) {
         default: return false;
     }
 }
+
+function getSoundAtPosition(x, y) {
+    const threshold = 30;
+    const icons = [
+        { x: iconX1, y: iconY1, sound: 1 },
+        { x: iconX2, y: iconY2, sound: 2 },
+        { x: iconX3, y: iconY3, sound: 3 },
+        { x: iconX4, y: iconY4, sound: 4 }
+    ];
+
+    for (let icon of icons) {
+        if (icon.x === null || icon.y === null) continue;
+        let d = dist(x, y, icon.x, icon.y);
+        if (d < threshold) {
+            return icon.sound;
+        }
+    }
+    return null;
+}

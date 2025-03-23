@@ -6,6 +6,33 @@ function mousePressed() {
         handleMousePress(selectedSound);
     }
 }
+function handleMousePress(sound) {
+    const pos = constrainToBufferZone(mouseX, mouseY);
+    if (pos.y === null) return;
+
+    const clickedSound = getSoundAtPosition(mouseX, mouseY);
+
+    if (clickedSound) {
+        // Clicked on existing icon — switch to that sound
+        selectedSound = clickedSound;
+
+        // Reset dragging flags
+        isDragging1 = isDragging2 = isDragging3 = isDragging4 = false;
+        window[`isDragging${clickedSound}`] = true;
+    } else {
+        // Clicked empty space — drag current sound
+        window[`isDragging${sound}`] = true;
+
+        // Set icon to current position if not yet placed
+        updateSound(sound, pos.x, pos.y);
+    }
+
+    console.log("Mouse press:", { selectedSound, isDragging1, isDragging2, isDragging3, isDragging4 });
+
+    redraw(); // Only if you're using noLoop()
+}
+
+
 
 function mouseDragged() {
     if (selectedSound && mouseY < height - CONTROL_BUFFER) {
@@ -108,26 +135,58 @@ function keyReleased() {
 // interactions.js additions:
 
 function handleMousePress(sound) {
-    let position = constrainToBufferZone(mouseX, mouseY);
-    if (position.y !== null) {
-        updateSound(sound, position.x, position.y);
-        if (sound === 1) isDragging1 = true;
-        if (sound === 2) isDragging2 = true;
-        if (sound === 3) isDragging3 = true;
-        if (sound === 4) isDragging4 = true;
+    const pos = constrainToBufferZone(mouseX, mouseY);
+    if (pos.y === null) return;
+
+    const clickedSound = getSoundAtPosition(mouseX, mouseY);
+
+    if (clickedSound) {
+        // Set selected sound to the one clicked
+        selectedSound = clickedSound;
+
+        // Reset all dragging flags
+        isDragging1 = isDragging2 = isDragging3 = isDragging4 = false;
+        window[`isDragging${clickedSound}`] = true;
+    } else {
+        // If nothing was clicked, just start dragging selectedSound
+        window[`isDragging${sound}`] = true;
     }
+
+    redraw(); // only if using noLoop
 }
+
+
+
 
 function handleMouseDrag(sound) {
     handleMousePress(sound);  // Same logic for now
 }
 
 function handleMouseRelease(sound) {
+    // End dragging
     if (sound === 1) isDragging1 = false;
     if (sound === 2) isDragging2 = false;
     if (sound === 3) isDragging3 = false;
     if (sound === 4) isDragging4 = false;
+
+    // Clamp position within canvas and buffer zone
+    const pos = constrainToBufferZone(mouseX, mouseY);
+    if (pos.y === null) return;
+
+    // Update oscillator and icon position
+    updateSound(sound, pos.x, pos.y);
+
+    // Only persist override if loop isn't active
+    const isLoopActive = (
+        (sound === 1 && isLoop1Active) ||
+        (sound === 2 && isLoop2Active) ||
+        (sound === 3 && isLoop3Active) ||
+        (sound === 4 && isLoop4Active)
+    );
+
+    overridePositions[sound] = isLoopActive ? null : { x: pos.x, y: pos.y };
 }
+
 
 // Add toggleSelectedSound function:
 function toggleSelectedSound() {
