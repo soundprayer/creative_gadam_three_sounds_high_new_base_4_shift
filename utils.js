@@ -117,20 +117,14 @@ function iconExists(sound) {
 }
 
 function getSoundAtPosition(x, y) {
-    const threshold = 30;
-    const icons = [
-        { x: iconX1, y: iconY1, sound: 1 },
-        { x: iconX2, y: iconY2, sound: 2 },
-        { x: iconX3, y: iconY3, sound: 3 },
-        { x: iconX4, y: iconY4, sound: 4 }
-    ];
+    const threshold = 25;
 
-    for (let icon of icons) {
-        if (icon.x === null || icon.y === null) continue;
-        let d = dist(x, y, icon.x, icon.y);
-        if (d < threshold) {
-            return icon.sound;
-        }
-    }
+    console.log("Checking click at:", x, y);
+
+    if (iconX1 !== null && dist(x, y, iconX1, iconY1) < threshold) return 1;
+    if (iconX2 !== null && dist(x, y, iconX2, iconY2) < threshold) return 2;
+    if (iconX3 !== null && dist(x, y, iconX3, iconY3) < threshold) return 3;
+    if (iconX4 !== null && dist(x, y, iconX4, iconY4) < threshold) return 4;
+
     return null;
 }

@@ -90,7 +90,6 @@ function colorFromCSS(cssColor, alpha = 255) {
     return color(red(col), green(col), blue(col), alpha);
 }
 
-// Draw icons representing each sound
 function drawSoundIcons() {
     const icons = [
         { x: iconX1, y: iconY1, shape: 'ellipse', color: '--color-green' },
@@ -101,15 +100,24 @@ function drawSoundIcons() {
 
     icons.forEach(({ x, y, shape, color }, index) => {
         if (x !== null && y !== null) {
+            // Draw icon
             fill(getComputedStyle(document.documentElement).getPropertyValue(color).trim());
             noStroke();
             if (shape === 'ellipse') ellipse(x, y, 20, 20);
             else if (shape === 'rect') rect(x - 10, y - 10, 20, 20);
             else if (shape === 'triangle') triangle(x - 10, y + 10, x + 10, y + 10, x, y - 10);
 
+            // Draw selection border
             if (selectedSound === index + 1) {
                 drawIconBorder(shape, x, y);
             }
+
+            // ✅ DEBUG: Draw clickable hitbox
+            stroke(255, 80); // Light white
+            strokeWeight(1);
+            noFill();
+            ellipse(x, y, 40, 40); // Click threshold is ~20 radius, so draw 40px circle
+            noStroke();
         }
     });
 }

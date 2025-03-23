@@ -29,6 +29,10 @@ function setupReverb() {
 }
 
 function updateSound(sound, x, y) {
+    const margin = 5; // Leave a margin for easier clicking
+
+    x = constrain(x, margin, width - margin);
+    y = constrain(y, margin, height - margin);
     const startMessage = document.getElementById('startMessage');
     if (startMessage) startMessage.style.display = 'none';
 

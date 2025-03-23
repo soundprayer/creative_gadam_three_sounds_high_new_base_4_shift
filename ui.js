@@ -57,8 +57,8 @@ function toggleShortcutsModal() {
 window.addEventListener('DOMContentLoaded', () => {
     window.selectSound = (sound) => {
         selectedSound = sound;
+        console.log("Selected sound from menu:", sound);
         const soundButtons = document.querySelectorAll('.sound-option');
-
         soundButtons.forEach((button, index) => {
             if (index + 1 === selectedSound) {
                 button.classList.add('flash');
@@ -68,6 +68,14 @@ window.addEventListener('DOMContentLoaded', () => {
             }
         });
     };
+
+    // ✅ Attach event listeners after DOM is ready
+    document.querySelectorAll('.sound-option').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const sound = parseInt(btn.dataset.sound);
+            window.selectSound(sound);
+        });
+    });
 });
 
 function selectScale(value) {

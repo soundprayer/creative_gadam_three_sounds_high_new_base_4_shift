@@ -6,33 +6,6 @@ function mousePressed() {
         handleMousePress(selectedSound);
     }
 }
-function handleMousePress(sound) {
-    const pos = constrainToBufferZone(mouseX, mouseY);
-    if (pos.y === null) return;
-
-    const clickedSound = getSoundAtPosition(mouseX, mouseY);
-
-    if (clickedSound) {
-        // Clicked on existing icon — switch to that sound
-        selectedSound = clickedSound;
-
-        // Reset dragging flags
-        isDragging1 = isDragging2 = isDragging3 = isDragging4 = false;
-        window[`isDragging${clickedSound}`] = true;
-    } else {
-        // Clicked empty space — drag current sound
-        window[`isDragging${sound}`] = true;
-
-        // Set icon to current position if not yet placed
-        updateSound(sound, pos.x, pos.y);
-    }
-
-    console.log("Mouse press:", { selectedSound, isDragging1, isDragging2, isDragging3, isDragging4 });
-
-    redraw(); // Only if you're using noLoop()
-}
-
-
 
 function mouseDragged() {
     if (selectedSound && mouseY < height - CONTROL_BUFFER) {
@@ -135,31 +108,35 @@ function keyReleased() {
 // interactions.js additions:
 
 function handleMousePress(sound) {
-    const pos = constrainToBufferZone(mouseX, mouseY);
-    if (pos.y === null) return;
-
     const clickedSound = getSoundAtPosition(mouseX, mouseY);
+    console.log("ClickedSound:", clickedSound, "SelectedSound before:", selectedSound);
 
     if (clickedSound) {
-        // Set selected sound to the one clicked
         selectedSound = clickedSound;
-
-        // Reset all dragging flags
         isDragging1 = isDragging2 = isDragging3 = isDragging4 = false;
         window[`isDragging${clickedSound}`] = true;
+
+        console.log(`✅ Icon clicked on board. SelectedSound is now: ${selectedSound}`);
     } else {
-        // If nothing was clicked, just start dragging selectedSound
+        const pos = constrainToBufferZone(mouseX, mouseY);
+        if (pos.y === null) return;
+
         window[`isDragging${sound}`] = true;
+        updateSound(sound, pos.x, pos.y);
+
+        console.log(`🆕 Placing new icon for sound ${sound} at (${pos.x}, ${pos.y})`);
     }
 
-    redraw(); // only if using noLoop
+    console.log("Dragging flags:", isDragging1, isDragging2, isDragging3, isDragging4);
+    redraw(); // Only if you're using noLoop
 }
-
-
-
-
 function handleMouseDrag(sound) {
-    handleMousePress(sound);  // Same logic for now
+    if (window[`isDragging${sound}`]) {
+        const pos = constrainToBufferZone(mouseX, mouseY);
+        if (pos.y !== null) {
+            updateSound(sound, pos.x, pos.y);
+        }
+    }
 }
 
 function handleMouseRelease(sound) {
