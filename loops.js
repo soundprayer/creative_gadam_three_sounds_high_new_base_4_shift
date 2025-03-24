@@ -142,6 +142,48 @@ function doubleLoop(sound) {
     startLoop(movements, sound);
 }
 
+function resetAllLoops() {
+    // Stop oscillators
+    if (isPlaying1) { osc1.stop(); isPlaying1 = false; }
+    if (isPlaying2) { osc2.stop(); isPlaying2 = false; }
+    if (isPlaying3) { osc3.stop(); isPlaying3 = false; }
+    if (isPlaying4) { osc4.stop(); isPlaying4 = false; }
+
+    // Reset loop state
+    movements1 = [];
+    movements2 = [];
+    movements3 = [];
+    movements4 = [];
+
+    isLoop1Active = false;
+    isLoop2Active = false;
+    isLoop3Active = false;
+    isLoop4Active = false;
+
+    loop1CurrentIndex = 0;
+    loop2CurrentIndex = 0;
+    loop3CurrentIndex = 0;
+    loop4CurrentIndex = 0;
+
+    // Reset icon positions
+    iconX1 = null; iconY1 = null;
+    iconX2 = null; iconY2 = null;
+    iconX3 = null; iconY3 = null;
+    iconX4 = null; iconY4 = null;
+
+    overridePositions = { 1: null, 2: null, 3: null, 4: null };
+
+    // Reset flags
+    recording = false;
+    isPaused = false;
+
+    // Optional UI feedback
+    const loopIndicator = document.getElementById('loopIndicator');
+    loopIndicator.textContent = 'Rutyna: BRAK';
+
+    console.log("♻️ Reset – wszystkie loopy, dźwięki i pozycje zostały wyczyszczone");
+}
+
 // Helpers
 function getMovementsArray(sound) {
     switch (sound) {

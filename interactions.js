@@ -22,6 +22,12 @@ function mouseReleased() {
 function keyPressed() {
     const loopIndicator = document.getElementById('loopIndicator');
 
+    if (key === 'r' || key === 'R') {
+        if (keyIsDown(CONTROL)) {
+            resetAllLoops();
+        }
+    }
+
     if (keyCode === SHIFT) {
         recording = true;
         recordStartTime = millis();
