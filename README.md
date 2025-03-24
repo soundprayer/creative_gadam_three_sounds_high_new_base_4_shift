@@ -1,4 +1,4 @@
-![End of the World](end_of_the_world.png)
+![End of the World](./img/end_of_the_world.png)
 
 # End of the World – Sound & Visual Installation
 
