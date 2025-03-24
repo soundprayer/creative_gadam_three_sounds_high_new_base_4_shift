@@ -7,7 +7,7 @@ function setup() {
 }
 
 function draw() {
-    background(1);
+    background(0);
 
     // Draw semitransparent red vertical lines for notes
     drawNoteLines();

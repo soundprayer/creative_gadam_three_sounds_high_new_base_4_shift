@@ -1,0 +1,1 @@
+[ ] - icons on edge are bugging switch on board

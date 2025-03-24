@@ -22,30 +22,22 @@ function mouseReleased() {
 function keyPressed() {
     const loopIndicator = document.getElementById('loopIndicator');
 
+    if (keyCode === SHIFT) {
+        recording = true;
+        recordStartTime = millis();
+        console.log("📼 Recording started for sound", selectedSound);
+
+        const movements = getMovementsArray(selectedSound);
+        movements.length = 0; // Clear previous movements
+        stopLoop(selectedSound); // Stop the loop cleanly
+
+        loopIndicator.textContent = 'Rutyna: OPRACOWYWANIE';
+        return; // Exit early to avoid falling into switch
+    }
+
     switch (key.toLowerCase()) {
         case ' ':
             togglePlay();
-            break;
-
-        case 'shift':
-            recording = true;
-            recordStartTime = millis();
-            console.log("Recording started");
-
-            if (selectedSound === 1) {
-                movements1 = [];
-                isLoop1Active = false;
-            } else if (selectedSound === 2) {
-                movements2 = [];
-                isLoop2Active = false;
-            } else if (selectedSound === 3) {
-                movements3 = [];
-                isLoop3Active = false;
-            } else if (selectedSound === 4) {
-                movements4 = [];
-                isLoop4Active = false;
-            }
-            loopIndicator.textContent = 'Rutyna: OPRACOWYWANIE';
             break;
 
         case 'd':
@@ -77,15 +69,23 @@ function keyPressed() {
     }
 }
 
+function stopLoop(sound) {
+    if (sound === 1) isLoop1Active = false;
+    else if (sound === 2) isLoop2Active = false;
+    else if (sound === 3) isLoop3Active = false;
+    else if (sound === 4) isLoop4Active = false;
+}
+
 function keyReleased() {
     const loopIndicator = document.getElementById('loopIndicator');
 
     if (keyCode === SHIFT) {
         recording = false;
         loopIndicator.textContent = 'Rutyna: ODTWARZA SIĘ';
-        console.log("Recording stopped, starting loop");
+        console.log("📼 Recording stopped for sound", selectedSound);
 
         const movements = getMovementsArray(selectedSound);
+
         let iconX, iconY;
 
         if (selectedSound === 1) { iconX = iconX1; iconY = iconY1; }
@@ -93,8 +93,20 @@ function keyReleased() {
         else if (selectedSound === 3) { iconX = iconX3; iconY = iconY3; }
         else if (selectedSound === 4) { iconX = iconX4; iconY = iconY4; }
 
-        movements.push({ time: millis() - recordStartTime, x: iconX, y: iconY, sound: selectedSound });
+        if (iconX === null || iconY === null) {
+            console.warn(`❌ Icon position for sound ${selectedSound} is not set. Cannot start loop.`);
+            return;
+        }
+
+        movements.push({
+            time: millis() - recordStartTime,
+            x: iconX,
+            y: iconY,
+            sound: selectedSound
+        });
+
         startLoop(movements, selectedSound);
+        console.log(`✅ Started loop for sound ${selectedSound} with ${movements.length} movement(s)`);
 
         if (logging) saveMovementsToFile();
     }
@@ -104,6 +116,7 @@ function keyReleased() {
         loopIndicator.textContent = 'Rutyna: ODTWARZA SIĘ';
     }
 }
+
 
 // interactions.js additions:
 
@@ -172,12 +185,31 @@ function toggleSelectedSound() {
 }
 
 function handleMouseInteractions() {
-    if (mouseIsPressed) {
-        if (selectedSound && mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= height) {
-            let position = constrainToBufferZone(mouseX, mouseY);
-            if (position.y !== null) {
-                updateSound(selectedSound, position.x, position.y);
-            }
+    if (!mouseIsPressed) return;
+
+    if (
+        selectedSound &&
+        mouseX >= 0 && mouseX <= width &&
+        mouseY >= 0 && mouseY <= height
+    ) {
+        const position = constrainToBufferZone(mouseX, mouseY);
+        if (position.y === null) return;
+
+        // Always update sound position
+        updateSound(selectedSound, position.x, position.y);
+
+        // ✅ Record movements only while SHIFT is held
+        if (recording) {
+            const currentTime = millis() - recordStartTime;
+            const movement = {
+                time: currentTime,
+                x: position.x,
+                y: position.y,
+                sound: selectedSound
+            };
+
+            const movements = getMovementsArray(selectedSound);
+            movements.push(movement);
         }
     }
 }

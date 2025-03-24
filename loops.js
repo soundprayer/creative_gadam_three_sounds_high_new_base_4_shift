@@ -1,78 +1,170 @@
 // loops.js
 
-// Starts looping movements for the specified sound
 function startLoop(movements, sound) {
-    loopStartTimes[sound] = millis();
-    if (!movements.length) {
-        console.warn(`No movements recorded for sound ${sound}, cannot start loop.`);
-        return;
-    }
-    const loopDuration = movements[movements.length - 1].time;
+    // if (!movements || movements.length === 0) {
+    //     console.warn(`⚠️ No movements recorded for sound ${sound}. Cannot start loop.`);
+    //     return;
+    // }
 
-    switch(sound) {
+    const loopDuration = movements[movements.length - 1].time;
+    loopStartTimes[sound] = millis(); // Set global loop start time
+
+    switch (sound) {
         case 1:
+            if (!isPlaying1) { osc1.start(); isPlaying1 = true; }
             loop1StartTime = millis();
             loop1Duration = loopDuration;
             loop1CurrentIndex = 0;
             isLoop1Active = true;
             break;
+
         case 2:
+            if (!isPlaying2) { osc2.start(); isPlaying2 = true; }
             loop2StartTime = millis();
             loop2Duration = loopDuration;
             loop2CurrentIndex = 0;
             isLoop2Active = true;
             break;
+
         case 3:
+            if (!isPlaying3) { osc3.start(); isPlaying3 = true; }
             loop3StartTime = millis();
             loop3Duration = loopDuration;
             loop3CurrentIndex = 0;
             isLoop3Active = true;
             break;
+
         case 4:
+            if (!isPlaying4) { osc4.start(); isPlaying4 = true; }
             loop4StartTime = millis();
             loop4Duration = loopDuration;
             loop4CurrentIndex = 0;
             isLoop4Active = true;
             break;
     }
+
+    // console.log(`🔁 Loop started for sound ${sound}, duration: ${loopDuration}ms, steps: ${movements.length}`);
 }
+let loopCycles = {
+    1: 0,
+    2: 0,
+    3: 0,
+    4: 0
+};
 
-// Generalized updateLoop function (reusable)
-function updateLoop(movements, loopStartTime, loopDuration, loopCurrentIndex, sound, isLoopActive, isDragging) {
-    if (!isLoopActive || isDragging) return;
+// loops.js
 
-    let elapsedTime = millis() - loopStartTime;
-
-    while (loopCurrentIndex < movements.length && movements[loopCurrentIndex].time <= elapsedTime) {
-        let movement = movements[loopCurrentIndex];
-        updateSound(sound, movement.x, movement.y);
-        loopCurrentIndex++;
-    }
-
-    if (elapsedTime >= loopDuration) {
-        loopStartTimes[sound] = millis();
-        loopCurrentIndex = 0;
-    }
-
-    return loopCurrentIndex;
-}
-
-// Use the generalized loop updater in draw()
 function updateAllLoops() {
-    loop1CurrentIndex = updateLoop(movements1, loop1StartTime, loop1Duration, loop1CurrentIndex, 1, isLoop1Active, isDragging1);
-    loop2CurrentIndex = updateLoop(movements2, loop2StartTime, loop2Duration, loop2CurrentIndex, 2, isLoop2Active, isDragging2);
-    loop3CurrentIndex = updateLoop(movements3, loop3StartTime, loop3Duration, loop3CurrentIndex, 3, isLoop3Active, isDragging3);
-    loop4CurrentIndex = updateLoop(movements4, loop4StartTime, loop4Duration, loop4CurrentIndex, 4, isLoop4Active, isDragging4);
+    updateLoop1();
+    updateLoop2();
+    updateLoop3();
+    updateLoop4();
+}
+
+function updateLoop1() {
+    if (!isLoop1Active || isDragging1) return;
+    let elapsedTime = millis() - loop1StartTime;
+    while (loop1CurrentIndex < movements1.length && movements1[loop1CurrentIndex].time <= elapsedTime) {
+        const movement = movements1[loop1CurrentIndex];
+        updateSound(1, movement.x, movement.y);
+        loop1CurrentIndex++;
+    }
+    if (elapsedTime >= loop1Duration) {
+        loop1StartTime = millis();
+        loop1CurrentIndex = 0;
+    }
+}
+
+function updateLoop2() {
+    if (!isLoop2Active || isDragging2) return;
+    let elapsedTime = millis() - loop2StartTime;
+    while (loop2CurrentIndex < movements2.length && movements2[loop2CurrentIndex].time <= elapsedTime) {
+        const movement = movements2[loop2CurrentIndex];
+        updateSound(2, movement.x, movement.y);
+        loop2CurrentIndex++;
+    }
+    if (elapsedTime >= loop2Duration) {
+        loop2StartTime = millis();
+        loop2CurrentIndex = 0;
+    }
+}
+
+function updateLoop3() {
+    if (!isLoop3Active || isDragging3) return;
+    let elapsedTime = millis() - loop3StartTime;
+    while (loop3CurrentIndex < movements3.length && movements3[loop3CurrentIndex].time <= elapsedTime) {
+        const movement = movements3[loop3CurrentIndex];
+        updateSound(3, movement.x, movement.y);
+        loop3CurrentIndex++;
+    }
+    if (elapsedTime >= loop3Duration) {
+        loop3StartTime = millis();
+        loop3CurrentIndex = 0;
+    }
+}
+
+function updateLoop4() {
+    if (!isLoop4Active || isDragging4) return;
+    let elapsedTime = millis() - loop4StartTime;
+    while (loop4CurrentIndex < movements4.length && movements4[loop4CurrentIndex].time <= elapsedTime) {
+        const movement = movements4[loop4CurrentIndex];
+        updateSound(4, movement.x, movement.y);
+        loop4CurrentIndex++;
+    }
+    if (elapsedTime >= loop4Duration) {
+        loop4StartTime = millis();
+        loop4CurrentIndex = 0;
+    }
+}
+
+function startLoop(movements, sound) {
+    if (!movements.length) {
+        console.warn(`No movements recorded for sound ${sound}, cannot start loop.`);
+        return;
+    }
+    const loopDuration = movements[movements.length - 1].time;
+    loopStartTimes[sound] = millis();
+
+    switch (sound) {
+        case 1:
+            if (!isPlaying1) { osc1.start(); isPlaying1 = true; }
+            loop1StartTime = millis();
+            loop1Duration = loopDuration;
+            loop1CurrentIndex = 0;
+            isLoop1Active = true;
+            break;
+        case 2:
+            if (!isPlaying2) { osc2.start(); isPlaying2 = true; }
+            loop2StartTime = millis();
+            loop2Duration = loopDuration;
+            loop2CurrentIndex = 0;
+            isLoop2Active = true;
+            break;
+        case 3:
+            if (!isPlaying3) { osc3.start(); isPlaying3 = true; }
+            loop3StartTime = millis();
+            loop3Duration = loopDuration;
+            loop3CurrentIndex = 0;
+            isLoop3Active = true;
+            break;
+        case 4:
+            if (!isPlaying4) { osc4.start(); isPlaying4 = true; }
+            loop4StartTime = millis();
+            loop4Duration = loopDuration;
+            loop4CurrentIndex = 0;
+            isLoop4Active = true;
+            break;
+    }
+    console.log(`✅ Started loop for sound ${sound} with ${movements.length} movement(s)`);
 }
 
 // Halves the loop duration
 function halveLoop(sound) {
-    let loopDuration = getLoopDuration(sound);
-    let halfDuration = loopDuration / 2;
-    let currentTime = (millis() - loopStartTimes[sound]) % loopDuration;
+    const loopDuration = getLoopDuration(sound);
+    const halfDuration = loopDuration / 2;
+    const currentTime = (millis() - loopStartTimes[sound]) % loopDuration;
 
     let movements = getMovementsArray(sound);
-
     if (currentTime < halfDuration) {
         movements = movements.filter(mov => mov.time < halfDuration);
     } else {
@@ -87,25 +179,22 @@ function halveLoop(sound) {
 // Doubles the loop duration
 function doubleLoop(sound) {
     let movements = getMovementsArray(sound);
-    if (movements.length === 0) {
-        console.warn(`No movements to double for sound ${sound}`);
-        return;
-    }
 
-    let originalDuration = getLoopDuration(sound);
-    let newDuration = originalDuration * 2;
+    const originalDuration = getLoopDuration(sound);
+    const newDuration = originalDuration * 2;
 
-    let newMovements = movements.map(mov => ({
+    const newMovements = movements.map(mov => ({
         ...mov,
         time: mov.time + originalDuration
     }));
 
     movements.push(...newMovements);
     setLoopDuration(sound, newDuration);
+    setMovementsArray(sound, movements);
     startLoop(movements, sound);
 }
 
-// Helper: get current movements array for sound
+// Helpers
 function getMovementsArray(sound) {
     switch (sound) {
         case 1: return movements1;
@@ -115,7 +204,6 @@ function getMovementsArray(sound) {
     }
 }
 
-// Helper: set movements array
 function setMovementsArray(sound, movements) {
     switch (sound) {
         case 1: movements1 = movements; break;
@@ -125,7 +213,6 @@ function setMovementsArray(sound, movements) {
     }
 }
 
-// Helper: set loop duration
 function setLoopDuration(sound, duration) {
     switch (sound) {
         case 1: loop1Duration = duration; break;
@@ -135,7 +222,6 @@ function setLoopDuration(sound, duration) {
     }
 }
 
-// Helper: get loop duration
 function getLoopDuration(sound) {
     switch (sound) {
         case 1: return loop1Duration;

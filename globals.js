@@ -68,5 +68,10 @@ let overdubStartTime = null;
 let loop1StartTime = 0, loop2StartTime = 0, loop3StartTime = 0, loop4StartTime = 0;
 let loop1CurrentIndex = 0, loop2CurrentIndex = 0, loop3CurrentIndex = 0, loop4CurrentIndex = 0;
 let loop1Duration = 0, loop2Duration = 0, loop3Duration = 0, loop4Duration = 0;
-
+let lastLoopResetTime = {
+    1: 0,
+    2: 0,
+    3: 0,
+    4: 0
+};
 let isDragging1 = false, isDragging2 = false, isDragging3 = false, isDragging4 = false;

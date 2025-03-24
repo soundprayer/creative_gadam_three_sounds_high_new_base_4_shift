@@ -612,43 +612,23 @@ function mouseReleased() {
     }
 }
 
-// Remove oscillator start from togglePlay
 function togglePlay() {
-    let playPauseStatus = document.getElementById('playPauseStatus');
-    let infoText = document.querySelector('.info');
-    
+    const playPauseStatus = document.getElementById('playPauseStatus');
+
     if (isPlaying1 || isPlaying2 || isPlaying3 || isPlaying4) {
-        // Stop only active oscillators
-        if (isPlaying1) osc1.stop();
-        if (isPlaying2) osc2.stop();
-        if (isPlaying3) osc3.stop();
-        if (isPlaying4) osc4.stop();
-        isPlaying1 = false;
-        isPlaying2 = false;
-        isPlaying3 = false;
-        isPlaying4 = false;
+        if (isPlaying1) { osc1.stop(); isPlaying1 = false; isLoop1Active = false; }
+        if (isPlaying2) { osc2.stop(); isPlaying2 = false; isLoop2Active = false; }
+        if (isPlaying3) { osc3.stop(); isPlaying3 = false; isLoop3Active = false; }
+        if (isPlaying4) { osc4.stop(); isPlaying4 = false; isLoop4Active = false; }
+
         playPauseStatus.textContent = 'Graj';
-        infoText.classList.add('blinking');
     } else {
-        // Start only existing oscillators
-        if (iconX1 !== null) {
-            osc1.start();
-            isPlaying1 = true;
-        }
-        if (iconX2 !== null) {
-            osc2.start();
-            isPlaying2 = true;
-        }
-        if (iconX3 !== null) {
-            osc3.start();
-            isPlaying3 = true;
-        }
-        if (iconX4 !== null) {
-            osc4.start();
-            isPlaying4 = true;
-        }
+        if (iconX1 !== null) { osc1.start(); isPlaying1 = true; }
+        if (iconX2 !== null) { osc2.start(); isPlaying2 = true; }
+        if (iconX3 !== null) { osc3.start(); isPlaying3 = true; }
+        if (iconX4 !== null) { osc4.start(); isPlaying4 = true; }
+
         playPauseStatus.textContent = 'Odpocząć';
-        infoText.classList.remove('blinking');
     }
 }
 
