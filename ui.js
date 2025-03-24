@@ -5,41 +5,27 @@
  */
 function togglePlay() {
     const playPauseStatus = document.getElementById('playPauseStatus');
-    const infoText = document.querySelector('.info');
 
-    if (isPlaying1 || isPlaying2 || isPlaying3 || isPlaying4) {
-        if (isPlaying1) osc1.stop();
-        if (isPlaying2) osc2.stop();
-        if (isPlaying3) osc3.stop();
-        if (isPlaying4) osc4.stop();
+    if (!isPaused) {
+        // Pause: Stop all oscillators, but don't reset loops
+        if (isPlaying1) { osc1.stop(); isPlaying1 = false; }
+        if (isPlaying2) { osc2.stop(); isPlaying2 = false; }
+        if (isPlaying3) { osc3.stop(); isPlaying3 = false; }
+        if (isPlaying4) { osc4.stop(); isPlaying4 = false; }
 
-        isPlaying1 = false;
-        isPlaying2 = false;
-        isPlaying3 = false;
-        isPlaying4 = false;
-
+        isPaused = true;
         playPauseStatus.textContent = 'Graj';
-        infoText.classList.add('blinking');
+        console.log("⏸️ Pauza – dźwięki wyłączone, loopy czekają");
     } else {
-        if (iconX1 !== null) {
-            osc1.start();
-            isPlaying1 = true;
-        }
-        if (iconX2 !== null) {
-            osc2.start();
-            isPlaying2 = true;
-        }
-        if (iconX3 !== null) {
-            osc3.start();
-            isPlaying3 = true;
-        }
-        if (iconX4 !== null) {
-            osc4.start();
-            isPlaying4 = true;
-        }
+        // Resume: start oscillators and allow loops to continue
+        if (iconX1 !== null) { osc1.start(); isPlaying1 = true; }
+        if (iconX2 !== null) { osc2.start(); isPlaying2 = true; }
+        if (iconX3 !== null) { osc3.start(); isPlaying3 = true; }
+        if (iconX4 !== null) { osc4.start(); isPlaying4 = true; }
 
+        isPaused = false;
         playPauseStatus.textContent = 'Odpocząć';
-        infoText.classList.remove('blinking');
+        console.log("▶️ Wznowienie – dźwięki grają, loopy kontynuują");
     }
 }
 

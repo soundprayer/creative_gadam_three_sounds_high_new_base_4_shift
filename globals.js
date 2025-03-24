@@ -75,3 +75,5 @@ let lastLoopResetTime = {
     4: 0
 };
 let isDragging1 = false, isDragging2 = false, isDragging3 = false, isDragging4 = false;
+
+let isPaused = false;
