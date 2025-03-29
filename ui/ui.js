@@ -78,7 +78,6 @@ function selectRootNote(value) {
     setTimeout(() => { window.scaleChanged = false; redraw(); }, 1000);
 }
 
-
 // ui.js additions:
 
 window.selectScale = function(scale) {

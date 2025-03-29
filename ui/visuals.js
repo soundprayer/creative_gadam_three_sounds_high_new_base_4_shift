@@ -106,30 +106,8 @@ function drawSoundIcons() {
             if (shape === 'ellipse') ellipse(x, y, 20, 20);
             else if (shape === 'rect') rect(x - 10, y - 10, 20, 20);
             else if (shape === 'triangle') triangle(x - 10, y + 10, x + 10, y + 10, x, y - 10);
-
-            // Draw selection border
-            if (selectedSound === index + 1) {
-                drawIconBorder(shape, x, y);
-            }
-
-            // ✅ DEBUG: Draw clickable hitbox
-            stroke(255, 80); // Light white
-            strokeWeight(1);
-            noFill();
-            ellipse(x, y, 40, 40); // Click threshold is ~20 radius, so draw 40px circle
-            noStroke();
         }
     });
-}
-
-// Helper function to draw border around icon
-function drawIconBorder(shape, x, y) {
-    stroke(255);
-    strokeWeight(4);
-    noFill();
-    if (shape === 'ellipse') ellipse(x, y, 30, 30);
-    else if (shape === 'rect') rect(x - 10, y - 10, 20, 20);
-    else if (shape === 'triangle') triangle(x - 10, y + 10, x + 10, y + 10, x, y - 10);
 }
 
 // Update play/pause button text
