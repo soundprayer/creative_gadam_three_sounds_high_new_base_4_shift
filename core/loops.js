@@ -1,69 +1,88 @@
-// loops.js
-
 function updateAllLoops() {
-    updateLoop1();
-    updateLoop2();
-    updateLoop3();
-    updateLoop4();
+    updateLoop(1);
+    updateLoop(2);
+    updateLoop(3);
+    updateLoop(4);
 }
 
-function updateLoop1() {
-    if (!isLoop1Active || isDragging1 || isPaused) return;
+function updateLoop(soundId) {
+    const isLoopActive = {
+        1: isLoop1Active,
+        2: isLoop2Active,
+        3: isLoop3Active,
+        4: isLoop4Active
+    };
 
-    let elapsedTime = millis() - loop1StartTime;
-    while (loop1CurrentIndex < movements1.length && movements1[loop1CurrentIndex].time <= elapsedTime) {
-        const movement = movements1[loop1CurrentIndex];
-        updateSound(1, movement.x, movement.y);
-        loop1CurrentIndex++;
+    const isDragging = {
+        1: isDragging1,
+        2: isDragging2,
+        3: isDragging3,
+        4: isDragging4
+    };
+
+    const loopStartTimeMap = {
+        1: loop1StartTime,
+        2: loop2StartTime,
+        3: loop3StartTime,
+        4: loop4StartTime
+    };
+
+    const loopCurrentIndexMap = {
+        1: loop1CurrentIndex,
+        2: loop2CurrentIndex,
+        3: loop3CurrentIndex,
+        4: loop4CurrentIndex
+    };
+
+    const loopDurationMap = {
+        1: loop1Duration,
+        2: loop2Duration,
+        3: loop3Duration,
+        4: loop4Duration
+    };
+
+    const movementsMap = {
+        1: movements1,
+        2: movements2,
+        3: movements3,
+        4: movements4
+    };
+
+    if (!isLoopActive[soundId] || isDragging[soundId] || isPaused) return;
+
+    let elapsedTime = millis() - loopStartTimeMap[soundId];
+
+    while (
+        loopCurrentIndexMap[soundId] < movementsMap[soundId].length &&
+        movementsMap[soundId][loopCurrentIndexMap[soundId]].time <= elapsedTime
+        ) {
+        const movement = movementsMap[soundId][loopCurrentIndexMap[soundId]];
+        updateSound(soundId, movement.x, movement.y);
+        loopCurrentIndexMap[soundId]++;
     }
 
-    if (elapsedTime >= loop1Duration) {
-        loop1StartTime = millis();
-        loop1CurrentIndex = 0;
+    if (elapsedTime >= loopDurationMap[soundId]) {
+        switch (soundId) {
+            case 1:
+                loop1StartTime = millis();
+                loop1CurrentIndex = 0;
+                break;
+            case 2:
+                loop2StartTime = millis();
+                loop2CurrentIndex = 0;
+                break;
+            case 3:
+                loop3StartTime = millis();
+                loop3CurrentIndex = 0;
+                break;
+            case 4:
+                loop4StartTime = millis();
+                loop4CurrentIndex = 0;
+                break;
+        }
     }
 }
 
-function updateLoop2() {
-    if (!isLoop2Active || isDragging2 || isPaused) return;
-    let elapsedTime = millis() - loop2StartTime;
-    while (loop2CurrentIndex < movements2.length && movements2[loop2CurrentIndex].time <= elapsedTime) {
-        const movement = movements2[loop2CurrentIndex];
-        updateSound(2, movement.x, movement.y);
-        loop2CurrentIndex++;
-    }
-    if (elapsedTime >= loop2Duration) {
-        loop2StartTime = millis();
-        loop2CurrentIndex = 0;
-    }
-}
-
-function updateLoop3() {
-    if (!isLoop3Active || isDragging3 || isPaused) return;
-    let elapsedTime = millis() - loop3StartTime;
-    while (loop3CurrentIndex < movements3.length && movements3[loop3CurrentIndex].time <= elapsedTime) {
-        const movement = movements3[loop3CurrentIndex];
-        updateSound(3, movement.x, movement.y);
-        loop3CurrentIndex++;
-    }
-    if (elapsedTime >= loop3Duration) {
-        loop3StartTime = millis();
-        loop3CurrentIndex = 0;
-    }
-}
-
-function updateLoop4() {
-    if (!isLoop4Active || isDragging4 || isPaused) return;
-    let elapsedTime = millis() - loop4StartTime;
-    while (loop4CurrentIndex < movements4.length && movements4[loop4CurrentIndex].time <= elapsedTime) {
-        const movement = movements4[loop4CurrentIndex];
-        updateSound(4, movement.x, movement.y);
-        loop4CurrentIndex++;
-    }
-    if (elapsedTime >= loop4Duration) {
-        loop4StartTime = millis();
-        loop4CurrentIndex = 0;
-    }
-}
 
 function startLoop(movements, sound) {
     if (!movements.length) {
