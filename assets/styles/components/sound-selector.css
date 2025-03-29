@@ -1,0 +1,33 @@
+.sound-selector {
+    position: absolute;
+    bottom: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 20px;
+}
+
+.sound-option {
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+}
+
+.sound-option.green {
+    background-color: var(--color-green);
+    border-radius: 50%;
+}
+
+.sound-option.red {
+    background-color: var(--color-red);
+    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+}
+
+.sound-option.blue {
+    background-color: var(--color-blue);
+}
+
+.sound-option.yellow {
+    background-color: var(--color-yellow);
+    border-radius: 50%;
+}

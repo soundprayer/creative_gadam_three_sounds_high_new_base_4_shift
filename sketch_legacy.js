@@ -63,7 +63,7 @@ let scaleType = 'pentatonic'; // Default scale
 let rootNote = 'C'; // Default root
 
 let transitionTime1 = 0.5;
-let transitionTime5 = 0.5;
+let transitionTime2 = 0.5;
 let transitionTime3 = 0.5;
 let transitionTime4 = 0.5;
 

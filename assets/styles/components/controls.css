@@ -1,0 +1,130 @@
+.controls {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 12px;
+}
+
+.reverb-row,
+.control-row {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+.selector-container {
+    flex: 1;
+}
+
+.wide-select {
+    width: 100%;
+    height: 22.5px;
+    background: black;
+    color: rgb(255, 0, 0);
+    border: 2px solid white;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 12px;
+    margin-top: 3px;
+}
+.loop-indicator {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 12px;
+    max-width: 90%;
+    text-align: center;
+    white-space: normal;
+}
+
+.info-right {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    max-width: 40%;
+    text-align: right;
+    font-size: 12px;
+    color: white;
+    font-family: 'Press Start 2P', cursive;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 600px) {
+    .info-right {
+        max-width: 70%;
+        font-size: 10px;
+        gap: 5px;
+    }
+}
+
+.info-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 12px;
+    animation: rainbow 4s linear infinite;
+    flex-shrink: 0;
+}
+
+.info {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    max-width: 45%;
+    text-align: left;
+    font-size: 12px;
+    color: white;
+    font-family: 'Press Start 2P', cursive;
+    word-break: break-word;
+}
+
+@media (max-width: 600px) {
+    .info {
+        max-width: 70%;
+        font-size: 10px;
+    }
+}
+
+.start-message {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'Press Start 2P', cursive;
+    font-size: 24px;
+    color: white;
+    text-align: center;
+    max-width: 90%;
+    width: 600px;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.8);
+    border: 2px solid white;
+    animation: pulse 2s infinite;
+    z-index: 1000;
+    box-sizing: border-box;
+}
+
+@media (max-width: 600px) {
+    .start-message {
+        font-size: 14px;
+        padding: 15px;
+        width: 90%;
+    }
+}

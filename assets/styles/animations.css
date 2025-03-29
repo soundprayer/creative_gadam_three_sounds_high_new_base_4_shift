@@ -1,0 +1,32 @@
+@keyframes flash {
+    0% { background-color: white; }
+    100% { background-color: inherit; }
+}
+
+@keyframes rainbow {
+    0% { background: rgb(123, 0, 255); }
+    25% { background: rgb(255, 0, 234); }
+    50% { background: rgb(0, 255, 225); }
+    75% { background: rgb(255, 234, 0); }
+    100% { background: rgb(123, 0, 255); }
+}
+
+@keyframes blink {
+    0% { opacity: 1; }
+    50% { opacity: 0.3; }
+    100% { opacity: 1; }
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+.flash {
+    animation: flash 1s;
+}
+
+.blinking {
+    animation: blink 2s ease-in-out infinite;
+}

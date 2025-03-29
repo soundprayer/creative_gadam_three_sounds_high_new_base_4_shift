@@ -1,438 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>p5.js Project</title>
-    <style>
-        :root {
-            --color-green: rgb(123, 0, 255);
-            --color-red: rgb(255, 0, 234);
-            --color-blue: rgb(0, 255, 225);
-            --color-yellow: rgb(255, 234, 0);
-        }
-        body {
-            background-color: black;
-            color: green;
-            font-family: 'Press Start 2P', cursive; /* Retro font */
-            font-size: 20px;
-            text-align: center;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        canvas {
-            image-rendering: pixelated;
-        }
-        .pause-button {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            color: green;
-            font-family: 'Press Start 2P', cursive;
-            font-size: 12px;
-        }
-        .info {
-            position: absolute;
-            bottom: 10px;
-            left: 10px;
-            color: rgb(255, 255, 255);
-            font-family: 'Press Start 2P', cursive;
-            font-size: 12px;
-        }
-        .info-right {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            color: rgb(255, 255, 255);
-            font-family: 'Press Start 2P', cursive;
-            font-size: 12px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .start-message {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-family: 'Press Start 2P', cursive;
-            font-size: 24px;
-            color: white;
-            text-align: center;
-            max-width: 800px;
-            padding: 20px;
-            background: rgba(0, 0, 0, 0.8);
-            border: 2px solid white;
-            animation: pulse 2s infinite;
-            z-index: 1000;
-        }
-        .sound-selector {
-            position: absolute;
-            bottom: 50px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 20px;
-        }
-        .sound-option {
-            width: 30px;
-            height: 30px;
-            cursor: pointer;
-        }
-        .sound-option.green {
-            background-color: var(--color-green);
-            border-radius: 50%;
-        }
-        .sound-option.red {
-            background-color: var(--color-red);
-            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
-        }
-        .sound-option.blue {
-            background-color: var(--color-blue);
-        }
-        .sound-option.yellow {
-            background-color: var(--color-yellow);
-            border-radius: 50%;
-        }
-        @keyframes flash {
-            0% { background-color: white; }
-            100% { background-color: inherit; }
-        }
-        .flash {
-            animation: flash 1s;
-        }
-        .container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            align-items: flex-start;
-            gap: 20px;
-        }
-        .soundboard {
-            flex: 1;
-        }
-        .effects-box {
-            display: none; /* Hide the effects box */
-            width: 200px;
-            height: 200px;
-            border: 2px solid green;
-            box-sizing: border-box;
-        }
-        @media (max-width: 768px) {
-            .container {
-                flex-direction: column;
-                align-items: center;
-            }
-        }
-        .controls {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            position: absolute;
-            top: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: rgb(255, 255, 255);
-            font-family: 'Press Start 2P', cursive;
-            font-size: 12px;
-        }
-        .reverb-global-row, .reverb-sends-row {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-        }
-        .slider-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .slider-label {
-            margin-bottom: 5px;
-        }
-        .slider {
-            width: 150px;
-            -webkit-appearance: none;
-            appearance: none;
-            height: 20px;
-            background: black;
-            border: 2px solid rgb(255, 255, 255);
-            outline: none;
-            cursor: pointer;
-        }
-        .slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 20px;
-            height: 20px;
-            background: rgb(255, 255, 255);
-            border: 2px solid black;
-        }
-        .slider::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
-            background: green;
-            border: 2px solid black;
-        }
-        .loop-indicator {
-            position: absolute;
-            bottom: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: rgb(255, 255, 255);
-            font-family: 'Press Start 2P', cursive;
-            font-size: 12px;
-        }
-        .controls {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .reverb-row {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-        }
-
-        .slider-container {
-            flex: 1;
-        }
-
-        .glide-row {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-        }
-
-        /* Sound-specific control colors */
-        .slider-container[data-sound="1"] .slider-label,
-        .slider-container[data-sound="1"] .slider {
-            color: var(--color-green);
-            border-color: var(--color-green);
-        }
-
-        .slider-container[data-sound="2"] .slider-label,
-        .slider-container[data-sound="2"] .slider {
-            color: var(--color-red);
-            border-color: var(--color-red);
-        }
-
-        .slider-container[data-sound="3"] .slider-label,
-        .slider-container[data-sound="3"] .slider {
-            color: var(--color-blue);
-            border-color: var(--color-blue);
-        }
-
-        .slider-container[data-sound="4"] .slider-label,
-        .slider-container[data-sound="4"] .slider {
-            color: var(--color-yellow);
-            border-color: var(--color-yellow);
-        }
-
-        /* Slider thumb colors */
-        .slider-container[data-sound="1"] .slider::-webkit-slider-thumb {
-            background: var(--color-green);
-        }
-
-        .slider-container[data-sound="2"] .slider::-webkit-slider-thumb {
-            background: var(--color-red);
-        }
-
-        .slider-container[data-sound="3"] .slider::-webkit-slider-thumb {
-            background: var(--color-blue);
-        }
-
-        .slider-container[data-sound="4"] .slider::-webkit-slider-thumb {
-            background: var(--color-yellow);
-        }
-
-        .control-row {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            width: 100%;
-        }
-
-        .selector-container {
-            flex: 1;
-        }
-
-        .wide-select {
-            width: 100%;
-            height: 22.5px;
-            background: black;
-            color: rgb(255, 0, 0);
-            border: 2px solid rgb(255, 255, 255);
-            font-family: 'Press Start 2P', cursive;
-            font-size: 12px;
-            margin-top: 3px; /* Add space between label and selector */
-        }
-
-        .reverb-row,
-        .control-row {
-            margin-bottom: 10px;
-        }
-
-        .info-right {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .info-icon {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-family: 'Press Start 2P', cursive;
-            font-size: 12px;
-            animation: rainbow 4s linear infinite;
-        }
-
-        @keyframes rainbow {
-            0% { background: rgb(123, 0, 255); }    /* green from project */
-            25% { background: rgb(255, 0, 234); }   /* red from project */
-            50% { background: rgb(0, 255, 225); }   /* blue from project */
-            75% { background: rgb(255, 234, 0); }   /* yellow from project */
-            100% { background: rgb(123, 0, 255); }  /* back to first color */
-        }
-
-        @keyframes blink {
-            0% { opacity: 1; }
-            50% { opacity: 0.3; }
-            100% { opacity: 1; }
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            z-index: 1000;
-        }
-
-        .modal-content {
-            position: relative;
-            background: black;
-            margin: 5% auto;
-            padding: 20px;
-            width: 90%;
-            max-width: 1000px;
-            border: 2px solid white;
-            display: grid;
-            grid-template-columns: 40% 60%;
-            gap: 20px;
-        }
-
-        .close-button {
-            position: absolute;
-            right: 10px;
-            top: 10px;
-            color: white;
-            cursor: pointer;
-            font-size: 24px;
-        }
-
-        .shortcuts-text {
-            color: white;
-            font-family: 'Press Start 2P', cursive;
-            font-size: 12px;
-            white-space: pre-wrap;
-            line-height: 1.5;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
-        }
-
-        .shortcuts-section {
-            margin-bottom: 30px;
-            border-left: 1px solid #444;
-            padding-left: 20px;
-            grid-column: 2;
-        }
-
-        .shortcut-item {
-            margin-bottom: 22px;
-            line-height: 1.3;
-            display: grid;
-            grid-template-columns: 90px 1fr;
-            gap: 6px;
-        }
-
-        .key {
-            color: var(--color-blue);
-            font-weight: bold;
-            font-size: 13px;
-            text-align: right;
-        }
-
-        .description {
-            color: white;
-            font-size: 11px;
-            text-align: left;
-        }
-
-        .note {
-            grid-column: 2;
-            color: rgb(255, 0, 234);
-            font-size: 10px;
-            /* margin-bottom: 25px; */
-            text-align: left;
-        }
-
-        .explanation-section {
-            grid-column: 1;
-            padding-right: 20px;
-        }
-
-        .explanation-section p {
-            color: #ffffff;
-            font-size: 12px;
-            margin-bottom: 25px;
-            text-align: center;
-            line-height: 1.4;
-        }
-
-        .explanation-title {
-            color: white;
-            font-family: 'Press Start 2P', cursive;
-            font-size: 14px;
-            margin-bottom: 25px;
-            text-align: center;
-        }
-
-        .restart-text {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            color: white;
-            font-family: 'Press Start 2P', cursive;
-            font-size: 12px;
-            z-index: 100;
-        }
-
-        .blinking {
-            animation: blink 2s ease-in-out infinite;
-        }
-    </style>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/styles/main.css">
+
+    <!-- p5.js -->
     <script src="node_modules/p5/lib/p5.js"></script>
     <script src="node_modules/p5/lib/addons/p5.sound.min.js"></script>
 
-    <!-- your new modularized files -->
+    <!-- Modularized scripts -->
     <script src="./core/globals.js"></script>
     <script src="./core/utils.js"></script>
     <script src="./core/audio.js"></script>
@@ -441,191 +20,107 @@
     <script src="./interactions/interactions.js"></script>
     <script src="./ui/ui.js"></script>
     <script src="sketch.js"></script>
-
 </head>
 <body>
-    <!-- <div class="restart-text">CTRL+R by zacząć od nowa</div> -->
-    <div class="start-message" id="startMessage">POSTAW WYBRANY ASPEKT, BY USŁYSZEĆ JAK DZIŚ BRZMISZ</div>
-    <!-- <div class="pause-button">Pause</div> -->
-    <div class="info">Wciśnij SPACJĘ by <span id="playPauseStatus">Odpocząć</span></div>
-    <div class="info-right">
-        INNE SKRÓTY ŻYCIOWE
-        <div id="infoIcon" class="info-icon" onclick="toggleShortcutsModal()">i</div>
-    </div>
+<div class="start-message" id="startMessage">POSTAW WYBRANY ASPEKT, BY USŁYSZEĆ JAK DZIŚ BRZMISZ</div>
+<div class="info">Wciśnij SPACJĘ by <span id="playPauseStatus">Odpocząć</span></div>
+<div class="info-right">
+    INNE SKRÓTY ŻYCIOWE
+    <div id="infoIcon" class="info-icon" onclick="toggleShortcutsModal()">i</div>
+</div>
 
-    <!-- Shortcuts Modal -->
-    <div id="shortcutsModal" class="modal">
-        <div class="modal-content">
-            <span class="close-button" onclick="toggleShortcutsModal()">&times;</span>
+<!-- Modal -->
+<div id="shortcutsModal" class="modal">
+    <div class="modal-content">
+        <span class="close-button" onclick="toggleShortcutsModal()">&times;</span>
 
-            <!-- Explanation Section First -->
-            <div class="explanation-section">
-                <h2 class="explanation-title">ZASADY GRY</h2>
-                <p>ŁATWO JEST POPAŚĆ W CHAOS. <span style="color: #C31C00;">SKALE (LINIE)</span> TO WARTOŚCI, KTÓRE CI POMOGĄ. POSTAW NA NICH DŹWIĘKI, BY USŁYSZEĆ <span style="color: #C31C00;">HARMONIĘ</span></p>
-                <p>MOŻESZ ZMIENIĆ <span style="color: #C31C00;">TE WYTYCZNE</span>. ALE SAMA KOREKTA ASPEKTÓW TO TWOJE ZADANIE</p>
-                <p>JEŚLI CI SIĘ COŚ UDAŁO, NAUCZ KOGOŚ INNEGO <span style="color: red;">&#10084;</span></p>
-                <p>POWODZENIA</p>
-            </div>
+        <div class="explanation-section">
+            <h2 class="explanation-title">ZASADY GRY</h2>
+            <p>ŁATWO JEST POPAŚĆ W CHAOS. <span style="color: #C31C00;">SKALE (LINIE)</span> TO WARTOŚCI, KTÓRE CI POMOGĄ. POSTAW NA NICH DŹWIĘKI, BY USŁYSZEĆ <span style="color: #C31C00;">HARMONIĘ</span></p>
+            <p>MOŻESZ ZMIENIĆ <span style="color: #C31C00;">TE WYTYCZNE</span>. ALE SAMA KOREKTA ASPEKTÓW TO TWOJE ZADANIE</p>
+            <p>JEŚLI CI SIĘ COŚ UDAŁO, NAUCZ KOGOŚ INNEGO <span style="color: red;">&#10084;</span></p>
+            <p>POWODZENIA</p>
+        </div>
 
-            <!-- Shortcuts Section Second -->
-            <div class="shortcuts-section">
-                <h2 class="explanation-title">SKRÓTY ŻYCIOWE</h2>
-                <div class="shortcut-item">
-                    <span class="key">SPACJA</span>
-                    <span class="description">WŁĄCZ SIĘ / ODPOCZNIJ</span>
-                </div>
-                <div class="shortcut-item">
-                    <span class="key">Q</span>
-                    <span class="description">ZMIEŃ ASPEKT ŻYCIA, KTÓRYM KIERUJESZ</span>
-                    <span class="note">(MOŻESZ TEŻ KLIKNĄĆ NA KSZTAŁT NA DOLE EKRANU)</span>
-                </div>
-                <div class="shortcut-item">
-                    <span class="key">SHIFT</span>
-                    <span class="description">WPROWADŹ RUTYNĘ, ALBO NAGRAJ NOWĄ</span>
-                    <span class="note">RYTMY I NAWYKI POMAGAJĄ PRZEJŚĆ PRZEZ ŻYCIE</span>
-
-                </div>
-                <div class="shortcut-item">
-                    <span class="key">D</span>
-                    <span class="description">POPRAW FRAGMENT RUTYNY W TRAKCIE JEJ TRWANIA</span>
-                    <span class="note">NAWYK ŁATWIEJ ZMIENIĆ STOPNIOWO ZASTĘPUJĄC GO NOWYM</span>
-                </div>
-                <!-- <div class="shortcut-item">
-                    <span class="key">Z</span>
-                    <span class="description">SKRÓĆ ŚCIEŻKĘ WYBRANEJ RUTYNY O POŁOWĘ</span>
-                    <span class="note">(PROSTSZYCH RZECZY ŁATWIEJ SIĘ NAUCZYĆ)</span>
-                </div>
-                <div class="shortcut-item">
-                    <span class="key">X</span>
-                    <span class="description">POWIEL ŚCIĘŻKĘ RUTYNY</span>
-                    <span class="note">POWTARZANIE POMAGA ZAPAMIĘTAĆ, CHOĆ NIE ZAWSZE OD RAZU USŁYSZYSZ EFEKT (PO UŻYCIU WARTO UŻYĆ D)</span>
-                </div> -->
-                <div class="shortcut-item">
-                    <span class="key">P</span>
-                    <span class="description">BAW SIĘ RYTMEM NAGRANEJ RUTYNY</span>
-                    <span class="note">(DZIAŁA ZARÓWNO GDY GRASZ LUB ODPOCZYWASZ)</span>
-                </div>
-                <div class="shortcut-item">
-                    <span class="key">CTRL+R</span>
-                    <span class="description">CZASEM WARTO ZACZĄĆ OD NOWA</span>
-                </div>
-            </div>
+        <div class="shortcuts-section">
+            <h2 class="explanation-title">SKRÓTY ŻYCIOWE</h2>
+            <div class="shortcut-item"><span class="key">SPACJA</span><span class="description">WŁĄCZ SIĘ / ODPOCZNIJ</span></div>
+            <div class="shortcut-item"><span class="key">Q</span><span class="description">ZMIEŃ ASPEKT ŻYCIA, KTÓRYM KIERUJESZ</span><span class="note">(MOŻESZ TEŻ KLIKNĄĆ NA KSZTAŁT NA DOLE EKRANU)</span></div>
+            <div class="shortcut-item"><span class="key">SHIFT</span><span class="description">WPROWADŹ RUTYNĘ, ALBO NAGRAJ NOWĄ</span><span class="note">RYTMY I NAWYKI POMAGAJĄ PRZEJŚĆ PRZEZ ŻYCIE</span></div>
+            <div class="shortcut-item"><span class="key">D</span><span class="description">POPRAW FRAGMENT RUTYNY W TRAKCIE JEJ TRWANIA</span><span class="note">NAWYK ŁATWIEJ ZMIENIĆ STOPNIOWO ZASTĘPUJĄC GO NOWYM</span></div>
+            <div class="shortcut-item"><span class="key">P</span><span class="description">BAW SIĘ RYTMEM NAGRANEJ RUTYNY</span><span class="note">(DZIAŁA ZARÓWNO GDY GRASZ LUB ODPOCZYWASZ)</span></div>
+            <div class="shortcut-item"><span class="key">CTRL+R</span><span class="description">CZASEM WARTO ZACZĄĆ OD NOWA</span></div>
         </div>
     </div>
-    <div class="controls">
-        <div class="reverb-row">
-            <!-- Global Reverb Controls -->
-            <div class="slider-container">
-                <div class="slider-label">Przestrzeń</div>
-                <input type="range" id="reverbTimeSlider" class="slider" min="0" max="10" step="0.1" value="3"
-                       oninput="updateReverbTime(this.value)">
-            </div>
-            <div class="slider-container">
-                <div class="slider-label">Pogłos Czas</div>
-                <input type="range" id="reverbDecaySlider" class="slider" min="0" max="10" step="0.1" value="2"
-                       oninput="updateReverbDecay(10 - this.value)">
-            </div>
+</div>
 
-            <!-- Individual Send Controls -->
-            <div class="slider-container" data-sound="1">
-                <div class="slider-label">Pogłos 1</div>
-                <input type="range" id="reverb1Slider" class="slider" min="0" max="1" step="0.01" value="0.5"
-                       oninput="updateReverbSend(1, this.value)">
-            </div>
-            <div class="slider-container" data-sound="2">
-                <div class="slider-label">Pogłos 2</div>
-                <input type="range" id="reverb2Slider" class="slider" min="0" max="1" step="0.01" value="0.5"
-                       oninput="updateReverbSend(2, this.value)">
-            </div>
-            <div class="slider-container" data-sound="3">
-                <div class="slider-label">Pogłos 3</div>
-                <input type="range" id="reverb3Slider" class="slider" min="0" max="1" step="0.01" value="0.5"
-                       oninput="updateReverbSend(3, this.value)">
-            </div>
-            <div class="slider-container" data-sound="4">
-                <div class="slider-label">Pogłos 4</div>
-                <input type="range" id="reverb4Slider" class="slider" min="0" max="1" step="0.01" value="0.5"
-                       oninput="updateReverbSend(4, this.value)">
-            </div>
+<div class="controls">
+    <div class="reverb-row">
+        <div class="slider-container"><div class="slider-label">Przestrzeń</div><input type="range" id="reverbTimeSlider" class="slider" min="0" max="10" step="0.1" value="3" oninput="updateReverbTime(this.value)"></div>
+        <div class="slider-container"><div class="slider-label">Pogłos Czas</div><input type="range" id="reverbDecaySlider" class="slider" min="0" max="10" step="0.1" value="2" oninput="updateReverbDecay(10 - this.value)"></div>
+        <div class="slider-container" data-sound="1"><div class="slider-label">Pogłos 1</div><input type="range" id="reverb1Slider" class="slider" min="0" max="1" step="0.01" value="0.5" oninput="updateReverbSend(1, this.value)"></div>
+        <div class="slider-container" data-sound="2"><div class="slider-label">Pogłos 2</div><input type="range" id="reverb2Slider" class="slider" min="0" max="1" step="0.01" value="0.5" oninput="updateReverbSend(2, this.value)"></div>
+        <div class="slider-container" data-sound="3"><div class="slider-label">Pogłos 3</div><input type="range" id="reverb3Slider" class="slider" min="0" max="1" step="0.01" value="0.5" oninput="updateReverbSend(3, this.value)"></div>
+        <div class="slider-container" data-sound="4"><div class="slider-label">Pogłos 4</div><input type="range" id="reverb4Slider" class="slider" min="0" max="1" step="0.01" value="0.5" oninput="updateReverbSend(4, this.value)"></div>
+    </div>
+    <div class="control-row">
+        <div class="selector-container">
+            <div class="slider-label">Skala</div>
+            <select id="scaleSelector" class="wide-select" onchange="selectScale(this.value)">
+                <option value="pentatonic">Pentatonic</option>
+                <option value="major">Major</option>
+                <option value="minor">Natural Minor</option>
+                <option value="harmonic_minor">Harmonic Minor</option>
+                <option value="melodic_minor">Melodic Minor</option>
+                <option value="dorian">Dorian</option>
+                <option value="phrygian">Phrygian</option>
+                <option value="lydian">Lydian</option>
+                <option value="mixolydian">Mixolydian</option>
+                <option value="locrian">Locrian</option>
+                <option value="whole_tone">Whole Tone</option>
+                <option value="diminished">Diminished</option>
+                <option value="arabic">Arabic</option>
+                <option value="japanese">Japanese</option>
+                <option value="gamelan">Gamelan</option>
+            </select>
         </div>
-        <div class="control-row">
-            <div class="selector-container">
-                <div class="slider-label">Skala</div>
-                <select id="scaleSelector" class="wide-select" onchange="selectScale(this.value)">
-                    <option value="pentatonic">Pentatonic</option>
-                    <option value="major">Major</option>
-                    <option value="minor">Natural Minor</option>
-                    <option value="harmonic_minor">Harmonic Minor</option>
-                    <option value="melodic_minor">Melodic Minor</option>
-                    <option value="dorian">Dorian</option>
-                    <option value="phrygian">Phrygian</option>
-                    <option value="lydian">Lydian</option>
-                    <option value="mixolydian">Mixolydian</option>
-                    <option value="locrian">Locrian</option>
-                    <option value="whole_tone">Whole Tone</option>
-                    <option value="diminished">Diminished</option>
-                    <option value="arabic">Arabic</option>
-                    <option value="japanese">Japanese</option>
-                    <option value="gamelan">Gamelan</option>
-                </select>
-            </div>
-            <div class="selector-container">
-                <div class="slider-label">Nuta</div>
-                <select id="rootNoteSelector" class="wide-select" onchange="selectRootNote(this.value)">
-                    <option value="C">C</option>
-                    <option value="C#">C#</option>
-                    <option value="D">D</option>
-                    <option value="D#">D#</option>
-                    <option value="E">E</option>
-                    <option value="F">F</option>
-                    <option value="F#">F#</option>
-                    <option value="G">G</option>
-                    <option value="G#">G#</option>
-                    <option value="A">A</option>
-                    <option value="A#">A#</option>
-                    <option value="B">B</option>
-                </select>
-            </div>
-            <div class="slider-container" data-sound="1">
-                <div class="slider-label">Przepływ 1</div>
-                <input type="range" id="freqTransition1Slider" class="slider"
-                       min="0.1" max="1" step="0.01" value="0.1"
-                       oninput="updateFreqTransitionTime(1, this.value)">
-            </div>
-            <div class="slider-container" data-sound="2">
-                <div class="slider-label">Przepływ 2</div>
-                <input type="range" id="freqTransition2Slider" class="slider"
-                       min="0.1" max="1" step="0.01" value="0.1"
-                       oninput="updateFreqTransitionTime(2, this.value)">
-            </div>
-            <div class="slider-container" data-sound="3">
-                <div class="slider-label">Przepływ 3</div>
-                <input type="range" id="freqTransition3Slider" class="slider"
-                       min="0.1" max="1" step="0.01" value="0.1"
-                       oninput="updateFreqTransitionTime(3, this.value)">
-            </div>
-            <div class="slider-container" data-sound="4">
-                <div class="slider-label">Przepływ 4</div>
-                <input type="range" id="freqTransition4Slider" class="slider"
-                       min="0.1" max="1" step="0.01" value="0.1"
-                       oninput="updateFreqTransitionTime(4, this.value)">
-            </div>
+        <div class="selector-container">
+            <div class="slider-label">Nuta</div>
+            <select id="rootNoteSelector" class="wide-select" onchange="selectRootNote(this.value)">
+                <option value="C">C</option>
+                <option value="C#">C#</option>
+                <option value="D">D</option>
+                <option value="D#">D#</option>
+                <option value="E">E</option>
+                <option value="F">F</option>
+                <option value="F#">F#</option>
+                <option value="G">G</option>
+                <option value="G#">G#</option>
+                <option value="A">A</option>
+                <option value="A#">A#</option>
+                <option value="B">B</option>
+            </select>
+        </div>
+        <div class="slider-container" data-sound="1"><div class="slider-label">Przepływ 1</div><input type="range" id="freqTransition1Slider" class="slider" min="0.1" max="1" step="0.01" value="0.1" oninput="updateFreqTransitionTime(1, this.value)"></div>
+        <div class="slider-container" data-sound="2"><div class="slider-label">Przepływ 2</div><input type="range" id="freqTransition2Slider" class="slider" min="0.1" max="1" step="0.01" value="0.1" oninput="updateFreqTransitionTime(2, this.value)"></div>
+        <div class="slider-container" data-sound="3"><div class="slider-label">Przepływ 3</div><input type="range" id="freqTransition3Slider" class="slider" min="0.1" max="1" step="0.01" value="0.1" oninput="updateFreqTransitionTime(3, this.value)"></div>
+        <div class="slider-container" data-sound="4"><div class="slider-label">Przepływ 4</div><input type="range" id="freqTransition4Slider" class="slider" min="0.1" max="1" step="0.01" value="0.1" oninput="updateFreqTransitionTime(4, this.value)"></div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="effects-box"></div>
+    <div class="soundboard">
+        <div class="sound-selector">
+            <div class="sound-option green" data-sound="1"></div>
+            <div class="sound-option red" data-sound="2"></div>
+            <div class="sound-option blue" data-sound="3"></div>
+            <div class="sound-option yellow" data-sound="4"></div>
         </div>
     </div>
-    <div class="container">
-        <div class="effects-box"></div>
-        <div class="soundboard">
-            <div class="sound-selector">
-                <div class="sound-option green" data-sound="1"></div>
-                <div class="sound-option red" data-sound="2"></div>
-                <div class="sound-option blue" data-sound="3"></div>
-                <div class="sound-option yellow" data-sound="4"></div>
-            </div>
-        </div>
-    </div>
-    <div class="loop-indicator" id="loopIndicator">trzymaj SHIFT by nagrać rutynę</div> <!-- ALT to Overdub -->
-    <div id="overdubIndicator" style="display: none; position: absolute; top: 10px; left: 10px; background-color: red; color: white; padding: 5px; border-radius: 5px;">
-        Overdubbing...
-    </div>
+</div>
+
+<div class="loop-indicator" id="loopIndicator">trzymaj SHIFT by nagrać rutynę</div>
+<div id="overdubIndicator" style="display: none; position: absolute; top: 10px; left: 10px; background-color: red; color: white; padding: 5px; border-radius: 5px;">Overdubbing...</div>
 </body>
 </html>
