@@ -21,6 +21,19 @@ function mouseReleased() {
 function keyPressed() {
     const loopIndicator = document.getElementById('loopIndicator');
 
+    if (keyCode === 27) {
+        const modal = document.getElementById('shortcutsModal');
+        if (modal && modal.style.display === 'block') {
+            toggleShortcutsModal();
+            return;
+        }
+    }
+
+    if (!isTypingInFormField() && (key === 'i' || key === 'I')) {
+        toggleShortcutsModal();
+        return;
+    }
+
     if (key === 'r' || key === 'R') {
         if (keyIsDown(CONTROL)) {
             resetAllLoops();

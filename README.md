@@ -33,6 +33,7 @@ If you succeed at something, teach someone else ❤
 - **D** — Adjust a part of a routine mid-performance. A habit is easier to change gradually by replacing it with a new one.  
 - **P** — Enjoy the rhythm of the recorded routine (works both while playing and pausing).  
 - **CTRL+R** — Sometimes it's good to start over.
+- **I** — Open or close the rules & shortcuts window (same as the **i** icon); **Esc** closes it when open.
 
 *Additional hidden experimental functions are implemented – feel free to explore the code.*
 
@@ -69,7 +70,9 @@ If you succeed at something, teach someone else ❤
 
 **File Structure:**
 - `index.html`: Contains the HTML structure and embedded CSS.
-- `sketch.js`: Main JavaScript file that implements p5.js functionality and sound processing.
+- `sketch.js`: Main p5.js entry; additional modules live under `core/` and `ui/`.
+
+**16-step rhythm (FL-style panel):** Below the main controls, a 16-step grid gives each of the four voices a one-bar pattern with its own BPM transport. If a voice has an active movement loop (SHIFT routine), that row does not fire from the sequencer so the loop and the grid do not fight. Named **808 · …** buttons load classic-style TR-808–inspired drum patterns (rhythm only; sound is still the four oscillators).
 
 ---
 

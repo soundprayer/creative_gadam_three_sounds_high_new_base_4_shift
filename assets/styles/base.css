@@ -13,10 +13,17 @@ body {
     text-align: center;
     margin: 0;
     padding: 0;
+    padding-top: 118px;
+    padding-bottom: 52px;
+    box-sizing: border-box;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
-    height: 100vh;
+    justify-content: flex-start;
+    min-height: 100vh;
+    width: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 canvas {

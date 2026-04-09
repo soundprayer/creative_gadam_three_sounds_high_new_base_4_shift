@@ -30,6 +30,7 @@ function togglePlay() {
 
 function toggleShortcutsModal() {
     const modal = document.getElementById('shortcutsModal');
+    if (!modal) return;
     modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
 }
 

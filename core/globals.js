@@ -65,6 +65,23 @@ let overdubMovements = [];
 let overridePositions = { 1: null, 2: null, 3: null, 4: null };
 
 // -------------------------------------
+// Step sequencer (16 steps × 4 voices)
+// -------------------------------------
+const SEQUENCER_NUM_STEPS = 16;
+
+let sequencerSteps = [];
+for (let r = 0; r < NUM_SOUNDS; r++) {
+    sequencerSteps.push(new Array(SEQUENCER_NUM_STEPS).fill(false));
+}
+
+let sequencerBpm = 120;
+let sequencerRunning = false;
+let sequencerAccumMs = 0;
+let sequencerLastMillisForClock = 0;
+let sequencerLastStep = -1;
+let sequencerHitTimeouts = [null, null, null, null];
+
+// -------------------------------------
 // 📐 Constants
 // -------------------------------------
 const BUFFER_ZONE = 44;

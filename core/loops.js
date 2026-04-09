@@ -115,6 +115,8 @@ function resetAllLoops() {
     const loopIndicator = document.getElementById('loopIndicator');
     if (loopIndicator) loopIndicator.textContent = 'Rutyna: BRAK';
 
+    stopSequencerTransport();
+
     console.log('♻️ Reset – wszystkie loopy, dźwięki i pozycje zostały wyczyszczone');
 }
 

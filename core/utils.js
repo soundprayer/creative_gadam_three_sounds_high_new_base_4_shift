@@ -1,5 +1,12 @@
 // utils.js
 
+function isTypingInFormField() {
+    const el = document.activeElement;
+    if (!el || !el.tagName) return false;
+    const t = el.tagName.toLowerCase();
+    return t === 'input' || t === 'select' || t === 'textarea' || el.isContentEditable;
+}
+
 function constrainToBufferZone(x, y) {
     const position = {
         x: constrain(x, 0, width),

@@ -17,6 +17,8 @@
     <script src="./core/utils.js"></script>
     <script src="./core/audio.js"></script>
     <script src="./core/loops.js"></script>
+    <script src="./core/tr808-presets.js"></script>
+    <script src="./core/sequencer.js"></script>
     <script src="./core/overdub.js"></script>
     <script src="./ui/visuals.js"></script>
     <script src="./interactions/interactions.js"></script>
@@ -52,6 +54,7 @@
             <div class="shortcut-item"><span class="key">D</span><span class="description">POPRAW FRAGMENT RUTYNY W TRAKCIE JEJ TRWANIA</span><span class="note">NAWYK ŁATWIEJ ZMIENIĆ STOPNIOWO ZASTĘPUJĄC GO NOWYM</span></div>
             <div class="shortcut-item"><span class="key">P</span><span class="description">BAW SIĘ RYTMEM NAGRANEJ RUTYNY</span><span class="note">(DZIAŁA ZARÓWNO GDY GRASZ LUB ODPOCZYWASZ)</span></div>
             <div class="shortcut-item"><span class="key">CTRL+R</span><span class="description">CZASEM WARTO ZACZĄĆ OD NOWA</span></div>
+            <div class="shortcut-item"><span class="key">I</span><span class="description">OTWÓRZ / ZAMKNIJ TO OKNO (ZASADY I SKRÓTY)</span><span class="note">(ESC ZAMYKA)</span></div>
         </div>
     </div>
 </div>
@@ -109,6 +112,8 @@
         <div class="slider-container" data-sound="4"><div class="slider-label">Przepływ 4</div><input type="range" id="freqTransition4Slider" class="slider" min="0.1" max="1" step="0.01" value="0.1" oninput="updateFreqTransitionTime(4, this.value)"></div>
     </div>
 </div>
+
+<div id="stepSequencerMount" class="step-sequencer" aria-label="Krok 16"></div>
 
 <div class="container">
     <div class="effects-box"></div>
