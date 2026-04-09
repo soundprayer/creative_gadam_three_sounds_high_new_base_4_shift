@@ -33,8 +33,6 @@ function draw() {
     // Update loops
     updateAllLoops();
 
-    // Overdub handling (if active)
-    handleOverdub();
 }
 
 function windowResized() {

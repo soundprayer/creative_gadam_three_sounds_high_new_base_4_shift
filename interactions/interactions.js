@@ -1,5 +1,4 @@
 // interactions.js
-console.log(typeof constrainToBufferZone);
 
 function mousePressed() {
     if (selectedSound && mouseY < height - CONTROL_BUFFER) {
@@ -31,14 +30,14 @@ function keyPressed() {
     if (keyCode === SHIFT) {
         recording = true;
         recordStartTime = millis();
-        console.log("📼 Recording started for sound", selectedSound);
+        if (debugMode) console.log('📼 Recording started for sound', selectedSound);
 
         const movements = getMovementsArray(selectedSound);
-        movements.length = 0; // Clear previous movements
-        stopLoop(selectedSound); // Stop the loop cleanly
+        movements.length = 0;
+        stopLoop(selectedSound);
 
         loopIndicator.textContent = 'Rutyna: OPRACOWYWANIE';
-        return; // Exit early to avoid falling into switch
+        return;
     }
 
     switch (key.toLowerCase()) {
@@ -75,82 +74,63 @@ function keyPressed() {
     }
 }
 
-function stopLoop(sound) {
-    if (sound === 1) isLoop1Active = false;
-    else if (sound === 2) isLoop2Active = false;
-    else if (sound === 3) isLoop3Active = false;
-    else if (sound === 4) isLoop4Active = false;
-}
-
 function keyReleased() {
     const loopIndicator = document.getElementById('loopIndicator');
 
     if (keyCode === SHIFT) {
         recording = false;
         loopIndicator.textContent = 'Rutyna: ODTWARZA SIĘ';
-        console.log("📼 Recording stopped for sound", selectedSound);
+        if (debugMode) console.log('📼 Recording stopped for sound', selectedSound);
 
         const movements = getMovementsArray(selectedSound);
+        const slot = soundSlot(selectedSound);
 
-        let iconX, iconY;
-
-        if (selectedSound === 1) { iconX = iconX1; iconY = iconY1; }
-        else if (selectedSound === 2) { iconX = iconX2; iconY = iconY2; }
-        else if (selectedSound === 3) { iconX = iconX3; iconY = iconY3; }
-        else if (selectedSound === 4) { iconX = iconX4; iconY = iconY4; }
-
-        if (iconX === null || iconY === null) {
+        if (slot.iconX === null || slot.iconY === null) {
             console.warn(`❌ Icon position for sound ${selectedSound} is not set. Cannot start loop.`);
             return;
         }
 
         movements.push({
             time: millis() - recordStartTime,
-            x: iconX,
-            y: iconY,
+            x: slot.iconX,
+            y: slot.iconY,
             sound: selectedSound
         });
 
         startLoop(movements, selectedSound);
-        console.log(`✅ Started loop for sound ${selectedSound} with ${movements.length} movement(s)`);
+        if (debugMode) console.log(`✅ Started loop for sound ${selectedSound} with ${movements.length} movement(s)`);
 
         if (logging) saveMovementsToFile();
-    }
-
-    else if (key.toLowerCase() === 'd') {
+    } else if (key.toLowerCase() === 'd') {
         finalizeOverdub();
         loopIndicator.textContent = 'Rutyna: ODTWARZA SIĘ';
     }
 }
 
-
-// interactions.js additions:
-
 function handleMousePress(sound) {
     const clickedSound = getSoundAtPosition(mouseX, mouseY);
-    console.log("ClickedSound:", clickedSound, "SelectedSound before:", selectedSound);
 
     if (clickedSound) {
         selectedSound = clickedSound;
-        isDragging1 = isDragging2 = isDragging3 = isDragging4 = false;
-        window[`isDragging${clickedSound}`] = true;
-
-        console.log(`✅ Icon clicked on board. SelectedSound is now: ${selectedSound}`);
+        soundSlots.forEach((s) => {
+            s.isDragging = false;
+        });
+        soundSlot(clickedSound).isDragging = true;
+        if (debugMode) console.log(`✅ Icon clicked on board. SelectedSound is now: ${selectedSound}`);
     } else {
         const pos = constrainToBufferZone(mouseX, mouseY);
         if (pos.y === null) return;
 
-        window[`isDragging${sound}`] = true;
+        soundSlot(sound).isDragging = true;
         updateSound(sound, pos.x, pos.y);
-
-        console.log(`🆕 Placing new icon for sound ${sound} at (${pos.x}, ${pos.y})`);
+        if (debugMode) console.log(`🆕 Placing new icon for sound ${sound} at (${pos.x}, ${pos.y})`);
     }
 
-    console.log("Dragging flags:", isDragging1, isDragging2, isDragging3, isDragging4);
-    redraw(); // Only if you're using noLoop
+    redraw();
 }
+
 function handleMouseDrag(sound) {
-    if (window[`isDragging${sound}`]) {
+    if (soundSlot(sound).isDragging) {
         const pos = constrainToBufferZone(mouseX, mouseY);
         if (pos.y !== null) {
             updateSound(sound, pos.x, pos.y);
@@ -159,35 +139,22 @@ function handleMouseDrag(sound) {
 }
 
 function handleMouseRelease(sound) {
-    // End dragging
-    if (sound === 1) isDragging1 = false;
-    if (sound === 2) isDragging2 = false;
-    if (sound === 3) isDragging3 = false;
-    if (sound === 4) isDragging4 = false;
+    soundSlot(sound).isDragging = false;
 
-    // Clamp position within canvas and buffer zone
     const pos = constrainToBufferZone(mouseX, mouseY);
     if (pos.y === null) return;
 
-    // Update oscillator and icon position
     updateSound(sound, pos.x, pos.y);
 
-    // Only persist override if loop isn't active
-    const isLoopActive = (
-        (sound === 1 && isLoop1Active) ||
-        (sound === 2 && isLoop2Active) ||
-        (sound === 3 && isLoop3Active) ||
-        (sound === 4 && isLoop4Active)
-    );
+    const slot = soundSlot(sound);
+    const isLoopActive = slot.isLoopActive;
 
     overridePositions[sound] = isLoopActive ? null : { x: pos.x, y: pos.y };
 }
 
-
-// Add toggleSelectedSound function:
 function toggleSelectedSound() {
-    selectedSound = selectedSound % 4 + 1;
-    window.selectSound(selectedSound);
+    selectedSound = (selectedSound % 4) + 1;
+    selectSound(selectedSound);
 }
 
 function handleMouseInteractions() {
@@ -195,16 +162,16 @@ function handleMouseInteractions() {
 
     if (
         selectedSound &&
-        mouseX >= 0 && mouseX <= width &&
-        mouseY >= 0 && mouseY <= height
+        mouseX >= 0 &&
+        mouseX <= width &&
+        mouseY >= 0 &&
+        mouseY <= height
     ) {
         const position = constrainToBufferZone(mouseX, mouseY);
         if (position.y === null) return;
 
-        // Always update sound position
         updateSound(selectedSound, position.x, position.y);
 
-        // ✅ Record movements only while SHIFT is held
         if (recording) {
             const currentTime = millis() - recordStartTime;
             const movement = {
@@ -217,10 +184,13 @@ function handleMouseInteractions() {
             const movements = getMovementsArray(selectedSound);
             movements.push(movement);
         }
-    }
-}
 
-function handleOverdub() {
-    // Add logic here if needed
-    // For now, a placeholder will prevent the error
+        if (isOverdubbing && selectedSound === overdubSound) {
+            overdubMovements.push({
+                relMs: millis() - overdubAnchorTime,
+                x: position.x,
+                y: position.y
+            });
+        }
+    }
 }

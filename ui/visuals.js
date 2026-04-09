@@ -1,15 +1,14 @@
 // visual.js
 
-// Draw vertical note lines and their labels
 function drawNoteLines() {
-    let notes = getScaleNotes();
+    const notes = getScaleNotes();
     stroke(255, 0, 0);
     strokeWeight(1);
 
-    notes.forEach(note => {
-        let minFreq = 40;
-        let maxFreq = 1000;
-        let x = width * (Math.log(note.freq / minFreq)) / (Math.log(maxFreq / minFreq));
+    notes.forEach((note) => {
+        const minFreq = 40;
+        const maxFreq = 1000;
+        const x = (width * Math.log(note.freq / minFreq)) / Math.log(maxFreq / minFreq);
 
         if (x >= 0 && x <= width) {
             push();
@@ -31,51 +30,49 @@ function drawNoteLines() {
     }
 }
 
-// Highlight selected sound button in UI
 function highlightSelectedSound() {
-    let soundButtons = document.querySelectorAll('.sound-option');
+    const soundButtons = document.querySelectorAll('.sound-option');
     soundButtons.forEach((button, index) => {
-        button.style.backgroundColor = (index + 1 === selectedSound) ? 'white' : '';
+        button.style.backgroundColor = index + 1 === selectedSound ? 'white' : '';
     });
 }
 
-// Display frequency text for each sound
 function drawFrequencyText() {
     noStroke();
     textAlign(CENTER, CENTER);
     textSize(64);
     textFont('Press Start 2P');
 
-    fill(getComputedStyle(document.documentElement).getPropertyValue('--color-green').trim());
-    text(Math.round(freq1) + ' Hz', width / 2, height / 2 - 120);
-
-    fill(getComputedStyle(document.documentElement).getPropertyValue('--color-red').trim());
-    text(Math.round(freq2) + ' Hz', width / 2, height / 2 - 40);
-
-    fill(getComputedStyle(document.documentElement).getPropertyValue('--color-blue').trim());
-    text(Math.round(freq3) + ' Hz', width / 2, height / 2 + 40);
-
-    fill(getComputedStyle(document.documentElement).getPropertyValue('--color-yellow').trim());
-    text(Math.round(freq4) + ' Hz', width / 2, height / 2 + 120);
-}
-
-// Draw particle effects for active sounds
-function drawParticleEffects() {
-    const sounds = [
-        { isPlaying: isPlaying1, amp: amp1, freq: freq1, color: '--color-green' },
-        { isPlaying: isPlaying2, amp: amp2, freq: freq2, color: '--color-red' },
-        { isPlaying: isPlaying3, amp: amp3, freq: freq3, color: '--color-blue' },
-        { isPlaying: isPlaying4, amp: amp4, freq: freq4, color: '--color-yellow' },
+    const rows = [
+        { slot: soundSlot(1), color: '--color-green', y: height / 2 - 120 },
+        { slot: soundSlot(2), color: '--color-red', y: height / 2 - 40 },
+        { slot: soundSlot(3), color: '--color-blue', y: height / 2 + 40 },
+        { slot: soundSlot(4), color: '--color-yellow', y: height / 2 + 120 }
     ];
 
-    sounds.forEach(({ isPlaying, amp, freq, color }) => {
-        if (isPlaying && amp > 0.1) {
-            let particleSize = map(Math.log(freq), Math.log(40), Math.log(1000), 20, 2);
-            let cssColor = getComputedStyle(document.documentElement).getPropertyValue(color).trim();
+    rows.forEach(({ slot, color, y }) => {
+        fill(getComputedStyle(document.documentElement).getPropertyValue(color).trim());
+        text(Math.round(slot.freq) + ' Hz', width / 2, y);
+    });
+}
+
+function drawParticleEffects() {
+    const specs = [
+        { id: 1, color: '--color-green' },
+        { id: 2, color: '--color-red' },
+        { id: 3, color: '--color-blue' },
+        { id: 4, color: '--color-yellow' }
+    ];
+
+    specs.forEach(({ id, color }) => {
+        const slot = soundSlot(id);
+        if (slot.isPlaying && slot.amp > 0.1) {
+            const particleSize = map(Math.log(slot.freq), Math.log(40), Math.log(1000), 20, 2);
+            const cssColor = getComputedStyle(document.documentElement).getPropertyValue(color).trim();
             for (let i = 0; i < 100; i++) {
-                let x = random(width);
-                let y = random(height);
-                let alpha = map(amp, 0.1, 1, 0, 255);
+                const x = random(width);
+                const y = random(height);
+                const alpha = map(slot.amp, 0.1, 1, 0, 255);
                 fill(colorFromCSS(cssColor, alpha));
                 noStroke();
                 rect(x, y, particleSize, particleSize);
@@ -84,7 +81,6 @@ function drawParticleEffects() {
     });
 }
 
-// Helper to get p5 color from CSS
 function colorFromCSS(cssColor, alpha = 255) {
     const col = color(cssColor);
     return color(red(col), green(col), blue(col), alpha);
@@ -92,15 +88,17 @@ function colorFromCSS(cssColor, alpha = 255) {
 
 function drawSoundIcons() {
     const icons = [
-        { x: iconX1, y: iconY1, shape: 'ellipse', color: '--color-green' },
-        { x: iconX2, y: iconY2, shape: 'triangle', color: '--color-red' },
-        { x: iconX3, y: iconY3, shape: 'rect', color: '--color-blue' },
-        { x: iconX4, y: iconY4, shape: 'ellipse', color: '--color-yellow' },
+        { id: 1, shape: 'ellipse', color: '--color-green' },
+        { id: 2, shape: 'triangle', color: '--color-red' },
+        { id: 3, shape: 'rect', color: '--color-blue' },
+        { id: 4, shape: 'ellipse', color: '--color-yellow' }
     ];
 
-    icons.forEach(({ x, y, shape, color }, index) => {
+    icons.forEach(({ id, shape, color }) => {
+        const slot = soundSlot(id);
+        const x = slot.iconX;
+        const y = slot.iconY;
         if (x !== null && y !== null) {
-            // Draw icon
             fill(getComputedStyle(document.documentElement).getPropertyValue(color).trim());
             noStroke();
             if (shape === 'ellipse') ellipse(x, y, 20, 20);
@@ -110,8 +108,8 @@ function drawSoundIcons() {
     });
 }
 
-// Update play/pause button text
 function updatePlayPauseStatus() {
-    let playPauseStatus = document.getElementById('playPauseStatus');
-    playPauseStatus.textContent = (isPlaying1 || isPlaying2 || isPlaying3 || isPlaying4) ? 'Odpocząć' : 'Grać';
+    const playPauseStatus = document.getElementById('playPauseStatus');
+    const anyPlaying = soundSlots.some((s) => s.isPlaying);
+    playPauseStatus.textContent = anyPlaying ? 'Odpocząć' : 'Grać';
 }
