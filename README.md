@@ -2,7 +2,7 @@
 
 # End of the World – Sound & Visual Installation
 
-This experimental application rethinks how sound objects' "movement" is recorded and overdubbed. It was built primarily for live performance rather than production. It's in polish because it was originally created for the "Zupa Fotonów" exhibition, where it received a warm reception <3 In the future, song exporting features might be implemented :) 
+This experimental music drone app rethinks how sound objects' "movement" is recorded and overdubbed. It was built primarily for live performance rather than production. It's in polish because it was originally created for the "Zupa Fotonów" exhibition as a metaphore of changes taking place in life. It received a warm reception <3 In the future, song exporting features might be implemented :) 
 
 ---
 
