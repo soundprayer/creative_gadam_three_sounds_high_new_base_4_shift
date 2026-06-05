@@ -186,6 +186,25 @@
             color: rgb(255, 255, 255);
             font-family: 'Press Start 2P', cursive;
             font-size: 12px;
+            padding: 4px 8px;
+            border: 2px solid transparent;
+            transition: color 0.2s, border-color 0.2s;
+        }
+
+        .loop-indicator.routine-recording {
+            color: var(--color-red);
+            border-color: var(--color-red);
+        }
+
+        .loop-indicator.routine-playing {
+            color: var(--color-blue);
+            border-color: var(--color-blue);
+        }
+
+        .loop-indicator.routine-correction {
+            color: var(--color-yellow);
+            border-color: var(--color-yellow);
+            animation: blink 1.2s ease-in-out infinite;
         }
         .controls {
             display: flex;
@@ -436,11 +455,11 @@
     <script src="js/state.js"></script>
     <script src="js/scale.js"></script>
     <script src="js/audio.js"></script>
+    <script src="js/ui.js"></script>
     <script src="js/loops.js"></script>
     <script src="js/overdub.js"></script>
     <script src="js/render.js"></script>
     <script src="js/input.js"></script>
-    <script src="js/ui.js"></script>
     <script src="sketch.js"></script>
 </head>
 <body>

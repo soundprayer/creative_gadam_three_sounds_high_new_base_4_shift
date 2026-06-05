@@ -12,6 +12,9 @@ function createSoundState() {
         loopStartTime: 0,
         loopDuration: 0,
         loopCurrentIndex: 0,
+        loopCycleCount: 0,
+        loopAnchorX: null,
+        loopAnchorY: null,
         isDragging: false,
         loopPart: null
     };
@@ -45,23 +48,7 @@ let transitionTimes = { 1: 0.5, 2: 0.5, 3: 0.5, 4: 0.5 };
 let logging = false;
 let debugMode = false;
 
-let isOverdubbing = false;
-let isOverdubMode = false;
-let hasOverdubStarted = false;
-let overdubStartTime = null;
-let overdubStartPosition = null;
-let overdubMovements = [];
-let currentOverdubPosition = null;
-
 let loopStartTimes = { 1: 0, 2: 0, 3: 0, 4: 0 };
-
-let overdubState = {
-    isActive: false,
-    startTime: null,
-    loopPosition: null,
-    buffer: [],
-    sound: null
-};
 
 let overridePositions = { 1: null, 2: null, 3: null, 4: null };
 

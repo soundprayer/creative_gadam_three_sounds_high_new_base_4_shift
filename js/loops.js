@@ -51,7 +51,76 @@ function startLoop(movements, soundId) {
     sound.loopStartTime = millis();
     sound.loopDuration = loopDuration;
     sound.loopCurrentIndex = 0;
+    sound.loopCycleCount = 0;
+    sound.loopAnchorX = sound.iconX;
+    sound.loopAnchorY = sound.iconY;
     sound.isLoopActive = true;
+}
+
+function getRoutinePositionAtLoopTime(sound, loopTime) {
+    if (sound.movements.length === 0) return null;
+
+    const movements = sound.movements;
+    let nextIndex = 0;
+
+    while (nextIndex < movements.length && movements[nextIndex].time <= loopTime) {
+        nextIndex++;
+    }
+
+    if (nextIndex > 0) {
+        const movement = movements[nextIndex - 1];
+        return { x: movement.x, y: movement.y };
+    }
+
+    // Before the first keyframe in this cycle.
+    if (movements[0].time > loopTime) {
+        if (sound.loopCycleCount === 0 &&
+            sound.loopAnchorX !== null &&
+            sound.loopAnchorY !== null) {
+            return { x: sound.loopAnchorX, y: sound.loopAnchorY };
+        }
+
+        const tail = movements[movements.length - 1];
+        return { x: tail.x, y: tail.y };
+    }
+
+    return null;
+}
+
+function syncLoopStateToNow(soundId) {
+    const sound = getSound(soundId);
+    if (!sound.isLoopActive || sound.loopDuration <= 0) return 0;
+
+    let elapsed = millis() - sound.loopStartTime;
+
+    while (elapsed >= sound.loopDuration) {
+        sound.loopStartTime += sound.loopDuration;
+        elapsed -= sound.loopDuration;
+        sound.loopCycleCount++;
+    }
+
+    loopStartTimes[soundId] = sound.loopStartTime;
+
+    sound.loopCurrentIndex = 0;
+    while (
+        sound.loopCurrentIndex < sound.movements.length &&
+        sound.movements[sound.loopCurrentIndex].time <= elapsed
+    ) {
+        sound.loopCurrentIndex++;
+    }
+
+    return elapsed;
+}
+
+function snapSoundToRoutine(soundId) {
+    const sound = getSound(soundId);
+    if (!sound.isLoopActive || sound.movements.length === 0) return;
+
+    const loopTime = syncLoopStateToNow(soundId);
+    const position = getRoutinePositionAtLoopTime(sound, loopTime);
+    if (position) {
+        updateSound(soundId, position.x, position.y);
+    }
 }
 
 function updateLoop(soundId) {
@@ -72,6 +141,8 @@ function updateLoop(soundId) {
     if (elapsedTime >= sound.loopDuration) {
         sound.loopStartTime = millis();
         sound.loopCurrentIndex = 0;
+        sound.loopCycleCount++;
+        loopStartTimes[soundId] = sound.loopStartTime;
     }
 }
 
@@ -184,9 +255,8 @@ function saveMovementsToFile() {
 }
 
 function finishShiftRecording() {
-    const loopIndicator = document.getElementById('loopIndicator');
     recording = false;
-    loopIndicator.textContent = 'Rutyna: ODTWARZA SIĘ';
+    setLoopIndicatorState('playing');
     console.log('Recording stopped, starting loop');
 
     const sound = getSound(selectedSound);
@@ -200,7 +270,6 @@ function finishShiftRecording() {
 }
 
 function startShiftRecording() {
-    const loopIndicator = document.getElementById('loopIndicator');
     recording = true;
     recordStartTime = millis();
     console.log('Recording started');
@@ -210,5 +279,5 @@ function startShiftRecording() {
     sound.isLoopActive = false;
     console.log(`Loop ${selectedSound} stopped`);
 
-    loopIndicator.textContent = 'Rutyna: OPRACOWYWANIE';
+    setLoopIndicatorState('recording');
 }

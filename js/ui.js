@@ -1,3 +1,25 @@
+function setLoopIndicatorState(state) {
+    const indicator = document.getElementById('loopIndicator');
+    indicator.classList.remove('routine-recording', 'routine-playing', 'routine-correction');
+
+    switch (state) {
+        case 'recording':
+            indicator.textContent = 'Rutyna: OPRACOWYWANIE';
+            indicator.classList.add('routine-recording');
+            break;
+        case 'playing':
+            indicator.textContent = 'Rutyna: ODTWARZA SIĘ';
+            indicator.classList.add('routine-playing');
+            break;
+        case 'correction':
+            indicator.textContent = 'Rutyna: POPRAWKI';
+            indicator.classList.add('routine-correction');
+            break;
+        default:
+            indicator.textContent = 'trzymaj SHIFT by nagrać rutynę';
+    }
+}
+
 function toggleShortcutsModal() {
     const modal = document.getElementById('shortcutsModal');
     modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
@@ -34,25 +56,15 @@ function resetAppState() {
 
     selectedSound = 1;
     recording = false;
-    isOverdubbing = false;
-    isOverdubMode = false;
-    hasOverdubStarted = false;
-    overdubStartTime = null;
-    overdubStartPosition = null;
-    overdubMovements = [];
+    isCorrectionMode = false;
+    correctionGesture.active = false;
+    correctionGesture.sound = null;
+    correctionGesture.points = [];
     overridePositions = { 1: null, 2: null, 3: null, 4: null };
     loopStartTimes = { 1: 0, 2: 0, 3: 0, 4: 0 };
-    overdubState = {
-        isActive: false,
-        startTime: null,
-        loopPosition: null,
-        buffer: [],
-        sound: null
-    };
 
     initAudio();
-
-    document.getElementById('loopIndicator').textContent = 'trzymaj SHIFT by nagrać rutynę';
+    setLoopIndicatorState('idle');
     document.getElementById('playPauseStatus').textContent = 'Grać';
 }
 

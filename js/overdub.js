@@ -1,302 +1,111 @@
-function canStartOverdub(soundId) {
-    const movements = getMovementsArray(soundId);
-    return movements && movements.length > 0;
+let isCorrectionMode = false;
+
+let correctionGesture = {
+    active: false,
+    sound: null,
+    points: []
+};
+
+function canCorrectSelectedSound() {
+    const sound = getSound(selectedSound);
+    return sound.isLoopActive && sound.movements.length > 0 && iconExists(selectedSound);
 }
 
-function validateOverdubState() {
-    if (!canStartOverdub(selectedSound)) {
-        isOverdubbing = false;
-        return false;
-    }
-    return true;
-}
+function isInLoopTimeRange(time, rangeStart, rangeEnd, loopDuration) {
+    const t = time % loopDuration;
+    const start = rangeStart % loopDuration;
+    const end = rangeEnd % loopDuration;
 
-function mergeOverdubMovements() {
-    if (overdubMovements.length === 0) return;
-
-    const originalMovements = getMovementsArray(selectedSound);
-    originalMovements.push(...overdubMovements);
-    originalMovements.sort((a, b) => a.time - b.time);
-    setMovementsArray(selectedSound, originalMovements);
-}
-
-function startOverdubRecording() {
-    recording = true;
-    isOverdubbing = true;
-    overdubMovements = [];
-    document.getElementById('loopIndicator').textContent = 'Rutyna: POPRAWIANIE';
-}
-
-function startOverdub() {
-    overdubState.isActive = true;
-    overdubState.startTime = millis();
-    overdubState.sound = selectedSound;
-    overdubState.buffer = [];
-    const loopDuration = getLoopDuration(selectedSound);
-    overdubState.loopPosition = (millis() - loopStartTimes[selectedSound]) % loopDuration;
-}
-
-function endOverdub() {
-    if (!overdubState.isActive) return;
-
-    if (overdubState.buffer.length > 0) {
-        const movements = getMovementsArray(overdubState.sound);
-        movements.push(...overdubState.buffer);
-        movements.sort((a, b) => a.time - b.time);
-        setMovementsArray(overdubState.sound, movements);
+    if (start <= end) {
+        return t >= start && t <= end;
     }
 
-    overdubState = {
-        isActive: false,
-        startTime: null,
-        loopPosition: null,
-        sound: null,
-        buffer: []
-    };
+    return t >= start || t <= end;
 }
 
-function removeOverdubMovements(currentPosition) {
-    if (!overdubState.isActive) return;
+function enterCorrectionMode() {
+    if (!canCorrectSelectedSound()) {
+        console.log('POPRAWKI: brak aktywnej rutyny na wybranym aspekcie');
+        return;
+    }
 
-    const soundId = overdubState.sound;
-    const loopDuration = getLoopDuration(soundId);
-    let movements = getMovementsArray(soundId);
-
-    movements = movements.filter(mov => {
-        const normalizedTime = mov.time % loopDuration;
-        return normalizedTime < overdubState.loopPosition ||
-            normalizedTime > currentPosition;
-    });
-
-    setMovementsArray(soundId, movements);
+    isCorrectionMode = true;
+    setLoopIndicatorState('correction');
 }
 
-function recordOverdubPosition() {
-    if (!overdubState.isActive) return;
+function exitCorrectionMode() {
+    isCorrectionMode = false;
+    correctionGesture.active = false;
+    correctionGesture.sound = null;
+    correctionGesture.points = [];
 
-    const soundId = overdubState.sound;
-    const loopDuration = getLoopDuration(soundId);
-    const currentPosition = (millis() - loopStartTimes[soundId]) % loopDuration;
-
-    removeOverdubMovements(currentPosition);
-
-    overdubState.buffer.push({
-        time: currentPosition,
-        x: mouseX,
-        y: mouseY,
-        sound: soundId
-    });
-}
-
-function recordOverdubMovement() {
-    const loopDuration = getLoopDuration(selectedSound);
-    const currentLoopPosition = getCurrentLoopPosition(selectedSound);
-
-    overdubMovements.push({
-        time: currentLoopPosition,
-        x: mouseX,
-        y: mouseY,
-        sound: selectedSound
-    });
-}
-
-function recordPosition(x, y) {
-    const loopDuration = getLoopDuration(overdubState.sound);
-    const position = (millis() - loopStartTimes[overdubState.sound]) % loopDuration;
-
-    overdubState.buffer.push({
-        time: position,
-        x,
-        y,
-        sound: overdubState.sound
-    });
-}
-
-function beginOverdubEdit() {
-    isOverdubMode = true;
-    hasOverdubStarted = false;
-    isOverdubbing = true;
-    overdubMovements = [];
-    overdubState.buffer = [];
-    document.getElementById('loopIndicator').textContent = 'Rutyna: POPRAWIANIE';
-    startOverdub();
-}
-
-function handleOverdubMousePressed() {
-    if (isOverdubMode && !hasOverdubStarted) {
-        hasOverdubStarted = true;
-        overdubStartTime = millis();
-        overdubStartPosition = getCurrentLoopPosition(selectedSound);
-    }
-
-    if (isOverdubbing && overdubStartTime === null) {
-        overdubStartTime = millis();
-        overdubMovements = [];
-        overdubMovements.push({
-            time: getCurrentLoopPosition(selectedSound),
-            x: mouseX,
-            y: mouseY,
-            sound: selectedSound
-        });
-    }
-
-    if (isOverdubbing) {
-        currentOverdubPosition = getCurrentLoopPosition(selectedSound);
-        overdubMovements.push({
-            time: currentOverdubPosition,
-            x: mouseX,
-            y: mouseY,
-            sound: selectedSound
-        });
-    }
-
-    if (isOverdubbing) {
-        overdubState.startTime = millis();
-        overdubState.loopPosition = getCurrentLoopPosition(selectedSound);
-
-        let movements = getMovementsArray(selectedSound);
-        const loopDuration = getLoopDuration(selectedSound);
-        movements = movements.filter(mov => {
-            const normalizedTime = mov.time % loopDuration;
-            return normalizedTime < overdubState.loopPosition;
-        });
-        setMovementsArray(selectedSound, movements);
-        recordPosition(mouseX, mouseY);
-    }
-}
-
-function handleOverdubMouseRecording() {
-    if (!isOverdubbing || !mouseIsPressed) return;
-
-    const loopDuration = getLoopDuration(selectedSound);
-    const currentPosition = (millis() - loopStartTimes[selectedSound]) % loopDuration;
-
-    overdubMovements.push({
-        time: currentPosition,
-        x: mouseX,
-        y: mouseY,
-        sound: selectedSound
-    });
-}
-
-function handleOverdubKeyRelease() {
-    const loopIndicator = document.getElementById('loopIndicator');
-
-    if (overdubMovements.length > 0) {
-        let originalMovements = getMovementsArray(selectedSound);
-        originalMovements.push(...overdubMovements);
-        originalMovements.sort((a, b) => a.time - b.time);
-        setMovementsArray(selectedSound, originalMovements);
-        overdubMovements = [];
-    }
-    isOverdubbing = false;
-    overdubStartTime = null;
-
-    if (overdubMovements.length > 0) {
-        let originalMovements = getMovementsArray(selectedSound);
-        const endPosition = getCurrentLoopPosition(selectedSound);
-
-        originalMovements = originalMovements.filter(mov => {
-            const pos = mov.time % getLoopDuration(selectedSound);
-            return pos < overdubStartPosition || pos > endPosition;
-        });
-
-        originalMovements.push(...overdubMovements);
-        originalMovements.sort((a, b) => a.time - b.time);
-        setMovementsArray(selectedSound, originalMovements);
-    }
-    isOverdubbing = false;
-    overdubStartPosition = null;
-    overdubMovements = [];
-
-    if (hasOverdubStarted && overdubMovements.length > 0) {
-        mergeOverdubMovements();
-    }
-    isOverdubMode = false;
-    hasOverdubStarted = false;
-    overdubStartTime = null;
-    overdubMovements = [];
-
-    if (overdubMovements.length > 0) {
-        let originalMovements = getMovementsArray(selectedSound);
-        originalMovements.push(...overdubMovements);
-        originalMovements.sort((a, b) => a.time - b.time);
-        setMovementsArray(selectedSound, originalMovements);
-    }
-    isOverdubbing = false;
-    overdubStartTime = null;
-    overdubMovements = [];
-    loopIndicator.textContent = 'Rutyna: ODTWARZA SIĘ';
-
-    if (overdubState.buffer.length > 0) {
-        let movements = getMovementsArray(overdubState.sound);
-        movements.push(...overdubState.buffer);
-        movements.sort((a, b) => a.time - b.time);
-        setMovementsArray(overdubState.sound, movements);
-    }
-
-    isOverdubbing = false;
-    overdubState = {
-        startTime: null,
-        loopPosition: null,
-        sound: null,
-        buffer: []
-    };
-    loopIndicator.textContent = 'Rutyna: ODTWARZA SIĘ';
-
-    endOverdub();
-}
-
-function recordOverdubDuringDrag() {
-    if (!recording) return;
-
-    const currentTime = millis() - recordStartTime;
-
-    if (isOverdubbing) {
-        let movements = getMovementsArray(selectedSound);
-        const loopElapsedTime = getCurrentLoopPosition(selectedSound);
-        const index = findInsertIndex(movements, loopElapsedTime);
-        movements.splice(index, 1, {
-            time: loopElapsedTime,
-            x: mouseX,
-            y: mouseY,
-            sound: selectedSound
-        });
+    if (getSound(selectedSound).isLoopActive) {
+        setLoopIndicatorState('playing');
     } else {
-        recordMovement(selectedSound, mouseX, mouseY, currentTime);
+        setLoopIndicatorState('idle');
     }
 }
 
-// Legacy helpers kept for compatibility with experimental overdub paths.
-function removeExistingMovements(soundId, startPosition) {
-    let movements = getMovementsArray(soundId);
-    const loopDuration = getLoopDuration(soundId);
+function startCorrectionGesture() {
+    if (!isCorrectionMode || !canCorrectSelectedSound()) return;
 
-    movements = movements.filter(mov => {
-        const normalizedTime = mov.time % loopDuration;
-        return normalizedTime < startPosition;
+    const position = constrainToBufferZone(mouseX, mouseY);
+    if (position.y === null) return;
+
+    correctionGesture.active = true;
+    correctionGesture.sound = selectedSound;
+    correctionGesture.points = [{
+        time: getCurrentLoopPosition(selectedSound),
+        x: position.x,
+        y: position.y,
+        sound: selectedSound
+    }];
+}
+
+function recordCorrectionPoint() {
+    if (!correctionGesture.active || !mouseIsPressed) return;
+
+    const position = constrainToBufferZone(mouseX, mouseY);
+    if (position.y === null) return;
+
+    const loopTime = getCurrentLoopPosition(correctionGesture.sound);
+    const points = correctionGesture.points;
+    const last = points[points.length - 1];
+
+    if (!last || last.time !== loopTime || last.x !== position.x || last.y !== position.y) {
+        points.push({
+            time: loopTime,
+            x: position.x,
+            y: position.y,
+            sound: correctionGesture.sound
+        });
+    }
+}
+
+function finishCorrectionGesture() {
+    if (!correctionGesture.active) return;
+
+    const soundId = correctionGesture.sound;
+    const points = correctionGesture.points.slice();
+
+    correctionGesture.active = false;
+    correctionGesture.points = [];
+
+    if (points.length === 0) return;
+
+    const loopDuration = getLoopDuration(soundId);
+    const rangeStart = points[0].time;
+    const rangeEnd = points[points.length - 1].time;
+
+    let movements = getMovementsArray(soundId).filter(mov => {
+        return !isInLoopTimeRange(mov.time, rangeStart, rangeEnd, loopDuration);
     });
 
+    movements.push(...points);
+    movements.sort((a, b) => a.time - b.time);
     setMovementsArray(soundId, movements);
 }
 
-function finalizeOverdub() {
-    if (!overdubState.isActive || overdubState.buffer.length === 0) return;
-
-    const movements = getMovementsArray(overdubState.sound);
-    movements.push(...overdubState.buffer);
-    movements.sort((a, b) => a.time - b.time);
-    setMovementsArray(overdubState.sound, movements);
-
-    overdubState = {
-        isActive: false,
-        startTime: null,
-        loopPosition: null,
-        buffer: [],
-        sound: null
-    };
-}
-
-function startOverdubLegacy(soundId, position) {
-    removeExistingMovements(soundId, position);
+function updateCorrectionRecording() {
+    recordCorrectionPoint();
 }

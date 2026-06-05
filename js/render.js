@@ -168,6 +168,9 @@ function handleMouseDragWhilePlaying() {
     const sound = getSound(selectedSound);
     if (!sound.isPlaying) return;
 
+    // Loop playback uses handleLoopMouseOverride for temporary mouse control.
+    if (sound.isLoopActive && !recording) return;
+
     updateSound(selectedSound, position.x, position.y);
 
     if (recording) {
@@ -177,10 +180,11 @@ function handleMouseDragWhilePlaying() {
 
 function handleLoopMouseOverride() {
     if (mouseIsPressed) {
-        if (mouseX >= 0 && mouseX <= width && mouseY >= 0 && mouseY <= height) {
-            if (selectedSound && iconExists(selectedSound)) {
-                overridePositions[selectedSound] = { x: mouseX, y: mouseY };
-                updateSound(selectedSound, mouseX, mouseY);
+        if (mouseX >= 0 && mouseX <= width) {
+            const position = constrainToBufferZone(mouseX, mouseY);
+            if (position.y !== null && selectedSound && iconExists(selectedSound)) {
+                overridePositions[selectedSound] = { x: position.x, y: position.y };
+                updateSound(selectedSound, position.x, position.y);
             }
         }
     } else {
@@ -203,11 +207,7 @@ function renderFrame() {
     updatePlayPauseLabel();
     handleLoopMouseOverride();
     updateAllLoops();
-    handleOverdubMouseRecording();
-
-    if (overdubState.isActive && mouseIsPressed) {
-        recordOverdubPosition();
-    }
+    updateCorrectionRecording();
 
     drawNoteLines();
 }

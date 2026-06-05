@@ -60,24 +60,31 @@ function mousePressed() {
     const clickedSound = findClickedSound();
     if (clickedSound) {
         selectedSound = clickedSound;
+    } else if (isCorrectionMode) {
+        startCorrectionGesture();
     } else {
         placeSelectedSound();
     }
 
     if (recording) {
-        recordOverdubDuringDrag();
+        const position = constrainToBufferZone(mouseX, mouseY);
+        if (position.y !== null) {
+            recordMovement(selectedSound, position.x, position.y, millis() - recordStartTime);
+        }
     }
-
-    handleOverdubMousePressed();
 }
 
 function mouseDragged() {
-    if (overdubState.isActive && mouseIsPressed) {
-        recordOverdubPosition();
-    }
+    recordCorrectionPoint();
 }
 
 function mouseReleased() {
+    finishCorrectionGesture();
+
+    if (iconExists(selectedSound) && getSound(selectedSound).isLoopActive) {
+        snapSoundToRoutine(selectedSound);
+    }
+
     getSound(selectedSound).isDragging = false;
 }
 
@@ -87,14 +94,7 @@ function keyPressed() {
     } else if (keyCode === SHIFT) {
         startShiftRecording();
     } else if (key === 'D' || key === 'd') {
-        if (mouseIsPressed) {
-            overdubStartTime = millis();
-            recording = true;
-            isOverdubbing = true;
-            overdubMovements = [];
-            document.getElementById('loopIndicator').textContent = 'Rutyna: POPRAWIANIE';
-        }
-        beginOverdubEdit();
+        enterCorrectionMode();
     } else if (key === 'Z' || key === 'z') {
         halveLoop(selectedSound);
     } else if (key === 'X' || key === 'x') {
@@ -112,7 +112,7 @@ function keyReleased() {
     if (keyCode === SHIFT) {
         finishShiftRecording();
     } else if (key === 'D' || key === 'd') {
-        handleOverdubKeyRelease();
+        exitCorrectionMode();
     } else if (key === 'P' || key === 'p') {
         togglePlay();
     }
