@@ -34,7 +34,22 @@ describe('loops', () => {
     });
 
     describe('getRoutinePositionAtLoopTime', () => {
-        it('returns the latest movement at or before loop time', () => {
+        it('interpolates between keyframes when routineInterpolation is on', () => {
+            const sound = app.getSound(1);
+            sound.movements = [
+                { time: 0, x: 10, y: 20 },
+                { time: 100, x: 30, y: 40 },
+                { time: 200, x: 50, y: 60 }
+            ];
+            sound.loopDuration = 200;
+
+            expect(app.getRoutinePositionAtLoopTime(sound, 150)).toEqual({ x: 40, y: 50 });
+            expect(app.getRoutinePositionAtLoopTime(sound, 0)).toEqual({ x: 10, y: 20 });
+        });
+
+        it('holds the previous keyframe when routineInterpolation is off', () => {
+            app.appSettings.routineInterpolation = false;
+
             const sound = app.getSound(1);
             sound.movements = [
                 { time: 0, x: 10, y: 20 },
@@ -43,7 +58,25 @@ describe('loops', () => {
             ];
 
             expect(app.getRoutinePositionAtLoopTime(sound, 150)).toEqual({ x: 30, y: 40 });
-            expect(app.getRoutinePositionAtLoopTime(sound, 0)).toEqual({ x: 10, y: 20 });
+        });
+
+        it('lerps from the loop anchor toward the first keyframe on the first cycle', () => {
+            const sound = app.getSound(1);
+            sound.movements = [{ time: 500, x: 90, y: 90 }];
+            sound.loopDuration = 500;
+            sound.loopCycleCount = 0;
+            sound.loopAnchorX = 10;
+            sound.loopAnchorY = 20;
+
+            expect(app.getRoutinePositionAtLoopTime(sound, 200)).toEqual({ x: 42, y: 48 });
+        });
+
+        it('uses the tail movement before the first keyframe on later cycles', () => {
+            const sound = app.getSound(1);
+            sound.movements = [{ time: 500, x: 90, y: 90 }];
+            sound.loopCycleCount = 1;
+
+            expect(app.getRoutinePositionAtLoopTime(sound, 200)).toEqual({ x: 90, y: 90 });
         });
 
         it('returns null when there are no movements', () => {
@@ -138,6 +171,28 @@ describe('loops', () => {
             expect(elapsed).toBe(130);
             expect(sound.loopStartTime).toBe(1250);
             expect(sound.loopCurrentIndex).toBe(2);
+        });
+    });
+
+    describe('snapSoundToRoutineFromMovements', () => {
+        it('snaps using a movement snapshot instead of the live routine', () => {
+            app.initAudio();
+
+            const sound = app.getSound(1);
+            sound.iconX = 100;
+            sound.iconY = 100;
+            seedLoop(1, [
+                { time: 0, x: 10, y: 20 },
+                { time: 200, x: 50, y: 60 }
+            ], 200);
+
+            const snapshot = [{ time: 0, x: 10, y: 20 }, { time: 200, x: 50, y: 60 }];
+            sound.movements = [{ time: 0, x: 999, y: 999 }, { time: 200, x: 888, y: 888 }];
+
+            app.snapSoundToRoutineFromMovements(1, snapshot, 100);
+
+            expect(sound.iconX).toBe(30);
+            expect(sound.iconY).toBe(40);
         });
     });
 });

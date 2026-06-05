@@ -179,6 +179,18 @@ function handleMouseDragWhilePlaying() {
 }
 
 function handleLoopMouseOverride() {
+    if (correctionGesture.active && correctionGesture.sound && mouseIsPressed) {
+        const soundId = correctionGesture.sound;
+        if (mouseX >= 0 && mouseX <= width) {
+            const position = constrainToBufferZone(mouseX, mouseY);
+            if (position.y !== null && iconExists(soundId)) {
+                overridePositions[soundId] = { x: position.x, y: position.y };
+                updateSound(soundId, position.x, position.y);
+                return;
+            }
+        }
+    }
+
     if (mouseIsPressed) {
         if (mouseX >= 0 && mouseX <= width) {
             const position = constrainToBufferZone(mouseX, mouseY);

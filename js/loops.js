@@ -1,3 +1,18 @@
+function lerpValue(start, stop, amount) {
+    return start + (stop - start) * amount;
+}
+
+function getPositionBeforeFirstKeyframe(sound, movements) {
+    if (sound.loopCycleCount === 0 &&
+        sound.loopAnchorX !== null &&
+        sound.loopAnchorY !== null) {
+        return { x: sound.loopAnchorX, y: sound.loopAnchorY };
+    }
+
+    const tail = movements[movements.length - 1];
+    return { x: tail.x, y: tail.y };
+}
+
 function getMovementsArray(sound) {
     return getSound(sound).movements;
 }
@@ -19,8 +34,19 @@ function setLoopDuration(sound, duration) {
     console.log(`Set loop duration for sound ${sound} to ${duration}`);
 }
 
-function getCurrentLoopPosition(sound) {
-    return (millis() - loopStartTimes[sound]) % getLoopDuration(sound);
+function getLoopElapsedTime(soundId) {
+    const sound = getSound(soundId);
+    if (!sound.isLoopActive || sound.loopDuration <= 0) return 0;
+
+    let elapsed = millis() - sound.loopStartTime;
+    while (elapsed >= sound.loopDuration) {
+        elapsed -= sound.loopDuration;
+    }
+    return elapsed;
+}
+
+function getCurrentLoopPosition(soundId) {
+    return getLoopElapsedTime(soundId);
 }
 
 function findInsertIndex(movements, time) {
@@ -57,34 +83,54 @@ function startLoop(movements, soundId) {
     sound.isLoopActive = true;
 }
 
-function getRoutinePositionAtLoopTime(sound, loopTime) {
-    if (sound.movements.length === 0) return null;
+function getRoutinePositionAtLoopTime(sound, loopTime, movementsOverride = null) {
+    const movements = movementsOverride || sound.movements;
+    if (movements.length === 0) return null;
 
-    const movements = sound.movements;
-    let nextIndex = 0;
+    const loopDuration = sound.loopDuration || movements[movements.length - 1].time;
+    const first = movements[0];
 
+    if (first.time > loopTime) {
+        const start = getPositionBeforeFirstKeyframe(sound, movements);
+        if (appSettings.routineInterpolation && first.time > 0) {
+            const t = loopTime / first.time;
+            return {
+                x: lerpValue(start.x, first.x, t),
+                y: lerpValue(start.y, first.y, t)
+            };
+        }
+        return start;
+    }
+
+    let prev = first;
+    let nextIndex = 1;
     while (nextIndex < movements.length && movements[nextIndex].time <= loopTime) {
+        prev = movements[nextIndex];
         nextIndex++;
     }
 
-    if (nextIndex > 0) {
-        const movement = movements[nextIndex - 1];
-        return { x: movement.x, y: movement.y };
-    }
+    const next = nextIndex < movements.length ? movements[nextIndex] : null;
 
-    // Before the first keyframe in this cycle.
-    if (movements[0].time > loopTime) {
-        if (sound.loopCycleCount === 0 &&
-            sound.loopAnchorX !== null &&
-            sound.loopAnchorY !== null) {
-            return { x: sound.loopAnchorX, y: sound.loopAnchorY };
+    if (!next) {
+        if (appSettings.routineInterpolation && loopDuration > prev.time) {
+            const t = (loopTime - prev.time) / (loopDuration - prev.time);
+            return {
+                x: lerpValue(prev.x, first.x, t),
+                y: lerpValue(prev.y, first.y, t)
+            };
         }
-
-        const tail = movements[movements.length - 1];
-        return { x: tail.x, y: tail.y };
+        return { x: prev.x, y: prev.y };
     }
 
-    return null;
+    if (!appSettings.routineInterpolation) {
+        return { x: prev.x, y: prev.y };
+    }
+
+    const t = (loopTime - prev.time) / (next.time - prev.time);
+    return {
+        x: lerpValue(prev.x, next.x, t),
+        y: lerpValue(prev.y, next.y, t)
+    };
 }
 
 function syncLoopStateToNow(soundId) {
@@ -112,12 +158,23 @@ function syncLoopStateToNow(soundId) {
     return elapsed;
 }
 
-function snapSoundToRoutine(soundId) {
+function snapSoundToRoutine(soundId, loopTimeOverride = null) {
     const sound = getSound(soundId);
     if (!sound.isLoopActive || sound.movements.length === 0) return;
 
-    const loopTime = syncLoopStateToNow(soundId);
+    const loopTime = loopTimeOverride === null ? syncLoopStateToNow(soundId) : loopTimeOverride;
     const position = getRoutinePositionAtLoopTime(sound, loopTime);
+    if (position) {
+        updateSound(soundId, position.x, position.y);
+    }
+}
+
+function snapSoundToRoutineFromMovements(soundId, movementsSnapshot, loopTime) {
+    const sound = getSound(soundId);
+    if (!sound.isLoopActive || movementsSnapshot.length === 0) return;
+
+    syncLoopStateToNow(soundId);
+    const position = getRoutinePositionAtLoopTime(sound, loopTime, movementsSnapshot);
     if (position) {
         updateSound(soundId, position.x, position.y);
     }
@@ -127,7 +184,31 @@ function updateLoop(soundId) {
     const sound = getSound(soundId);
     if (!sound.isLoopActive || sound.isDragging) return;
 
-    const elapsedTime = millis() - sound.loopStartTime;
+    let elapsedTime = millis() - sound.loopStartTime;
+
+    if (elapsedTime >= sound.loopDuration) {
+        sound.loopStartTime = millis();
+        sound.loopCurrentIndex = 0;
+        sound.loopCycleCount++;
+        loopStartTimes[soundId] = sound.loopStartTime;
+        elapsedTime = millis() - sound.loopStartTime;
+    }
+
+    if (appSettings.routineInterpolation) {
+        const position = getRoutinePositionAtLoopTime(sound, elapsedTime);
+        if (position) {
+            updateSound(soundId, position.x, position.y);
+        }
+
+        sound.loopCurrentIndex = 0;
+        while (
+            sound.loopCurrentIndex < sound.movements.length &&
+            sound.movements[sound.loopCurrentIndex].time <= elapsedTime
+        ) {
+            sound.loopCurrentIndex++;
+        }
+        return;
+    }
 
     while (
         sound.loopCurrentIndex < sound.movements.length &&
@@ -136,13 +217,6 @@ function updateLoop(soundId) {
         const movement = sound.movements[sound.loopCurrentIndex];
         updateSound(soundId, movement.x, movement.y);
         sound.loopCurrentIndex++;
-    }
-
-    if (elapsedTime >= sound.loopDuration) {
-        sound.loopStartTime = millis();
-        sound.loopCurrentIndex = 0;
-        sound.loopCycleCount++;
-        loopStartTimes[soundId] = sound.loopStartTime;
     }
 }
 

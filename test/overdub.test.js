@@ -88,6 +88,52 @@ describe('overdub / correction', () => {
             expect(app.getMovementsArray(1)[1]).toMatchObject({ x: 300, y: 300 });
             expect(app.getMovementsArray(1)[2]).toMatchObject({ x: 320, y: 310 });
         });
+
+        it('stores correction points using loop elapsed time and audible icon position', () => {
+            activateRoutine(1);
+            advanceTime(250);
+            app.isCorrectionMode = true;
+            app.startCorrectionGesture();
+            app.getSound(1).iconX = 220;
+            app.getSound(1).iconY = 150;
+            app.recordAudibleCorrectionSample();
+
+            expect(app.correctionGesture.points[0].time).toBe(250);
+            expect(app.correctionGesture.points[0]).toMatchObject({ x: 220, y: 150 });
+        });
+
+        it('keeps distinct samples within the same loop millisecond', () => {
+            activateRoutine(1);
+            app.isCorrectionMode = true;
+            app.correctionGesture.active = true;
+            app.correctionGesture.sound = 1;
+
+            app.getSound(1).iconX = 100;
+            app.getSound(1).iconY = 200;
+            app.recordAudibleCorrectionSample();
+
+            app.getSound(1).iconX = 150;
+            app.getSound(1).iconY = 210;
+            app.recordAudibleCorrectionSample();
+
+            expect(app.correctionGesture.points).toHaveLength(2);
+            expect(app.correctionGesture.points[0].time).toBe(0);
+            expect(app.correctionGesture.points[1].time).toBeCloseTo(0.1, 5);
+        });
+
+        it('records icon position instead of mouse position', () => {
+            activateRoutine(1);
+            app.isCorrectionMode = true;
+            app.correctionGesture.active = true;
+            app.correctionGesture.sound = 1;
+            app.mouseX = 999;
+            app.mouseY = 999;
+            app.getSound(1).iconX = 180;
+            app.getSound(1).iconY = 220;
+            app.recordAudibleCorrectionSample();
+
+            expect(app.correctionGesture.points[0]).toMatchObject({ x: 180, y: 220 });
+        });
     });
 });
 

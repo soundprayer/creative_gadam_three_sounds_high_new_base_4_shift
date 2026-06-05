@@ -27,6 +27,8 @@
         }
         canvas {
             image-rendering: pixelated;
+            position: relative;
+            z-index: 0;
         }
         .pause-button {
             position: absolute;
@@ -338,7 +340,13 @@
             width: 100%;
             height: 100%;
             background: rgba(0,0,0,0.8);
-            z-index: 1000;
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.modal-open {
+            display: flex;
         }
 
         .modal-content {
@@ -444,8 +452,68 @@
             z-index: 100;
         }
 
-        .blinking {
-            animation: blink 2s ease-in-out infinite;
+        .options-modal-content {
+            display: flex;
+            flex-direction: column;
+            grid-template-columns: none;
+            max-width: 560px;
+            width: min(560px, 92vw);
+            margin: 0;
+        }
+
+        .options-group {
+            margin-bottom: 24px;
+            text-align: left;
+        }
+
+        .options-group-title {
+            color: var(--color-yellow);
+            font-family: 'Press Start 2P', cursive;
+            font-size: 11px;
+            margin-bottom: 14px;
+        }
+
+        .options-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 12px;
+            color: white;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 10px;
+            line-height: 1.5;
+            cursor: pointer;
+        }
+
+        .options-item input {
+            margin-top: 3px;
+            cursor: pointer;
+        }
+
+        .options-hint {
+            color: #888;
+            font-size: 9px;
+            margin-top: 16px;
+            text-align: center;
+        }
+
+        .options-hidden-trigger {
+            position: absolute;
+            right: 8px;
+            bottom: 8px;
+            width: 56px;
+            height: 56px;
+            padding: 0;
+            margin: 0;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            opacity: 0;
+            z-index: 2;
+        }
+
+        #optionsModal {
+            z-index: 10001;
         }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
@@ -528,6 +596,39 @@
                     <span class="key">CTRL+R</span>
                     <span class="description">CZASEM WARTO ZACZĄĆ OD NOWA</span>
                 </div>
+            </div>
+            <button type="button" id="optionsHiddenTrigger" class="options-hidden-trigger"
+                    onclick="openOptionsModal()" aria-label="Opcje"></button>
+        </div>
+    </div>
+
+    <!-- Ukryte opcje: niewidoczny przycisk w dolnym prawym rogu menu skrótów -->
+    <div id="optionsModal" class="modal">
+        <div class="modal-content options-modal-content">
+            <span class="close-button" onclick="toggleOptionsModal()">&times;</span>
+            <h2 class="explanation-title">OPCJE</h2>
+
+            <div class="options-group">
+                <div class="options-group-title">POPRAWKI — powrót po puszczeniu myszy</div>
+                <label class="options-item">
+                    <input type="radio" name="correctionSnap" id="optionSnapRestore" value="restore"
+                           onchange="setCorrectionSnapMode('restore')">
+                    <span>A — przywróć rutynę sprzed poprawki (słyszysz co było)</span>
+                </label>
+                <label class="options-item">
+                    <input type="radio" name="correctionSnap" id="optionSnapLive" value="live"
+                           onchange="setCorrectionSnapMode('live')">
+                    <span>B — od razu gra zapisana poprawka</span>
+                </label>
+            </div>
+
+            <div class="options-group">
+                <div class="options-group-title">ODTWARZANIE RUTYNY</div>
+                <label class="options-item">
+                    <input type="checkbox" id="optionInterpolation"
+                           onchange="setRoutineInterpolation(this.checked)">
+                    <span>Interpolacja między klatkami (płynniejszy ruch, lepszy powrót po kliknięciu)</span>
+                </label>
             </div>
         </div>
     </div>
