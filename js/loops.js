@@ -159,73 +159,19 @@ function syncLoopStateToNow(soundId) {
 }
 
 function snapSoundToRoutine(soundId, loopTimeOverride = null) {
-    const sound = getSound(soundId);
-    if (!sound.isLoopActive || sound.movements.length === 0) return;
-
-    const loopTime = loopTimeOverride === null ? syncLoopStateToNow(soundId) : loopTimeOverride;
-    const position = getRoutinePositionAtLoopTime(sound, loopTime);
-    if (position) {
-        updateSound(soundId, position.x, position.y);
-    }
+    return snapSoundToAudibleRoutine(soundId, loopTimeOverride, null);
 }
 
 function snapSoundToRoutineFromMovements(soundId, movementsSnapshot, loopTime) {
-    const sound = getSound(soundId);
-    if (!sound.isLoopActive || movementsSnapshot.length === 0) return;
-
-    syncLoopStateToNow(soundId);
-    const position = getRoutinePositionAtLoopTime(sound, loopTime, movementsSnapshot);
-    if (position) {
-        updateSound(soundId, position.x, position.y);
-    }
+    return snapSoundToAudibleRoutine(soundId, loopTime, movementsSnapshot);
 }
 
 function updateLoop(soundId) {
-    const sound = getSound(soundId);
-    if (!sound.isLoopActive || sound.isDragging) return;
-
-    let elapsedTime = millis() - sound.loopStartTime;
-
-    if (elapsedTime >= sound.loopDuration) {
-        sound.loopStartTime = millis();
-        sound.loopCurrentIndex = 0;
-        sound.loopCycleCount++;
-        loopStartTimes[soundId] = sound.loopStartTime;
-        elapsedTime = millis() - sound.loopStartTime;
-    }
-
-    if (appSettings.routineInterpolation) {
-        const position = getRoutinePositionAtLoopTime(sound, elapsedTime);
-        if (position) {
-            updateSound(soundId, position.x, position.y);
-        }
-
-        sound.loopCurrentIndex = 0;
-        while (
-            sound.loopCurrentIndex < sound.movements.length &&
-            sound.movements[sound.loopCurrentIndex].time <= elapsedTime
-        ) {
-            sound.loopCurrentIndex++;
-        }
-        return;
-    }
-
-    while (
-        sound.loopCurrentIndex < sound.movements.length &&
-        sound.movements[sound.loopCurrentIndex].time <= elapsedTime
-    ) {
-        const movement = sound.movements[sound.loopCurrentIndex];
-        updateSound(soundId, movement.x, movement.y);
-        sound.loopCurrentIndex++;
-    }
+    syncAudibleState(soundId);
 }
 
 function updateAllLoops() {
-    for (let i = 1; i <= SOUND_COUNT; i++) {
-        if (!overridePositions[i]) {
-            updateLoop(i);
-        }
-    }
+    syncAllAudibleStates();
 }
 
 function playMovements(movements, soundId) {
@@ -333,10 +279,10 @@ function finishShiftRecording() {
     setLoopIndicatorState('playing');
     console.log('Recording stopped, starting loop');
 
-    const sound = getSound(selectedSound);
-    recordMovement(selectedSound, sound.iconX, sound.iconY, millis() - recordStartTime);
-    console.log('Final movement recorded at', sound.movements[sound.movements.length - 1]);
-    startLoop(sound.movements, selectedSound);
+    syncAudibleState(selectedSound);
+    recordAudibleRoutineSample(selectedSound, millis() - recordStartTime);
+    console.log('Final movement recorded at', getSound(selectedSound).movements[getSound(selectedSound).movements.length - 1]);
+    startLoop(getSound(selectedSound).movements, selectedSound);
 
     if (logging) {
         saveMovementsToFile();

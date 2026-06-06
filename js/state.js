@@ -50,13 +50,8 @@ let debugMode = false;
 
 let loopStartTimes = { 1: 0, 2: 0, 3: 0, 4: 0 };
 
-let overridePositions = { 1: null, 2: null, 3: null, 4: null };
-
 const appSettings = {
-    // 'restore' = option A: after POPRAWKI, snap to pre-correction routine at current loop time
-    // 'live' = option B: snap uses the routine including the just-saved correction
-    correctionSnapMode: 'restore',
-    routineInterpolation: true
+    routineInterpolation: false
 };
 
 function getSound(sound) {

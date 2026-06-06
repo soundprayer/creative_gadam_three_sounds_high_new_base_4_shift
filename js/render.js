@@ -159,55 +159,9 @@ function updatePlayPauseLabel() {
     playPauseStatus.textContent = anySoundPlaying() ? 'Odpocząć' : 'Grać';
 }
 
-function handleMouseDragWhilePlaying() {
-    if (!mouseIsPressed || mouseX < 0 || mouseX > width) return;
-
-    const position = constrainToBufferZone(mouseX, mouseY);
-    if (position.y === null) return;
-
-    const sound = getSound(selectedSound);
-    if (!sound.isPlaying) return;
-
-    // Loop playback uses handleLoopMouseOverride for temporary mouse control.
-    if (sound.isLoopActive && !recording) return;
-
-    updateSound(selectedSound, position.x, position.y);
-
-    if (recording) {
-        recordMovement(selectedSound, position.x, position.y, millis() - recordStartTime);
-    }
-}
-
-function handleLoopMouseOverride() {
-    if (correctionGesture.active && correctionGesture.sound && mouseIsPressed) {
-        const soundId = correctionGesture.sound;
-        if (mouseX >= 0 && mouseX <= width) {
-            const position = constrainToBufferZone(mouseX, mouseY);
-            if (position.y !== null && iconExists(soundId)) {
-                overridePositions[soundId] = { x: position.x, y: position.y };
-                updateSound(soundId, position.x, position.y);
-                return;
-            }
-        }
-    }
-
-    if (mouseIsPressed) {
-        if (mouseX >= 0 && mouseX <= width) {
-            const position = constrainToBufferZone(mouseX, mouseY);
-            if (position.y !== null && selectedSound && iconExists(selectedSound)) {
-                overridePositions[selectedSound] = { x: position.x, y: position.y };
-                updateSound(selectedSound, position.x, position.y);
-            }
-        }
-    } else {
-        overridePositions = { 1: null, 2: null, 3: null, 4: null };
-    }
-}
-
 function renderFrame() {
     background(1);
     updateSoundSelectorHighlight();
-    handleMouseDragWhilePlaying();
     drawFrequencyHud();
     drawSoundParticles();
 
@@ -217,8 +171,8 @@ function renderFrame() {
 
     drawSelectedIconBorder();
     updatePlayPauseLabel();
-    handleLoopMouseOverride();
-    updateAllLoops();
+    syncAllAudibleStates();
+    updateShiftRecordingFromAudible();
     updateCorrectionRecording();
 
     drawNoteLines();

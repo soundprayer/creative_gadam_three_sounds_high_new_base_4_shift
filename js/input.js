@@ -72,10 +72,8 @@ function mousePressed() {
     }
 
     if (recording) {
-        const position = constrainToBufferZone(mouseX, mouseY);
-        if (position.y !== null) {
-            recordMovement(selectedSound, position.x, position.y, millis() - recordStartTime);
-        }
+        syncAudibleState(selectedSound);
+        recordAudibleRoutineSample(selectedSound, millis() - recordStartTime);
     }
 }
 
@@ -86,12 +84,11 @@ function mouseDragged() {
 function mouseReleased() {
     const gestureActive = correctionGesture.active;
     const gestureSound = correctionGesture.sound;
-    let preMergeMovements = null;
     let snapLoopTime = null;
 
     if (gestureActive && gestureSound) {
+        syncAudibleState(gestureSound);
         recordAudibleCorrectionSample();
-        preMergeMovements = getMovementsArray(gestureSound).map((movement) => ({ ...movement }));
         snapLoopTime = getLoopElapsedTime(gestureSound);
     }
 
@@ -100,12 +97,7 @@ function mouseReleased() {
     if (iconExists(selectedSound) && getSound(selectedSound).isLoopActive) {
         const snapTarget = gestureActive && gestureSound ? gestureSound : selectedSound;
 
-        if (gestureActive &&
-            appSettings.correctionSnapMode === 'restore' &&
-            preMergeMovements &&
-            snapLoopTime !== null) {
-            snapSoundToRoutineFromMovements(snapTarget, preMergeMovements, snapLoopTime);
-        } else if (gestureActive && snapLoopTime !== null) {
+        if (gestureActive && snapLoopTime !== null) {
             snapSoundToRoutine(snapTarget, snapLoopTime);
         } else {
             snapSoundToRoutine(selectedSound);

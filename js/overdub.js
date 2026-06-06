@@ -59,39 +59,7 @@ function startCorrectionGesture() {
 
 function recordAudibleCorrectionSample() {
     if (!correctionGesture.active) return;
-
-    const soundId = correctionGesture.sound;
-    const sound = getSound(soundId);
-    if (sound.iconX === null || sound.iconY === null) return;
-
-    const baseTime = getCurrentLoopPosition(soundId);
-    const loopDuration = getLoopDuration(soundId);
-    const points = correctionGesture.points;
-    const last = points[points.length - 1];
-    const x = sound.iconX;
-    const y = sound.iconY;
-
-    if (last && last.x === x && last.y === y) return;
-
-    let time = baseTime;
-    if (last && last.time >= baseTime && last.time < baseTime + 1) {
-        time = last.time + 0.1;
-    }
-    if (time >= loopDuration) {
-        time = baseTime;
-        if (last && last.time === time) {
-            last.x = x;
-            last.y = y;
-            return;
-        }
-    }
-
-    points.push({
-        time,
-        x,
-        y,
-        sound: soundId
-    });
+    appendAudibleSample(correctionGesture.points, correctionGesture.sound);
 }
 
 function recordCorrectionPoint() {

@@ -35,6 +35,8 @@ describe('loops', () => {
 
     describe('getRoutinePositionAtLoopTime', () => {
         it('interpolates between keyframes when routineInterpolation is on', () => {
+            app.appSettings.routineInterpolation = true;
+
             const sound = app.getSound(1);
             sound.movements = [
                 { time: 0, x: 10, y: 20 },
@@ -60,7 +62,9 @@ describe('loops', () => {
             expect(app.getRoutinePositionAtLoopTime(sound, 150)).toEqual({ x: 30, y: 40 });
         });
 
-        it('lerps from the loop anchor toward the first keyframe on the first cycle', () => {
+        it('lerps from the loop anchor toward the first keyframe on the first cycle when interpolation is on', () => {
+            app.appSettings.routineInterpolation = true;
+
             const sound = app.getSound(1);
             sound.movements = [{ time: 500, x: 90, y: 90 }];
             sound.loopDuration = 500;
@@ -191,8 +195,8 @@ describe('loops', () => {
 
             app.snapSoundToRoutineFromMovements(1, snapshot, 100);
 
-            expect(sound.iconX).toBe(30);
-            expect(sound.iconY).toBe(40);
+            expect(sound.iconX).toBe(10);
+            expect(sound.iconY).toBe(20);
         });
     });
 });

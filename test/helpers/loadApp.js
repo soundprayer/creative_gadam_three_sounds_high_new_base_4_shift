@@ -13,6 +13,7 @@ const SCRIPT_ORDER = [
     'js/audio.js',
     'js/ui.js',
     'js/loops.js',
+    'js/audible.js',
     'js/overdub.js',
     'js/render.js',
     'js/input.js'

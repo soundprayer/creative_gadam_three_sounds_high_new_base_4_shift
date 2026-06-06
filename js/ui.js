@@ -35,66 +35,6 @@ function toggleShortcutsModal() {
 
 window.toggleShortcutsModal = toggleShortcutsModal;
 
-function syncOptionsMenuFromSettings() {
-    const snapRestore = document.getElementById('optionSnapRestore');
-    const snapLive = document.getElementById('optionSnapLive');
-    const interpolationToggle = document.getElementById('optionInterpolation');
-
-    if (snapRestore) {
-        snapRestore.checked = appSettings.correctionSnapMode === 'restore';
-    }
-    if (snapLive) {
-        snapLive.checked = appSettings.correctionSnapMode === 'live';
-    }
-    if (interpolationToggle) {
-        interpolationToggle.checked = appSettings.routineInterpolation;
-    }
-}
-
-function setCorrectionSnapMode(mode) {
-    appSettings.correctionSnapMode = mode;
-    syncOptionsMenuFromSettings();
-}
-
-function setRoutineInterpolation(enabled) {
-    appSettings.routineInterpolation = enabled;
-    syncOptionsMenuFromSettings();
-}
-
-function toggleOptionsModal() {
-    const modal = document.getElementById('optionsModal');
-    if (!modal) return;
-
-    const shouldOpen = modal.style.display !== 'block';
-    modal.style.display = shouldOpen ? 'block' : 'none';
-    if (shouldOpen) {
-        modal.classList.add('modal-open');
-        syncOptionsMenuFromSettings();
-    } else {
-        modal.classList.remove('modal-open');
-    }
-}
-
-function openOptionsModal() {
-    const modal = document.getElementById('optionsModal');
-    if (!modal) return;
-
-    const shortcutsModal = document.getElementById('shortcutsModal');
-    if (shortcutsModal) {
-        shortcutsModal.style.display = 'none';
-        shortcutsModal.classList.remove('modal-open');
-    }
-
-    modal.style.display = 'block';
-    modal.classList.add('modal-open');
-    syncOptionsMenuFromSettings();
-}
-
-window.toggleOptionsModal = toggleOptionsModal;
-window.openOptionsModal = openOptionsModal;
-window.setCorrectionSnapMode = setCorrectionSnapMode;
-window.setRoutineInterpolation = setRoutineInterpolation;
-
 window.addEventListener('DOMContentLoaded', () => {
     window.selectSound = function(soundId) {
         selectedSound = soundId;
@@ -107,8 +47,6 @@ window.addEventListener('DOMContentLoaded', () => {
             }
         });
     };
-
-    syncOptionsMenuFromSettings();
 });
 
 function resetAppState() {
@@ -130,7 +68,6 @@ function resetAppState() {
     correctionGesture.active = false;
     correctionGesture.sound = null;
     correctionGesture.points = [];
-    overridePositions = { 1: null, 2: null, 3: null, 4: null };
     loopStartTimes = { 1: 0, 2: 0, 3: 0, 4: 0 };
 
     initAudio();

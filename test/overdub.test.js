@@ -89,17 +89,21 @@ describe('overdub / correction', () => {
             expect(app.getMovementsArray(1)[2]).toMatchObject({ x: 320, y: 310 });
         });
 
-        it('stores correction points using loop elapsed time and audible icon position', () => {
+        it('stores correction points from the audible state', () => {
             activateRoutine(1);
+            app.initAudio();
             advanceTime(250);
             app.isCorrectionMode = true;
+            app.mouseIsPressed = true;
+            app.mouseX = 220;
+            app.mouseY = 150;
             app.startCorrectionGesture();
-            app.getSound(1).iconX = 220;
-            app.getSound(1).iconY = 150;
+            app.syncAudibleState(1);
             app.recordAudibleCorrectionSample();
 
             expect(app.correctionGesture.points[0].time).toBe(250);
-            expect(app.correctionGesture.points[0]).toMatchObject({ x: 220, y: 150 });
+            expect(app.correctionGesture.points[0].x).toBe(app.getSound(1).iconX);
+            expect(app.correctionGesture.points[0].y).toBe(app.getSound(1).iconY);
         });
 
         it('keeps distinct samples within the same loop millisecond', () => {
@@ -121,7 +125,7 @@ describe('overdub / correction', () => {
             expect(app.correctionGesture.points[1].time).toBeCloseTo(0.1, 5);
         });
 
-        it('records icon position instead of mouse position', () => {
+        it('uses appendAudibleSample rather than raw mouse coordinates', () => {
             activateRoutine(1);
             app.isCorrectionMode = true;
             app.correctionGesture.active = true;
