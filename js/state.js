@@ -50,9 +50,16 @@ let debugMode = false;
 
 let loopStartTimes = { 1: 0, 2: 0, 3: 0, 4: 0 };
 
+const aspectTrails = { 1: [], 2: [], 3: [], 4: [] };
+
 const appSettings = {
-    routineInterpolation: false
+    routineInterpolation: false,
+    trail: { ...TRAIL_DEFAULTS }
 };
+
+function getTrailSettings() {
+    return appSettings.trail;
+}
 
 function getSound(sound) {
     return sounds[sound];

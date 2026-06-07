@@ -455,6 +455,75 @@
         .blinking {
             animation: blink 2s ease-in-out infinite;
         }
+
+        .trail-settings {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            z-index: 200;
+            font-family: 'Press Start 2P', cursive;
+        }
+
+        .trail-settings-toggle {
+            width: 32px;
+            height: 32px;
+            border: 2px solid rgb(255, 255, 255);
+            background: rgba(0, 0, 0, 0.85);
+            color: rgb(255, 255, 255);
+            font-family: inherit;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .trail-settings-menu {
+            position: absolute;
+            top: 40px;
+            right: 0;
+            width: 260px;
+            max-height: calc(100vh - 60px);
+            overflow-y: auto;
+            padding: 12px;
+            border: 2px solid rgb(255, 255, 255);
+            background: rgba(0, 0, 0, 0.92);
+            color: rgb(255, 255, 255);
+            text-align: left;
+        }
+
+        .trail-settings-title {
+            font-size: 11px;
+            margin-bottom: 12px;
+            color: var(--color-blue);
+        }
+
+        .trail-settings-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 10px;
+            font-size: 8px;
+            line-height: 1.4;
+        }
+
+        .trail-settings-row label {
+            flex: 1;
+        }
+
+        .trail-settings-row input[type="range"] {
+            width: 90px;
+        }
+
+        .trail-settings-row input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+        }
+
+        .trail-settings-value {
+            min-width: 36px;
+            text-align: right;
+            color: var(--color-yellow);
+            font-size: 8px;
+        }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <script src="node_modules/p5/lib/p5.js"></script>
@@ -479,6 +548,52 @@
     <div class="info-right">
         INNE SKRÓTY ŻYCIOWE
         <div id="infoIcon" class="info-icon" onclick="toggleShortcutsModal()">i</div>
+    </div>
+
+    <div class="trail-settings" id="trailSettings">
+        <button type="button" class="trail-settings-toggle" id="trailSettingsToggle" aria-expanded="false">⚙</button>
+        <div class="trail-settings-menu" id="trailSettingsMenu" hidden>
+            <div class="trail-settings-title">OGONY / PODGLĄD</div>
+
+            <div class="trail-settings-row">
+                <label for="trailBehindEnabled">Ogon za aspektem</label>
+                <input type="checkbox" id="trailBehindEnabled">
+            </div>
+            <div class="trail-settings-row">
+                <label for="trailAheadEnabled">Ogon przed aspektem</label>
+                <input type="checkbox" id="trailAheadEnabled">
+            </div>
+            <div class="trail-settings-row">
+                <label for="trailKeyframeOnly">Tylko keyframe'y</label>
+                <input type="checkbox" id="trailKeyframeOnly">
+            </div>
+
+            <div class="trail-settings-row">
+                <label for="trailMaxAgeMs">Ogon wstecz (ms)</label>
+                <input type="range" id="trailMaxAgeMs" min="400" max="3000" step="100">
+                <span class="trail-settings-value" id="trailMaxAgeMsValue"></span>
+            </div>
+            <div class="trail-settings-row">
+                <label for="trailAheadHorizonMs">Podgląd naprzód (ms)</label>
+                <input type="range" id="trailAheadHorizonMs" min="400" max="3000" step="100">
+                <span class="trail-settings-value" id="trailAheadHorizonMsValue"></span>
+            </div>
+            <div class="trail-settings-row">
+                <label for="trailSampleStepMs">Rzadkość (ms)</label>
+                <input type="range" id="trailSampleStepMs" min="60" max="400" step="20">
+                <span class="trail-settings-value" id="trailSampleStepMsValue"></span>
+            </div>
+            <div class="trail-settings-row">
+                <label for="trailAlphaMax">Jasność cienia</label>
+                <input type="range" id="trailAlphaMax" min="8" max="80" step="2">
+                <span class="trail-settings-value" id="trailAlphaMaxValue"></span>
+            </div>
+            <div class="trail-settings-row">
+                <label for="trailGhostSize">Rozmiar cienia</label>
+                <input type="range" id="trailGhostSize" min="10" max="28" step="1">
+                <span class="trail-settings-value" id="trailGhostSizeValue"></span>
+            </div>
+        </div>
     </div>
 
     <!-- Shortcuts Modal -->

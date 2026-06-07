@@ -30,6 +30,24 @@ function createDom() {
                 <div id="startMessage"></div>
                 <p class="info"></p>
                 <div id="shortcutsModal" style="display:none"></div>
+                <div class="trail-settings" id="trailSettings">
+                    <button type="button" class="trail-settings-toggle" id="trailSettingsToggle" aria-expanded="false">⚙</button>
+                    <div class="trail-settings-menu" id="trailSettingsMenu" hidden>
+                        <input type="checkbox" id="trailBehindEnabled">
+                        <input type="checkbox" id="trailAheadEnabled">
+                        <input type="checkbox" id="trailKeyframeOnly">
+                        <input type="range" id="trailMaxAgeMs" min="400" max="3000" step="100">
+                        <span id="trailMaxAgeMsValue"></span>
+                        <input type="range" id="trailAheadHorizonMs" min="400" max="3000" step="100">
+                        <span id="trailAheadHorizonMsValue"></span>
+                        <input type="range" id="trailSampleStepMs" min="60" max="400" step="20">
+                        <span id="trailSampleStepMsValue"></span>
+                        <input type="range" id="trailAlphaMax" min="8" max="80" step="2">
+                        <span id="trailAlphaMaxValue"></span>
+                        <input type="range" id="trailGhostSize" min="10" max="28" step="1">
+                        <span id="trailGhostSizeValue"></span>
+                    </div>
+                </div>
             </body>
         </html>`,
         { url: 'http://localhost' }
@@ -105,6 +123,7 @@ export function loadApp(options = {}) {
         map: (value, start1, stop1, start2, stop2) =>
             start2 + ((stop2 - start2) * (value - start1)) / (stop1 - start1),
         dist: (x1, y1, x2, y2) => Math.hypot(x2 - x1, y2 - y1),
+        blendMode: () => {},
         key: '',
         keyCode: 0,
         SHIFT: 16,

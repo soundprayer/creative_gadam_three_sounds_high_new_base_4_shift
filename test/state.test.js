@@ -20,8 +20,36 @@ describe('state', () => {
                 movements: [],
                 isLoopActive: false,
                 loopDuration: 0,
+                loopCycleCount: 0,
+                loopAnchorX: null,
+                loopAnchorY: null,
                 isDragging: false
             });
+        });
+    });
+
+    describe('getTrailSettings', () => {
+        it('returns default trail configuration from TRAIL_DEFAULTS', () => {
+            expect(app.getTrailSettings()).toMatchObject({
+                behindEnabled: true,
+                aheadEnabled: true,
+                maxAgeMs: 1100,
+                aheadHorizonMs: 1400,
+                sampleStepMs: 180,
+                alphaMax: 80,
+                ghostSize: 23,
+                keyframeOnly: false,
+                minDistance: 3,
+                maxSamples: 90
+            });
+        });
+    });
+
+    describe('aspectTrails', () => {
+        it('starts with empty trails for each aspect', () => {
+            for (let i = 1; i <= app.SOUND_COUNT; i++) {
+                expect(app.aspectTrails[i]).toEqual([]);
+            }
         });
     });
 

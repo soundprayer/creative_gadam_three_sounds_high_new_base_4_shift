@@ -175,6 +175,165 @@ describe('loops', () => {
             expect(elapsed).toBe(130);
             expect(sound.loopStartTime).toBe(1250);
             expect(sound.loopCurrentIndex).toBe(2);
+            expect(sound.loopCycleCount).toBe(1);
+        });
+    });
+
+    describe('getLoopElapsedTime', () => {
+        it('wraps elapsed time to the loop duration', () => {
+            seedLoop(1, [{ time: 0, x: 1, y: 1 }, { time: 250, x: 2, y: 2 }], 250);
+            advanceTime(380);
+
+            expect(app.getLoopElapsedTime(1)).toBe(130);
+        });
+    });
+
+    describe('getPositionBeforeFirstKeyframe', () => {
+        it('uses the loop anchor during the first cycle', () => {
+            const sound = {
+                loopCycleCount: 0,
+                loopAnchorX: 5,
+                loopAnchorY: 6,
+                movements: [{ x: 99, y: 88 }]
+            };
+
+            expect(app.getPositionBeforeFirstKeyframe(sound, sound.movements)).toEqual({ x: 5, y: 6 });
+        });
+
+        it('uses the last movement after the first cycle', () => {
+            const sound = {
+                loopCycleCount: 1,
+                loopAnchorX: 5,
+                loopAnchorY: 6,
+                movements: [{ x: 99, y: 88 }]
+            };
+
+            expect(app.getPositionBeforeFirstKeyframe(sound, sound.movements)).toEqual({ x: 99, y: 88 });
+        });
+    });
+
+    describe('startLoop anchors', () => {
+        it('stores the current icon position as the loop anchor', () => {
+            const sound = app.getSound(1);
+            sound.iconX = 42;
+            sound.iconY = 84;
+
+            app.startLoop([{ time: 100, x: 10, y: 20 }], 1);
+
+            expect(sound.loopAnchorX).toBe(42);
+            expect(sound.loopAnchorY).toBe(84);
+            expect(sound.loopCycleCount).toBe(0);
+        });
+    });
+
+    describe('getLoopProgress', () => {
+        it('returns elapsed time divided by loop duration', () => {
+            seedLoop(1, [{ time: 0, x: 1, y: 1 }, { time: 400, x: 2, y: 2 }], 400);
+            advanceTime(100);
+
+            expect(app.getLoopProgress(1)).toBeCloseTo(0.25);
+        });
+
+        it('returns 0 when the loop is inactive', () => {
+            expect(app.getLoopProgress(1)).toBe(0);
+        });
+    });
+
+    describe('buildRoutineStepPath', () => {
+        it('builds step segments between keyframes and closes the loop', () => {
+            const sound = app.getSound(1);
+            sound.movements = [
+                { time: 0, x: 10, y: 20 },
+                { time: 100, x: 50, y: 20 },
+                { time: 200, x: 50, y: 80 }
+            ];
+            sound.loopAnchorX = 10;
+            sound.loopAnchorY = 20;
+            sound.loopCycleCount = 0;
+
+            const { points, jumpPoints } = app.buildRoutineStepPath(sound);
+
+            expect(points).toEqual([
+                { x: 10, y: 20 },
+                { x: 50, y: 20 },
+                { x: 50, y: 80 },
+                { x: 10, y: 80 },
+                { x: 10, y: 20 }
+            ]);
+            expect(jumpPoints).toEqual([
+                { x: 50, y: 20 },
+                { x: 50, y: 80 }
+            ]);
+        });
+
+        it('skips jump markers when duplicated keyframes repeat the same position', () => {
+            const sound = app.getSound(1);
+            sound.movements = [
+                { time: 0, x: 10, y: 20 },
+                { time: 100, x: 30, y: 40 },
+                { time: 200, x: 30, y: 40 },
+                { time: 300, x: 10, y: 20 }
+            ];
+            sound.loopAnchorX = 10;
+            sound.loopAnchorY = 20;
+            sound.loopCycleCount = 0;
+
+            const { jumpPoints } = app.buildRoutineStepPath(sound);
+
+            expect(jumpPoints).toEqual([
+                { x: 30, y: 40 },
+                { x: 10, y: 20 }
+            ]);
+        });
+    });
+
+    describe('buildRoutineFutureSamples', () => {
+        it('returns upcoming keyframes within the preview horizon', () => {
+            const sound = app.getSound(1);
+            sound.movements = [
+                { time: 0, x: 10, y: 20 },
+                { time: 500, x: 100, y: 20 },
+                { time: 1000, x: 100, y: 80 }
+            ];
+            sound.loopDuration = 1000;
+            sound.isLoopActive = true;
+
+            const samples = app.buildRoutineFutureSamples(sound, 100, 900, 120, true);
+
+            expect(samples).toEqual([
+                { x: 100, y: 20, leadMs: 400 },
+                { x: 10, y: 20, leadMs: 900 },
+                { x: 100, y: 80, leadMs: 900 }
+            ]);
+        });
+
+        it('wraps future samples across the loop boundary', () => {
+            const sound = app.getSound(1);
+            sound.movements = [{ time: 0, x: 10, y: 20 }];
+            sound.loopDuration = 1000;
+            sound.isLoopActive = true;
+
+            const samples = app.buildRoutineFutureSamples(sound, 900, 500, 100, true);
+
+            expect(samples).toEqual([{ x: 10, y: 20, leadMs: 100 }]);
+        });
+
+        it('samples routine positions ahead in time when keyframe-only mode is off', () => {
+            const sound = app.getSound(1);
+            sound.movements = [
+                { time: 0, x: 0, y: 0 },
+                { time: 100, x: 100, y: 0 },
+                { time: 200, x: 100, y: 100 }
+            ];
+            sound.loopDuration = 200;
+            sound.isLoopActive = true;
+
+            const samples = app.buildRoutineFutureSamples(sound, 0, 150, 50, false);
+
+            expect(samples).toEqual([
+                { x: 0, y: 0, leadMs: 50 },
+                { x: 100, y: 0, leadMs: 100 }
+            ]);
         });
     });
 

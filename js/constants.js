@@ -6,6 +6,18 @@ const AMP_TRANSITION_TIME = 0.1;
 const SOUND_COUNT = 4;
 const SCALE_HIGHLIGHT_MS = 3000;
 const NOTE_LABEL_Y = 20;
+const TRAIL_DEFAULTS = {
+    behindEnabled: true,
+    aheadEnabled: true,
+    maxAgeMs: 1100,
+    aheadHorizonMs: 1400,
+    sampleStepMs: 180,
+    alphaMax: 80,
+    ghostSize: 23,
+    keyframeOnly: false,
+    minDistance: 3,
+    maxSamples: 90
+};
 
 const OSC_TYPES = {
     1: 'sine',

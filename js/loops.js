@@ -45,6 +45,99 @@ function getLoopElapsedTime(soundId) {
     return elapsed;
 }
 
+function getLoopProgress(soundId) {
+    const sound = getSound(soundId);
+    if (!sound.isLoopActive || sound.loopDuration <= 0) return 0;
+    return getLoopElapsedTime(soundId) / sound.loopDuration;
+}
+
+function buildRoutineStepPath(sound) {
+    const movements = sound.movements;
+    if (movements.length === 0) {
+        return { points: [], jumpPoints: [] };
+    }
+
+    const points = [];
+    const jumpPoints = [];
+    const start = getPositionBeforeFirstKeyframe(sound, movements);
+    let prev = { x: start.x, y: start.y };
+    let prevKeyframe = start;
+
+    points.push({ x: prev.x, y: prev.y });
+
+    const appendStep = (x, y) => {
+        if (x !== prev.x) {
+            points.push({ x, y: prev.y });
+            prev = { x, y: prev.y };
+        }
+        if (y !== prev.y) {
+            points.push({ x: prev.x, y });
+            prev = { x: prev.x, y };
+        }
+    };
+
+    for (const movement of movements) {
+        appendStep(movement.x, movement.y);
+
+        if (movement.x !== prevKeyframe.x || movement.y !== prevKeyframe.y) {
+            jumpPoints.push({ x: movement.x, y: movement.y });
+        }
+        prevKeyframe = { x: movement.x, y: movement.y };
+    }
+
+    const loopStart = getPositionBeforeFirstKeyframe(sound, movements);
+    appendStep(loopStart.x, loopStart.y);
+
+    return { points, jumpPoints };
+}
+
+function buildRoutineFutureSamples(sound, loopTime, horizonMs, stepMs, keyframeOnly = false) {
+    if (!sound.isLoopActive || sound.loopDuration <= 0 || sound.movements.length === 0) {
+        return [];
+    }
+
+    const samples = [];
+
+    if (keyframeOnly) {
+        for (const movement of sound.movements) {
+            let leadMs = movement.time - loopTime;
+            if (leadMs <= 0) {
+                leadMs += sound.loopDuration;
+            }
+            if (leadMs <= 0 || leadMs > horizonMs) {
+                continue;
+            }
+
+            const previous = samples[samples.length - 1];
+            if (previous && previous.x === movement.x && previous.y === movement.y) {
+                continue;
+            }
+
+            samples.push({ x: movement.x, y: movement.y, leadMs });
+        }
+
+        samples.sort((a, b) => a.leadMs - b.leadMs);
+        return samples;
+    }
+
+    for (let leadMs = stepMs; leadMs <= horizonMs; leadMs += stepMs) {
+        const futureLoopTime = (loopTime + leadMs) % sound.loopDuration;
+        const position = getRoutinePositionAtLoopTime(sound, futureLoopTime);
+        if (!position) {
+            continue;
+        }
+
+        const previous = samples[samples.length - 1];
+        if (previous && previous.x === position.x && previous.y === position.y) {
+            continue;
+        }
+
+        samples.push({ x: position.x, y: position.y, leadMs });
+    }
+
+    return samples;
+}
+
 function getCurrentLoopPosition(soundId) {
     return getLoopElapsedTime(soundId);
 }
