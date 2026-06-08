@@ -154,6 +154,28 @@ describe('loops', () => {
             expect(movements[2]).toMatchObject({ time: 100, x: 10, y: 20 });
             expect(movements[3]).toMatchObject({ time: 200, x: 30, y: 40 });
         });
+
+        it('preserves loop phase, anchor, and cycle count when doubling', () => {
+            seedLoop(1, [
+                { time: 0, x: 10, y: 20 },
+                { time: 100, x: 30, y: 40 }
+            ], 100);
+
+            const sound = app.getSound(1);
+            sound.loopAnchorX = 1;
+            sound.loopAnchorY = 2;
+            sound.loopCycleCount = 1;
+            advanceTime(60);
+
+            app.doubleLoop(1);
+
+            expect(app.getLoopElapsedTime(1)).toBeCloseTo(60);
+            expect(sound.loopCycleCount).toBe(1);
+            expect(sound.loopAnchorX).toBe(1);
+            expect(sound.loopAnchorY).toBe(2);
+            expect(app.getLoopDuration(1)).toBe(200);
+            expect(sound.loopCurrentIndex).toBe(1);
+        });
     });
 
     describe('syncLoopStateToNow', () => {

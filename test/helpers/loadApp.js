@@ -100,6 +100,7 @@ export function loadApp(options = {}) {
     const width = options.width ?? 800;
     const height = options.height ?? 400;
     let clockNow = options.startTime ?? 1000;
+    const keysDown = new Set();
 
     const dom = createDom();
     const { window } = dom;
@@ -127,6 +128,8 @@ export function loadApp(options = {}) {
         key: '',
         keyCode: 0,
         SHIFT: 16,
+        CONTROL: 17,
+        keyIsDown: (code) => keysDown.has(code),
         p5: {
             Oscillator: class {
                 constructor() {
@@ -186,6 +189,12 @@ export function loadApp(options = {}) {
         },
         setTime(ms) {
             clockNow = ms;
+        },
+        pressKey(code) {
+            keysDown.add(code);
+        },
+        releaseKey(code) {
+            keysDown.delete(code);
         },
         constants: {
             FREQ_MIN: readConstant(context, 'FREQ_MIN'),

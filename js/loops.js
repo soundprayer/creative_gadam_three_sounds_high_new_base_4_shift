@@ -142,6 +142,36 @@ function getCurrentLoopPosition(soundId) {
     return getLoopElapsedTime(soundId);
 }
 
+function cloneRoutineMovements(movements) {
+    return movements.map((movement) => ({ ...movement }));
+}
+
+function establishRoutineBaseline(soundId, options = {}) {
+    const { resetTempo = false } = options;
+    const sound = getSound(soundId);
+    if (sound.movements.length === 0) {
+        sound.routineBaseline = null;
+        sound.tempoMultiplier = 1;
+        return;
+    }
+
+    const multiplier = resetTempo ? 1 : (sound.tempoMultiplier || 1);
+    const movements = cloneRoutineMovements(sound.movements).map((movement) => ({
+        ...movement,
+        time: movement.time / multiplier
+    }));
+    const loopDuration = (sound.loopDuration || movements[movements.length - 1].time) / multiplier;
+
+    sound.routineBaseline = {
+        movements,
+        loopDuration
+    };
+
+    if (resetTempo) {
+        sound.tempoMultiplier = 1;
+    }
+}
+
 function findInsertIndex(movements, time) {
     for (let i = 0; i < movements.length; i++) {
         if (movements[i].time > time) {
@@ -324,9 +354,14 @@ function doubleLoop(soundId) {
         return;
     }
 
+    const sound = getSound(soundId);
     const originalLength = movements.length;
     const originalDuration = getLoopDuration(soundId);
     const newDuration = originalDuration * 2;
+    const elapsed = sound.isLoopActive ? getLoopElapsedTime(soundId) : 0;
+    const preservedCycleCount = sound.loopCycleCount;
+    const preservedAnchorX = sound.loopAnchorX;
+    const preservedAnchorY = sound.loopAnchorY;
 
     console.log(
         `Doubling loop for sound ${soundId}. Original length: ${originalLength}, Original duration: ${originalDuration}`
@@ -342,8 +377,22 @@ function doubleLoop(soundId) {
     console.log(
         `Loop for sound ${soundId} doubled to ${movements.length} movements with new duration ${newDuration}`
     );
+
     setLoopDuration(soundId, newDuration);
-    startLoop(movements, soundId);
+    sound.loopStartTime = millis() - elapsed;
+    loopStartTimes[soundId] = sound.loopStartTime;
+    sound.loopCycleCount = preservedCycleCount;
+    sound.loopAnchorX = preservedAnchorX;
+    sound.loopAnchorY = preservedAnchorY;
+    sound.isLoopActive = true;
+
+    sound.loopCurrentIndex = 0;
+    while (
+        sound.loopCurrentIndex < sound.movements.length &&
+        sound.movements[sound.loopCurrentIndex].time <= elapsed
+    ) {
+        sound.loopCurrentIndex++;
+    }
 }
 
 function toggleLogging() {

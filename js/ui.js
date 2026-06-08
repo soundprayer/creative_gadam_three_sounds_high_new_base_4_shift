@@ -151,6 +151,7 @@ function resetAppState() {
     correctionGesture.active = false;
     correctionGesture.sound = null;
     correctionGesture.points = [];
+    resetAmpAdjustGesture();
     loopStartTimes = { 1: 0, 2: 0, 3: 0, 4: 0 };
     aspectTrails[1] = [];
     aspectTrails[2] = [];

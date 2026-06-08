@@ -10,6 +10,10 @@ function getMouseTargetForSound(soundId) {
 
     const sound = getSound(soundId);
 
+    if (ampAdjustGesture.active && ampAdjustGesture.sound === soundId) {
+        return null;
+    }
+
     if (correctionGesture.active && correctionGesture.sound === soundId) {
         return { x: position.x, y: position.y };
     }

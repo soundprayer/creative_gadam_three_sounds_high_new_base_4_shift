@@ -33,11 +33,11 @@ describe('state', () => {
             expect(app.getTrailSettings()).toMatchObject({
                 behindEnabled: true,
                 aheadEnabled: true,
-                maxAgeMs: 1100,
+                maxAgeMs: 1300,
                 aheadHorizonMs: 1400,
-                sampleStepMs: 180,
-                alphaMax: 80,
-                ghostSize: 23,
+                sampleStepMs: 240,
+                alphaMax: 54,
+                ghostSize: 17,
                 keyframeOnly: false,
                 minDistance: 3,
                 maxSamples: 90

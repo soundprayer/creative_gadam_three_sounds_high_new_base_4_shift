@@ -16,7 +16,9 @@ function createSoundState() {
         loopAnchorX: null,
         loopAnchorY: null,
         isDragging: false,
-        loopPart: null
+        loopPart: null,
+        routineBaseline: null,
+        tempoMultiplier: 1
     };
 }
 

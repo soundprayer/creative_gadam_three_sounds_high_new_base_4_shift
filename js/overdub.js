@@ -6,6 +6,90 @@ let correctionGesture = {
     points: []
 };
 
+let ampAdjustGesture = {
+    pending: false,
+    active: false,
+    sound: null,
+    startMouseY: 0,
+    baseMovementYs: [],
+    baseLoopAnchorY: null
+};
+
+function resetAmpAdjustGesture() {
+    ampAdjustGesture.pending = false;
+    ampAdjustGesture.active = false;
+    ampAdjustGesture.sound = null;
+    ampAdjustGesture.startMouseY = 0;
+    ampAdjustGesture.baseMovementYs = [];
+    ampAdjustGesture.baseLoopAnchorY = null;
+}
+
+function canAdjustRoutineAmp() {
+    if (recording) return false;
+
+    const sound = getSound(selectedSound);
+    return iconExists(selectedSound) && sound.movements.length > 0;
+}
+
+function isAmpAdjustModifierPressed() {
+    return keyIsDown(CONTROL);
+}
+
+function tryPrepareAmpAdjustGesture() {
+    if (!isAmpAdjustModifierPressed() || !canAdjustRoutineAmp()) {
+        return false;
+    }
+
+    if (mouseX < 0 || mouseX > width || mouseY < 0 || mouseY > height) {
+        return false;
+    }
+
+    const sound = getSound(selectedSound);
+    ampAdjustGesture.pending = true;
+    ampAdjustGesture.active = false;
+    ampAdjustGesture.sound = selectedSound;
+    ampAdjustGesture.startMouseY = mouseY;
+    ampAdjustGesture.baseMovementYs = sound.movements.map((movement) => movement.y);
+    ampAdjustGesture.baseLoopAnchorY = sound.loopAnchorY;
+    return true;
+}
+
+function applyAmpAdjustDrag() {
+    if (!ampAdjustGesture.pending || !isAmpAdjustModifierPressed()) {
+        return;
+    }
+
+    if (!ampAdjustGesture.active && mouseY !== ampAdjustGesture.startMouseY) {
+        ampAdjustGesture.active = true;
+    }
+
+    if (!ampAdjustGesture.active) {
+        return;
+    }
+
+    const soundId = ampAdjustGesture.sound;
+    const sound = getSound(soundId);
+    const deltaY = mouseY - ampAdjustGesture.startMouseY;
+
+    sound.movements.forEach((movement, index) => {
+        movement.y = constrain(ampAdjustGesture.baseMovementYs[index] + deltaY, 0, height);
+    });
+
+    if (ampAdjustGesture.baseLoopAnchorY !== null) {
+        sound.loopAnchorY = constrain(ampAdjustGesture.baseLoopAnchorY + deltaY, 0, height);
+    }
+
+    syncAudibleState(soundId, { forceRoutine: true });
+}
+
+function finishAmpAdjustGesture() {
+    if (ampAdjustGesture.active && ampAdjustGesture.sound) {
+        establishRoutineBaseline(ampAdjustGesture.sound);
+    }
+
+    resetAmpAdjustGesture();
+}
+
 function canCorrectSelectedSound() {
     const sound = getSound(selectedSound);
     return sound.isLoopActive && sound.movements.length > 0 && iconExists(selectedSound);

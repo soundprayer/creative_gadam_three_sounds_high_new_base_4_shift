@@ -14,12 +14,12 @@ describe('trail settings UI', () => {
         expect(app.document.getElementById('trailBehindEnabled').checked).toBe(true);
         expect(app.document.getElementById('trailAheadEnabled').checked).toBe(true);
         expect(app.document.getElementById('trailKeyframeOnly').checked).toBe(false);
-        expect(app.document.getElementById('trailMaxAgeMs').value).toBe('1100');
-        expect(app.document.getElementById('trailMaxAgeMsValue').textContent).toBe('1100');
+        expect(app.document.getElementById('trailMaxAgeMs').value).toBe('1300');
+        expect(app.document.getElementById('trailMaxAgeMsValue').textContent).toBe('1300');
         expect(app.document.getElementById('trailAheadHorizonMs').value).toBe('1400');
-        expect(app.document.getElementById('trailSampleStepMs').value).toBe('180');
-        expect(app.document.getElementById('trailAlphaMax').value).toBe('80');
-        expect(app.document.getElementById('trailGhostSize').value).toBe('23');
+        expect(app.document.getElementById('trailSampleStepMs').value).toBe('240');
+        expect(app.document.getElementById('trailAlphaMax').value).toBe('54');
+        expect(app.document.getElementById('trailGhostSize').value).toBe('17');
     });
 
     it('reads checkbox and range changes back into trail settings', () => {

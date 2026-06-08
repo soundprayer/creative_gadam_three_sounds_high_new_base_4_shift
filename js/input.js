@@ -62,6 +62,14 @@ function mousePressed() {
         return;
     }
 
+    if (tryPrepareAmpAdjustGesture()) {
+        return;
+    }
+
+    if (isAmpAdjustModifierPressed()) {
+        return;
+    }
+
     const clickedSound = findClickedSound();
     if (clickedSound) {
         selectedSound = clickedSound;
@@ -78,10 +86,17 @@ function mousePressed() {
 }
 
 function mouseDragged() {
+    if (ampAdjustGesture.pending) {
+        applyAmpAdjustDrag();
+        return;
+    }
+
     recordCorrectionPoint();
 }
 
 function mouseReleased() {
+    finishAmpAdjustGesture();
+
     const gestureActive = correctionGesture.active;
     const gestureSound = correctionGesture.sound;
     let snapLoopTime = null;
